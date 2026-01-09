@@ -4,8 +4,11 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import ArtistCard from '../components/ui/ArtistCard';
 import Badge from '../components/common/Badge';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const ValuationTool = () => {
+  usePageTitle('Valuation Tool', 'Analyze artist metrics with real-time Spotify data');
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedArtist, setSelectedArtist] = useState(null);
 
@@ -42,14 +45,14 @@ const ValuationTool = () => {
   return (
     <div className="space-y-6">
       {/* Search Section */}
-      <Card className="gradient-bg text-white">
+      <Card className="bg-gradient-to-br from-emerald-500 to-blue-600 dark:from-emerald-600 dark:to-blue-700 text-white shadow-xl">
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
             <MusicIcon size={24} />
           </div>
           <div>
             <h2 className="text-2xl font-bold">Search Artist</h2>
-            <p className="text-gray-200 text-sm">Get real-time data from Spotify</p>
+            <p className="text-white/90 text-sm">Get real-time data from Spotify</p>
           </div>
         </div>
 
@@ -66,18 +69,18 @@ const ValuationTool = () => {
                 bg-white/10 backdrop-blur-sm
                 border border-white/20
                 rounded-lg
-                text-white placeholder-gray-300
+                text-white placeholder-white/70
                 focus:outline-none focus:ring-2 focus:ring-white/30
                 transition-all duration-200
               "
             />
             <div className="absolute left-4 top-1/2 -translate-y-1/2">
-              <MusicIcon size={20} className="text-gray-300" />
+              <MusicIcon size={20} className="text-white/70" />
             </div>
           </div>
           <Button 
             variant="primary"
-            className="bg-emerald-500 hover:bg-emerald-600"
+            className="bg-white/20 hover:bg-white/30 text-white border-white/30"
             icon={Search}
             onClick={handleSearch}
           >
@@ -87,7 +90,7 @@ const ValuationTool = () => {
 
         {/* Suggested Artists */}
         <div className="mt-6">
-          <p className="text-sm text-gray-200 mb-3">Get real-time data. Try searching for:</p>
+          <p className="text-sm text-white/90 mb-3">Get real-time data. Try searching for:</p>
           <div className="flex flex-wrap gap-2">
             {suggestedArtists.map((artist) => (
               <button
@@ -116,7 +119,7 @@ const ValuationTool = () => {
       {/* Artist Analysis */}
       {selectedArtist && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
                 <MusicIcon size={24} className="text-emerald-600 dark:text-emerald-400" />
@@ -134,13 +137,14 @@ const ValuationTool = () => {
             </Button>
           </div>
 
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3">
             <Badge variant="success" size="lg">
               <span className="flex items-center gap-2">
                 <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 10.0
               </span>
             </Badge>
+            <span className="text-sm text-gray-600 dark:text-gray-400">Real-time Data</span>
           </div>
 
           <ArtistCard

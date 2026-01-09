@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
 
-const MainLayout = ({ title, subtitle }) => {
+const MainLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
@@ -19,11 +19,7 @@ const MainLayout = ({ title, subtitle }) => {
       <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
       
       <main className="flex-1 lg:ml-64 w-full">
-        <Header 
-          title={title} 
-          subtitle={subtitle} 
-          onMenuClick={toggleSidebar}
-        />
+        <Header onMenuClick={toggleSidebar} />
         
         <div className="p-4 sm:p-6 lg:p-8">
           <Outlet />
