@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test YouTube & Apify Functions</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #1e3a8a;
+      margin-bottom: 1rem;
+    }
+
+    .test-section {
+      background: #f3f4f6;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin: 1.5rem 0;
+    }
+
+    .test-section h2 {
+      color: #3b82f6;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    input, button {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 2px solid #e5e7eb;
+      font-size: 1rem;
+    }
+
+    input {
+      flex: 1;
+      margin-right: 0.5rem;
+    }
+
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #2563eb;
+    }
+
+    button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .result {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      margin-top: 1rem;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+
+    .result pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .status {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    .status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status.loading {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .endpoint {
+      background: #fef3c7;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-family: 'Monaco', monospace;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      word-break: break-all;
+    }
+
+    .note {
+      background: #dbeafe;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 Test YouTube & Apify Functions</h1>
+    <p style="color: #6b7280; margin-bottom: 2rem;">Test your Supabase Edge Functions directly from your browser</p>
+
+    <!-- YouTube Test -->
+    <div class="test-section">
+      <h2>📺 YouTube Function Test</h2>
+      
+      <div class="endpoint">
+        <strong>Endpoint:</strong> https://ubenhhgxamprkamptpoz.supabase.co/functions/v1/youtube
+      </div>
+
+      <div class="controls">
+        <input 
+          type="text" 
+          id="youtube-query" 
+          placeholder="Enter artist name (e.g., Taylor Swift)"
+          value="Taylor Swift"
+        >
+        <button onclick="testYouTube()" id="youtube-btn">Test YouTube</button>
+      </div>
+
+      <div id="youtube-status"></div>
+      <div id="youtube-result"></div>
+    </div>
+
+    <!-- Apify Test -->
+    <div class="test-section">
+      <h2>🔷 Apify Function Test</h2>
+      
+      <div class="endpoint">
+        <strong>Endpoint:</strong> https://ubenhhgxamprkamptpoz.supabase.co/functions/v1/apify
+      </div>
+
+      <div class="note">
+        ⏱️ <strong>Note:</strong> Apify may take 20-40 seconds to complete
+      </div>
+
+      <div class="controls">
+        <input 
+          type="text" 
+          id="apify-query" 
+          placeholder="Enter artist name (e.g., Drake)"
+          value="Drake"
+        >
+        <button onclick="testApify()" id="apify-btn">Test Apify</button>
+      </div>
+
+      <div id="apify-status"></div>
+      <div id="apify-result"></div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="note">
+      <strong>💡 How to use:</strong>
+      <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+        <li>Enter an artist name in the input field</li>
+        <li>Click the test button</li>
+        <li>Wait for the response (Apify takes longer)</li>
+        <li>Check the result below</li>
+      </ol>
+    </div>
+
+    <div class="note" style="background: #fef3c7; border-left-color: #f59e0b;">
+      <strong>⚠️ Common Issues:</strong>
+      <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+        <li><strong>401 Unauthorized:</strong> API key not set in Supabase secrets</li>
+        <li><strong>404 Not Found:</strong> No channel/artist found with that name</li>
+        <li><strong>Timeout:</strong> Function took too long (increase timeout or try again)</li>
+        <li><strong>Quota Exceeded:</strong> YouTube API quota limit reached</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://ubenhhgxamprkamptpoz.supabase.co';
+
+    async function testYouTube() {
+      const query = document.getElementById('youtube-query').value.trim();
+      const statusEl = document.getElementById('youtube-status');
+      const resultEl = document.getElementById('youtube-result');
+      const btnEl = document.getElementById('youtube-btn');
+
+      if (!query) {
+        alert('Please enter an artist name');
+        return;
+      }
+
+      btnEl.disabled = true;
+      statusEl.innerHTML = '<div class="status loading">⏳ Searching YouTube...</div>';
+      resultEl.innerHTML = '';
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          statusEl.innerHTML = '<div class="status success">✅ Success!</div>';
+          resultEl.innerHTML = `<div class="result"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        } else {
+          statusEl.innerHTML = `<div class="status error">❌ Error ${response.status}</div>`;
+          resultEl.innerHTML = `<div class="result"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        }
+      } catch (error) {
+        statusEl.innerHTML = '<div class="status error">❌ Request Failed</div>';
+        resultEl.innerHTML = `<div class="result"><pre>${error.message}</pre></div>`;
+      } finally {
+        btnEl.disabled = false;
+      }
+    }
+
+    async function testApify() {
+      const query = document.getElementById('apify-query').value.trim();
+      const statusEl = document.getElementById('apify-status');
+      const resultEl = document.getElementById('apify-result');
+      const btnEl = document.getElementById('apify-btn');
+
+      if (!query) {
+        alert('Please enter an artist name');
+        return;
+      }
+
+      btnEl.disabled = true;
+      statusEl.innerHTML = '<div class="status loading">⏳ Starting Apify scraper... This may take 20-40 seconds</div>';
+      resultEl.innerHTML = '';
+
+      let seconds = 0;
+      const timer = setInterval(() => {
+        seconds++;
+        statusEl.innerHTML = `<div class="status loading">⏳ Scraping data... ${seconds}s elapsed</div>`;
+      }, 1000);
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/apify`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query })
+        });
+
+        clearInterval(timer);
+        const data = await response.json();
+
+        if (response.ok) {
+          statusEl.innerHTML = `<div class="status success">✅ Success! Completed in ${seconds}s</div>`;
+          resultEl.innerHTML = `<div class="result"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        } else {
+          statusEl.innerHTML = `<div class="status error">❌ Error ${response.status}</div>`;
+          resultEl.innerHTML = `<div class="result"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        }
+      } catch (error) {
+        clearInterval(timer);
+        statusEl.innerHTML = '<div class="status error">❌ Request Failed</div>';
+        resultEl.innerHTML = `<div class="result"><pre>${error.message}</pre></div>`;
+      } finally {
+        btnEl.disabled = false;
+      }
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('youtube-query').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') testYouTube();
+    });
+
+    document.getElementById('apify-query').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') testApify();
+    });
+  </script>
+</body>
+</html>

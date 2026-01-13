@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Rocket, Music, Youtube, Database } from "lucide-react";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
 import ArtistCard from "../components/ui/ArtistCard";
 import Badge from "../components/common/Badge";
+import SkeletonLoader from "../components/ui/SkeletonLoader";
 import { usePageTitle } from "../hooks/usePageTitle";
 import { searchSpotify, searchYouTube, searchApify } from "../utils/api";
 
@@ -12,7 +13,9 @@ const ValuationTool = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedArtist, setSelectedArtist] = useState(null);
-  const [platform, setPlatform] = useState("spotify"); // spotify | youtube | apify
+  const [platform, setPlatform] = useState("spotify");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const suggestedArtists = [
     "Taylor Swift",
@@ -22,97 +25,45 @@ const ValuationTool = () => {
     "Ariana Grande",
   ];
 
-  const mockArtistData = {
-    name: "Taylor Swift",
-    image: null,
-    followers: "149.5M",
-    popularity: "100/100",
-    genres: ["pop", "country pop"], // New
-    topTracks: [
-      {
-        title: "The Fate of Ophelia",
-        publishYear: "2024",
-        preview_url: "https://example.com/preview.mp3",
-      },
-      { title: "Blank Space", publishYear: "2014", preview_url: null },
-      {
-        title: "Shake It Off",
-        publishYear: "2014",
-        preview_url: "https://example.com/preview2.mp3",
-      },
-    ],
-  };
-
   const PLATFORM_CONFIG = {
     spotify: {
       label: "Spotify",
       icon: Music,
       placeholder: "Search artist on Spotify...",
+      color: "from-green-500 to-emerald-600",
     },
     youtube: {
       label: "YouTube",
       icon: Youtube,
       placeholder: "Search channel or artist on YouTube...",
+      color: "from-red-500 to-red-600",
     },
     apify: {
       label: "Apify",
       icon: Database,
       placeholder: "Search using Apify scraper...",
+      color: "from-blue-500 to-indigo-600",
     },
   };
 
   const SelectedIcon = PLATFORM_CONFIG[platform].icon;
 
-  // --- SEARCH HANDLER ---
-  // const handleSearch = async () => {
-  //   if (!searchQuery.trim()) return;
-
-  //   try {
-  //     let result;
-
-  //     switch (platform) {
-  //       case 'spotify':
-  //         result = await searchSpotify(searchQuery);
-  //         break;
-
-  //       case 'youtube':
-  //         const ytData = await searchYouTube(searchQuery);
-  //         const items = ytData.items || [];
-
-  //         // Normalize top 5 videos
-  //         const topVideos = items.slice(0, 5).map(item => ({
-  //           videoId: item.id.videoId,
-  //           title: item.snippet.title,
-  //           thumbnail: item.snippet.thumbnails.high?.url || null
-  //         }));
-
-  //         const firstItem = items[0];
-  //         result = {
-  //           name: firstItem?.snippet?.channelTitle || searchQuery,
-  //           image: firstItem?.snippet?.thumbnails?.high?.url || null,
-  //           followers: 'N/A',
-  //           popularity: 'N/A',
-  //           topTracks: topVideos
-  //         };
-  //         break;
-
-  //       case 'apify':
-  //         result = await searchApify(searchQuery);
-  //         break;
-
-  //       default:
-  //         result = null;
-  //     }
-
-  //     setSelectedArtist(result);
-  //   } catch (err) {
-  //     console.error('API error:', err);
-  //     alert('Failed to fetch data. Check console for details.');
-  //   }
-  // };
+  // Auto-search when platform changes if there's a query
+  useEffect(() => {
+    if (searchQuery.trim() && selectedArtist) {
+      handleSearch();
+    }
+  }, [platform]);
 
   const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+    if (!searchQuery.trim()) {
+      setError("Please enter a search query");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    setSelectedArtist(null);
 
     try {
       let result;
@@ -124,25 +75,67 @@ const ValuationTool = () => {
 
         case "youtube":
           result = await searchYouTube(searchQuery);
-          // YouTube Edge Function already returns normalized response
-          result = {
-            name: result.name || searchQuery,
-            image: result.image || null,
-            followers: result.followers || "N/A",
-            popularity: result.popularity || "N/A",
-            topTracks: result.topTracks || [],
-          };
           break;
 
         case "apify":
           result = await searchApify(searchQuery);
           break;
+
+        default:
+          throw new Error("Invalid platform selected");
+      }
+
+      // Validate result
+      if (!result || !result.name) {
+        throw new Error("Invalid response from API");
       }
 
       setSelectedArtist(result);
+      setError(null);
     } catch (err) {
       console.error("API error:", err);
-      alert("Failed to fetch data. Check console for details.");
+      const errorMessage = err.message || `Failed to fetch data from ${PLATFORM_CONFIG[platform].label}`;
+      setError(errorMessage);
+      setSelectedArtist(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSuggestedArtistClick = async (artist) => {
+    setSearchQuery(artist);
+    setError(null);
+    setIsLoading(true);
+    setSelectedArtist(null);
+
+    try {
+      let result;
+
+      switch (platform) {
+        case "spotify":
+          result = await searchSpotify(artist);
+          break;
+
+        case "youtube":
+          result = await searchYouTube(artist);
+          break;
+
+        case "apify":
+          result = await searchApify(artist);
+          break;
+      }
+
+      if (!result || !result.name) {
+        throw new Error("Invalid response from API");
+      }
+
+      setSelectedArtist(result);
+      setError(null);
+    } catch (err) {
+      console.error("API error:", err);
+      setError(err.message || `Failed to fetch data from ${PLATFORM_CONFIG[platform].label}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -151,14 +144,15 @@ const ValuationTool = () => {
       "Launching valuation for:",
       selectedArtist?.name,
       "on",
-      platform
+      selectedArtist?.platform || platform
     );
+    // Add your valuation logic here
   };
 
   return (
     <div className="space-y-6">
-      {/* --- Search Section --- */}
-      <Card className="bg-gradient-to-br from-emerald-500 to-blue-600 dark:from-emerald-600 dark:to-blue-700 text-white shadow-xl">
+      {/* Search Section */}
+      <Card className={`bg-gradient-to-br ${PLATFORM_CONFIG[platform].color} text-white shadow-xl`}>
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
             <SelectedIcon size={24} />
@@ -171,11 +165,12 @@ const ValuationTool = () => {
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-col sm:flex-row">
           <select
             value={platform}
             onChange={(e) => setPlatform(e.target.value)}
-            className="px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none"
+            disabled={isLoading}
+            className="px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="spotify" className="text-black">
               Spotify
@@ -193,9 +188,10 @@ const ValuationTool = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+              onKeyPress={(e) => e.key === "Enter" && !isLoading && handleSearch()}
               placeholder={PLATFORM_CONFIG[platform].placeholder}
-              className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200"
+              disabled={isLoading}
+              className="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <div className="absolute left-4 top-1/2 -translate-y-1/2">
               <SelectedIcon size={20} className="text-white/70" />
@@ -204,13 +200,43 @@ const ValuationTool = () => {
 
           <Button
             variant="primary"
-            className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+            className="bg-white/20 hover:bg-white/30 text-white border-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
             icon={SelectedIcon}
             onClick={handleSearch}
+            disabled={isLoading}
           >
-            Search
+            {isLoading ? "Searching..." : "Search"}
           </Button>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mt-4 p-4 bg-red-500/20 border border-red-300/30 rounded-lg backdrop-blur-sm animate-fade-in">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div className="flex-1">
+                <p className="text-white text-sm font-medium">{error}</p>
+                {platform === "youtube" && error.includes("quota") && (
+                  <p className="text-white/80 text-xs mt-1">
+                    YouTube API has daily quotas. Try again tomorrow or use Spotify/Apify.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading Message for Apify */}
+        {isLoading && platform === "apify" && (
+          <div className="mt-4 p-4 bg-blue-500/20 border border-blue-300/30 rounded-lg backdrop-blur-sm animate-pulse">
+            <div className="flex items-center gap-3">
+              <div className="animate-spin">⏳</div>
+              <p className="text-white text-sm font-medium">
+                Apify is scraping data... This may take 20-40 seconds. Please wait!
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Suggested Artists */}
         <div className="mt-6">
@@ -219,15 +245,9 @@ const ValuationTool = () => {
             {suggestedArtists.map((artist) => (
               <button
                 key={artist}
-                onClick={() => {
-                  setSearchQuery(artist);
-                  setSelectedArtist({
-                    ...mockArtistData,
-                    name: `${artist} (${PLATFORM_CONFIG[platform].label})`,
-                    // Override with real data if searching, but for mock it's fine
-                  });
-                }}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium transition-all duration-200"
+                onClick={() => handleSuggestedArtistClick(artist)}
+                disabled={isLoading}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-full text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
               >
                 {artist}
               </button>
@@ -236,20 +256,28 @@ const ValuationTool = () => {
         </div>
       </Card>
 
-      {/* --- Artist Analysis --- */}
-      {selectedArtist && (
-        <div className="space-y-6">
+      {/* Loading State */}
+      {isLoading && <SkeletonLoader />}
+
+      {/* Artist Analysis */}
+      {!isLoading && selectedArtist && (
+        <div className="space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg">
-                <SelectedIcon
-                  size={24}
-                  className="text-emerald-600 dark:text-emerald-400"
-                />
+              <div className={`p-2 bg-gradient-to-br ${PLATFORM_CONFIG[selectedArtist.platform || platform].color} rounded-lg shadow-lg`}>
+                {React.createElement(PLATFORM_CONFIG[selectedArtist.platform || platform].icon, {
+                  size: 24,
+                  className: "text-white"
+                })}
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Live {PLATFORM_CONFIG[platform].label} Analysis
-              </h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Live {PLATFORM_CONFIG[selectedArtist.platform || platform].label} Analysis
+                </h2>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Real-time data from {PLATFORM_CONFIG[selectedArtist.platform || platform].label}
+                </p>
+              </div>
             </div>
 
             <Button icon={Rocket} onClick={handleLaunchValuation}>
@@ -265,7 +293,7 @@ const ValuationTool = () => {
               </span>
             </Badge>
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              Real-time Data from {PLATFORM_CONFIG[platform].label}
+              Real-time Data from {PLATFORM_CONFIG[selectedArtist.platform || platform].label}
             </span>
           </div>
 
@@ -274,25 +302,33 @@ const ValuationTool = () => {
             image={selectedArtist.image}
             followers={selectedArtist.followers}
             popularity={selectedArtist.popularity}
+            genres={selectedArtist.genres}
             topTracks={selectedArtist.topTracks}
+            relatedArtists={selectedArtist.relatedArtists}
+            albums={selectedArtist.albums}
+            stats={selectedArtist.stats}
+            spotifyUrl={selectedArtist.spotifyUrl}
             onLaunchValuation={handleLaunchValuation}
           />
         </div>
       )}
 
-      {/* --- Empty State --- */}
-      {!selectedArtist && (
+      {/* Empty State */}
+      {!isLoading && !selectedArtist && !error && (
         <Card className="text-center py-16">
           <div className="flex flex-col items-center gap-4">
-            <div className="p-4 bg-gray-100 dark:bg-slate-800 rounded-full">
-              <Search size={48} className="text-gray-400" />
+            <div className="p-4 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full">
+              <Search size={48} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 No Artist Selected
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Select a platform and search for an artist
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Select a platform and search for an artist to begin analysis
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500">
+                💡 Tip: Click on suggested artists for instant results
               </p>
             </div>
           </div>
