@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import {
   Music,
   ExternalLink,
@@ -18,16 +18,53 @@ import {
   Eye,
   Rocket, // Added for Launch Valuation button
 } from "lucide-react";
+const BioText = ({ text }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  // Clean the text: remove HTML tags and extra spaces
+  const cleanText = text
+    .replace(/<\/?[^>]+(>|$)/g, "") // Remove HTML tags
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return (
+    <div className="text-gray-700 dark:text-gray-300 leading-relaxed">
+      <p
+        className={`transition-all duration-300 overflow-hidden ${
+          expanded ? "line-clamp-none" : "line-clamp-5"
+        }`}
+      >
+        {cleanText}
+      </p>
+      <button
+        className="mt-2 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+        onClick={() => setExpanded(!expanded)}
+      >
+        {expanded ? "Show less" : "See more..."}
+      </button>
+    </div>
+  );
+};
 
 // Mock Card Component
 const Card = ({ children, className = "" }) => (
-  <div className={`bg-white dark:bg-slate-900 rounded-xl shadow-lg ${className}`}>
+  <div
+    className={`bg-white dark:bg-slate-900 rounded-xl shadow-lg ${className}`}
+  >
     {children}
   </div>
 );
 
 // Mock Button Component
-const Button = ({ children, className = "", icon: Icon, onClick, variant = "primary", size = "md", disabled }) => (
+const Button = ({
+  children,
+  className = "",
+  icon: Icon,
+  onClick,
+  variant = "primary",
+  size = "md",
+  disabled,
+}) => (
   <button
     onClick={onClick}
     disabled={disabled}
@@ -39,8 +76,15 @@ const Button = ({ children, className = "", icon: Icon, onClick, variant = "prim
 );
 
 // Mock Badge Component
-const Badge = ({ children, className = "", size = "md", variant = "default" }) => (
-  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${className}`}>
+const Badge = ({
+  children,
+  className = "",
+  size = "md",
+  variant = "default",
+}) => (
+  <span
+    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${className}`}
+  >
     {children}
   </span>
 );
@@ -69,12 +113,7 @@ const ArtistCard = ({
 
   // Platform configuration
   const platformData = {
-    spotify: {
-      url: spotifyUrl,
-      icon: Music,
-      label: "Spotify",
-      color: "from-green-500 to-emerald-600",
-    },
+
     youtube: {
       url: youtubeUrl,
       icon: Youtube,
@@ -104,7 +143,7 @@ const ArtistCard = ({
 
   // ADDED: Handler for Launch Valuation button
   const handleLaunchValuation = () => {
-    navigate('/valuation/detail', {
+    navigate("/valuation/detail", {
       state: {
         artist: {
           name,
@@ -116,8 +155,8 @@ const ArtistCard = ({
           stats,
           monthlyListeners,
           platform,
-        }
-      }
+        },
+      },
     });
   };
 
@@ -194,7 +233,9 @@ const ArtistCard = ({
                     {monthlyListeners && platform === "apify" && (
                       <div className="flex items-center gap-2">
                         <Play size={18} />
-                        <span className="font-semibold">{monthlyListeners}</span>
+                        <span className="font-semibold">
+                          {monthlyListeners}
+                        </span>
                         <span className="text-white/70 hidden sm:inline">
                           Monthly Listeners
                         </span>
@@ -212,59 +253,46 @@ const ArtistCard = ({
                   </div>
                 </div>
 
-                {/* Platform Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  {(platform === "youtube" || youtubeUrl) && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
-                      icon={Youtube}
-                      onClick={() =>
-                        window.open(youtubeUrl || spotifyUrl || apifyUrl, "_blank")
-                      }
-                    >
-                      Open in YouTube
-                    </Button>
-                  )}
+          {/* Platform Buttons */}
+<div className="flex flex-wrap gap-2">
+  {/* YouTube Button */}
+  {platform?.toLowerCase() === "youtube" && youtubeUrl ? (
+    <Button
+      variant="secondary"
+      size="sm"
+      className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
+      icon={Youtube}
+      onClick={() => window.open(youtubeUrl, "_blank")}
+    >
+      Open in YouTube
+    </Button>
+  ) : null}
 
-                  {(platform === "spotify" || (spotifyUrl && platform !== "youtube")) && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
-                      icon={Music}
-                      onClick={() =>
-                        window.open(spotifyUrl || youtubeUrl || apifyUrl, "_blank")
-                      }
-                    >
-                      Open in Spotify
-                    </Button>
-                  )}
+  {/* Spotify Button */}
+  {platform?.toLowerCase() === "apify" && spotifyUrl ? (
+    <Button
+      variant="secondary"
+      size="sm"
+      className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
+      icon={Music}
+      onClick={() => window.open(spotifyUrl, "_blank")}
+    >
+      Open in Spotify
+    </Button>
+  ) : null}
 
-                  {(platform === "apify" || apifyUrl) && spotifyUrl && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="bg-white/20 hover:bg-white/30 border-white/30 text-white"
-                      icon={Database}
-                      onClick={() => window.open(spotifyUrl, "_blank")}
-                    >
-                      View on Spotify
-                    </Button>
-                  )}
-                  
-                  {/* ADDED: Launch Valuation Button */}
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white shadow-lg border-0"
-                    icon={Rocket}
-                    onClick={handleLaunchValuation}
-                  >
-                    Launch Valuation
-                  </Button>
-                </div>
+  {/* Launch Valuation Button */}
+  <Button
+    variant="primary"
+    size="sm"
+    className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white shadow-lg border-0"
+    icon={Rocket}
+    onClick={handleLaunchValuation}
+  >
+    Launch Valuation
+  </Button>
+</div>
+
               </div>
 
               {/* Genres */}
@@ -309,13 +337,17 @@ const ArtistCard = ({
                   {platform === "apify" ? (
                     <>
                       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                        <p className="text-white/70 text-xs mb-1">Total Streams</p>
+                        <p className="text-white/70 text-xs mb-1">
+                          Total Streams
+                        </p>
                         <p className="text-xl sm:text-2xl font-bold">
                           {stats.totalStreams}
                         </p>
                       </div>
                       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                        <p className="text-white/70 text-xs mb-1">Avg Streams</p>
+                        <p className="text-white/70 text-xs mb-1">
+                          Avg Streams
+                        </p>
                         <p className="text-xl sm:text-2xl font-bold">
                           {stats.averageStreams}
                         </p>
@@ -336,13 +368,17 @@ const ArtistCard = ({
                   ) : (
                     <>
                       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                        <p className="text-white/70 text-xs mb-1">Avg Popularity</p>
+                        <p className="text-white/70 text-xs mb-1">
+                          Avg Popularity
+                        </p>
                         <p className="text-xl sm:text-2xl font-bold">
                           {stats.averageTrackPopularity}
                         </p>
                       </div>
                       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                        <p className="text-white/70 text-xs mb-1">Total Albums</p>
+                        <p className="text-white/70 text-xs mb-1">
+                          Total Albums
+                        </p>
                         <p className="text-xl sm:text-2xl font-bold">
                           {stats.totalAlbums}
                         </p>
@@ -374,9 +410,9 @@ const ArtistCard = ({
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
             Biography
           </h3>
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-            {biography}
-          </p>
+
+          {/* Bio with Read More */}
+          <BioText text={biography} />
         </Card>
       )}
 
@@ -397,7 +433,7 @@ const ArtistCard = ({
               <span className="sm:hidden">Tracks</span>
             </span>
           </button>
-          
+
           {platform !== "apify" && (
             <button
               onClick={() => setActiveTab("related")}
@@ -414,7 +450,7 @@ const ArtistCard = ({
               </span>
             </button>
           )}
-          
+
           <button
             onClick={() => setActiveTab("albums")}
             className={`px-4 sm:px-6 py-3 font-semibold transition-all duration-200 border-b-2 whitespace-nowrap ${
@@ -493,7 +529,10 @@ const ArtistCard = ({
                           )}
                           {track.releaseYear && (
                             <span className="flex items-center gap-1">
-                              <Calendar size={12} className="hidden sm:inline" />
+                              <Calendar
+                                size={12}
+                                className="hidden sm:inline"
+                              />
                               {track.releaseYear}
                             </span>
                           )}
@@ -511,7 +550,7 @@ const ArtistCard = ({
                           className="flex-shrink-0 bg-blue-500 text-white"
                           size="sm"
                         >
-                          <Play size={12} className="mr-1" />
+                        <Eye size={12} className="mr-1 opacity-90" />
                           {track.streamCountFormatted}
                         </Badge>
                       ) : (
@@ -520,8 +559,8 @@ const ArtistCard = ({
                             track.popularity >= 80
                               ? "bg-green-500"
                               : track.popularity >= 60
-                              ? "bg-yellow-500"
-                              : "bg-gray-500"
+                                ? "bg-yellow-500"
+                                : "bg-gray-500"
                           } text-white`}
                           size="sm"
                         >
@@ -551,8 +590,8 @@ const ArtistCard = ({
                           platform === "youtube"
                             ? "text-red-600 hover:text-red-700 dark:text-red-400"
                             : platform === "apify"
-                            ? "text-blue-600 hover:text-blue-700 dark:text-blue-400"
-                            : "text-green-600 hover:text-green-700 dark:text-green-400"
+                              ? "text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                              : "text-green-600 hover:text-green-700 dark:text-green-400"
                         }`}
                       >
                         <ExternalLink size={14} />
@@ -604,8 +643,8 @@ const ArtistCard = ({
                             artist.popularity >= 80
                               ? "bg-green-500"
                               : artist.popularity >= 60
-                              ? "bg-yellow-500"
-                              : "bg-gray-500"
+                                ? "bg-yellow-500"
+                                : "bg-gray-500"
                           } text-white`}
                         >
                           {artist.popularityFormatted || artist.popularity}
@@ -707,35 +746,37 @@ const ArtistCard = ({
           )}
 
           {/* Top Cities Tab - Apify Specific */}
-          {activeTab === "cities" && platform === "apify" && topCities?.length > 0 && (
-            <div className="space-y-3">
-              {topCities.map((city, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl font-bold text-gray-400 dark:text-gray-600">
-                      {idx + 1}
-                    </span>
-                    <MapPin size={20} className="text-blue-500" />
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white">
-                        {city.city}
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {city.country}
-                      </p>
+          {activeTab === "cities" &&
+            platform === "apify" &&
+            topCities?.length > 0 && (
+              <div className="space-y-3">
+                {topCities.map((city, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl font-bold text-gray-400 dark:text-gray-600">
+                        {idx + 1}
+                      </span>
+                      <MapPin size={20} className="text-blue-500" />
+                      <div>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">
+                          {city.city}
+                        </h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {city.country}
+                        </p>
+                      </div>
                     </div>
+                    <Badge className="bg-blue-500 text-white">
+                      <Eye size={12} className="mr-1" />
+                      {city.listenersFormatted}
+                    </Badge>
                   </div>
-                  <Badge className="bg-blue-500 text-white">
-                    <Eye size={12} className="mr-1" />
-                    {city.listenersFormatted}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
 
           {/* Empty States */}
           {activeTab === "tracks" && (!topTracks || topTracks.length === 0) && (
@@ -746,14 +787,15 @@ const ArtistCard = ({
               </p>
             </div>
           )}
-          {activeTab === "related" && (!relatedArtists || relatedArtists.length === 0) && (
-            <div className="text-center py-12">
-              <Users size={48} className="mx-auto text-gray-400 mb-4" />
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-                No related artists found
-              </p>
-            </div>
-          )}
+          {activeTab === "related" &&
+            (!relatedArtists || relatedArtists.length === 0) && (
+              <div className="text-center py-12">
+                <Users size={48} className="mx-auto text-gray-400 mb-4" />
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                  No related artists found
+                </p>
+              </div>
+            )}
           {activeTab === "albums" && (!albums || albums.length === 0) && (
             <div className="text-center py-12">
               <Album size={48} className="mx-auto text-gray-400 mb-4" />

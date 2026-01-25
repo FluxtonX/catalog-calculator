@@ -43,16 +43,6 @@ async function getAuthHeaders() {
 }
 
 // Spotify
-export async function searchSpotify(query) {
-  const headers = await getAuthHeaders()
-  const { data, error } = await supabase.functions.invoke('spotify', {
-    body: { query },
-    headers,
-  })
-  if (error) throw error
-  return data
-}
-
 // YouTube
 export async function searchYouTube(query) {
   const headers = await getAuthHeaders()

@@ -1,14 +1,12 @@
-
-
 import React, { useState, useEffect } from "react";
-import { Search, Music, Youtube, Database, ChevronDown } from "lucide-react";
+import { Search, Youtube, Database, ChevronDown } from "lucide-react";
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
 import ArtistCard from "../components/ui/ArtistCard";
 import Badge from "../components/common/Badge";
 import SkeletonLoader from "../components/ui/SkeletonLoader";
 import { usePageTitle } from "../hooks/usePageTitle";
-import { searchSpotify, searchYouTube, searchApify } from "../utils/api";
+import { searchYouTube, searchApify } from "../utils/api";
 
 const ValuationTool = () => {
   usePageTitle("Valuation Tool", "Analyze artist metrics with real-time data");
@@ -20,42 +18,18 @@ const ValuationTool = () => {
   const [error, setError] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-const suggestedArtists = [
-  "Taylor Swift",
-  "Drake",
-  "The Weeknd",
-  "Bad Bunny",
-  "Ariana Grande",
-  "Billie Eilish",
-  "Bruno Mars",
-  "SZA",
-  "Kendrick Lamar",
-  "Sabrina Carpenter",
-  "Post Malone",
-  "Olivia Rodrigo",
-  "Morgan Wallen",
-  "Lady Gaga",
-  "Benson Boone",
-  "Zach Bryan",
-  "Gracie Abrams",
-  "Teddy Swims",
-  "Chappell Roan",
-  "Justin Timberlake",
-  "Carrie Underwood",
-  "Mariah Carey",
-  "Stevie Wonder",
-  "Dolly Parton",
-  "Bruce Springsteen",
-  "Madonna",
-  "JAY-Z",
-];
-
-
+  const suggestedArtists = [
+    "Taylor Swift",
+    "Drake",
+    "The Weeknd",
+    "Bad Bunny",
+    "Ariana Grande",
+  ];
 
   const PLATFORM_CONFIG = {
     spotify: {
       label: "Spotify",
-      icon: Music,
+      icon: Database,
       placeholder: "Search artist on Spotify...",
       color: "from-green-500 to-emerald-600",
       iconColor: "text-green-500",
@@ -66,13 +40,6 @@ const suggestedArtists = [
       placeholder: "Search channel or artist on YouTube...",
       color: "from-red-500 to-red-600",
       iconColor: "text-red-500",
-    },
-    apify: {
-      label: "Apify",
-      icon: Database,
-      placeholder: "Search artist on Apify (with play counts)...",
-      color: "from-blue-500 to-indigo-600",
-      iconColor: "text-blue-500",
     },
   };
 
@@ -99,22 +66,17 @@ const suggestedArtists = [
       let result;
 
       switch (platform) {
-        case "spotify":
-          result = await searchSpotify(searchQuery);
+        case "spotify": // renamed Apify
+          result = await searchApify(searchQuery);
           break;
 
         case "youtube":
           result = await searchYouTube(searchQuery);
           break;
 
-        case "apify":
-          result = await searchApify(searchQuery);
-          break;
-
         default:
           throw new Error("Invalid platform selected");
       }
-
       // Validate result
       if (!result || !result.name) {
         throw new Error("Invalid response from API");
@@ -145,15 +107,11 @@ const suggestedArtists = [
 
       switch (platform) {
         case "spotify":
-          result = await searchSpotify(artist);
+          result = await searchApify(artist);
           break;
 
         case "youtube":
           result = await searchYouTube(artist);
-          break;
-
-        case "apify":
-          result = await searchApify(artist);
           break;
       }
 
@@ -167,13 +125,14 @@ const suggestedArtists = [
       console.error("API error:", err);
       setError(
         err.message ||
-          `Failed to fetch data from ${PLATFORM_CONFIG[platform].label}`
+          `Failed to fetch data from ${PLATFORM_CONFIG[platform].label}`,
       );
     } finally {
       setIsLoading(false);
     }
   };
 
+  const activePlatform = platform;
   return (
     <div className="space-y-6 px-4 sm:px-0">
       {/* Search Section */}
@@ -187,7 +146,8 @@ const suggestedArtists = [
           <div>
             <h2 className="text-xl sm:text-2xl font-bold">Search Artist</h2>
             <p className="text-white/90 text-xs sm:text-sm">
-              Search from Spotify, YouTube or Apify (with stream counts)
+             Search from Spotify (with stream counts) or YouTube
+
             </p>
           </div>
         </div>
@@ -221,7 +181,7 @@ const suggestedArtists = [
                   className="fixed inset-0 z-40"
                   onClick={() => setIsDropdownOpen(false)}
                 />
-                
+
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50">
                   {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
                     const Icon = config.icon;
@@ -234,9 +194,7 @@ const suggestedArtists = [
                         }}
                         className={`w-full px-4 py-3 flex items-center gap-3 transition-all duration-200 ${
                           platform === key
-                            ? "bg-gradient-to-r " +
-                              config.color +
-                              " text-white"
+                            ? "bg-gradient-to-r " + config.color + " text-white"
                             : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700"
                         }`}
                       >
@@ -294,34 +252,17 @@ const suggestedArtists = [
                     Spotify/Apify.
                   </p>
                 )}
-                {platform === "apify" && (
-                  <p className="text-white/80 text-xs mt-1">
-                    Apify scraping might take longer. If it fails, try again or
-                    use Spotify.
-                  </p>
-                )}
               </div>
             </div>
           </div>
         )}
 
         {/* Loading Message for Apify */}
-        {isLoading && platform === "apify" && (
-          <div className="mt-4 p-4 bg-blue-500/20 border border-blue-300/30 rounded-lg backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <div className="animate-spin">
-                <Database size={20} className="text-white" />
-              </div>
-              <div>
-                <p className="text-white text-sm font-medium">
-                  Apify is scraping Spotify data...
-                </p>
-                <p className="text-white/80 text-xs mt-1">
-                  This includes play counts, top cities, and detailed stats.
-                  May take 20-40 seconds.
-                </p>
-              </div>
-            </div>
+        {isLoading && platform === "spotify" && (
+          <div className="mt-4 p-4 bg-green-500/20 border border-green-300/30 rounded-lg">
+            <p className="text-white text-sm font-medium">
+              Fetching Spotify data...
+            </p>
           </div>
         )}
 
@@ -333,21 +274,14 @@ const suggestedArtists = [
               <div>
                 {platform === "spotify" && (
                   <p>
-                    <strong>Spotify:</strong> Get official artist data, top
-                    tracks, albums, and related artists.
+                   <strong>Spotify:</strong> Official Spotify artist metrics and analytics.
+
                   </p>
                 )}
                 {platform === "youtube" && (
                   <p>
                     <strong>YouTube:</strong> Search for YouTube channels and
                     get subscriber counts, video stats.
-                  </p>
-                )}
-                {platform === "apify" && (
-                  <p>
-                    <strong>Apify:</strong> Get detailed play counts, stream
-                    data, top cities, and comprehensive artist analytics via
-                    web scraping.
                   </p>
                 )}
               </div>
@@ -383,28 +317,20 @@ const suggestedArtists = [
             <div className="flex items-center gap-3">
               <div
                 className={`p-2 bg-gradient-to-br ${
-                  PLATFORM_CONFIG[selectedArtist.platform || platform].color
+                  PLATFORM_CONFIG[activePlatform].color
                 } rounded-lg shadow-lg`}
               >
-                {React.createElement(
-                  PLATFORM_CONFIG[selectedArtist.platform || platform].icon,
-                  {
-                    size: 24,
-                    className: "text-white",
-                  }
-                )}
+                {React.createElement(PLATFORM_CONFIG[activePlatform].icon, {
+                  size: 24,
+                  className: "text-white",
+                })}
               </div>
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
-                  Live{" "}
-                  {PLATFORM_CONFIG[selectedArtist.platform || platform].label}{" "}
-                  Analysis
+                  Live {PLATFORM_CONFIG[activePlatform].label} Analysis
                 </h2>
                 <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                  Real-time data from{" "}
-                  {PLATFORM_CONFIG[selectedArtist.platform || platform].label}
-                  {selectedArtist.platform === "apify" &&
-                    " (including play counts)"}
+                  Real-time data from {PLATFORM_CONFIG[activePlatform].label}
                 </p>
               </div>
             </div>
@@ -429,7 +355,7 @@ const suggestedArtists = [
             stats={selectedArtist.stats}
             spotifyUrl={selectedArtist.spotifyUrl}
             youtubeUrl={selectedArtist.youtubeUrl}
-            apifyUrl={selectedArtist.apifyUrl}
+            // apifyUrl={selectedArtist.apifyUrl}
             platform={selectedArtist.platform}
             monthlyListeners={selectedArtist.monthlyListeners}
             biography={selectedArtist.biography}
