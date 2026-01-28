@@ -51,101 +51,149 @@ const ArtistValuationDetail = () => {
   };
 
   // Map cities to regions for geo-weighting
-  const getCityRegion = (city) => {
-    if (!city || typeof city !== "string") return "ROW"; // default region
-
-    const cityLower = city.toLowerCase();
-
-    if (
-      cityLower.includes("united states") ||
-      cityLower.includes("usa") ||
-      cityLower.includes("canada") ||
-      cityLower.includes("united kingdom") ||
-      cityLower.includes("london") ||
-      cityLower.includes("australia") ||
-      cityLower.includes("new york") ||
-      cityLower.includes("los angeles") ||
-      cityLower.includes("toronto") ||
-      cityLower.includes("sydney")
-    ) {
+// Map cities to regions for geo-weighting
+const getCityRegion = (cityObj) => {
+  if (!cityObj) return "ROW";
+  
+  // Handle both string and object formats
+  const cityStr = typeof cityObj === 'string' ? cityObj : cityObj.city;
+  const countryCode = typeof cityObj === 'object' ? cityObj.country : null;
+  
+  if (!cityStr) return "ROW";
+  
+  const cityLower = cityStr.toLowerCase();
+  
+  // Use country code first if available (more reliable)
+  if (countryCode) {
+    const code = countryCode.toUpperCase();
+    
+    // US_CA_UK_AU
+    if (['US', 'CA', 'GB', 'UK', 'AU'].includes(code)) {
       return "US_CA_UK_AU";
     }
-
-    if (
-      cityLower.includes("germany") ||
-      cityLower.includes("france") ||
-      cityLower.includes("spain") ||
-      cityLower.includes("italy") ||
-      cityLower.includes("netherlands") ||
-      cityLower.includes("berlin") ||
-      cityLower.includes("paris") ||
-      cityLower.includes("madrid")
-    ) {
+    
+    // EU_WEST
+    if (['DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'AT', 'PT', 'IE', 'SE', 'DK', 'FI', 'NO', 'CH'].includes(code)) {
       return "EU_WEST";
     }
-
-    if (
-      cityLower.includes("mexico") ||
-      cityLower.includes("brazil") ||
-      cityLower.includes("argentina") ||
-      cityLower.includes("colombia") ||
-      cityLower.includes("lagos") ||
-      cityLower.includes("santiago")
-    ) {
+    
+    // LATAM
+    if (['MX', 'BR', 'AR', 'CO', 'CL', 'PE', 'VE', 'EC', 'GT', 'CU', 'BO', 'DO', 'HN', 'PY', 'NI', 'SV', 'CR', 'PA', 'UY', 'NG', 'ZA'].includes(code)) {
       return "LATAM";
     }
-
-    if (
-      cityLower.includes("india") ||
-      cityLower.includes("china") ||
-      cityLower.includes("japan") ||
-      cityLower.includes("korea") ||
-      cityLower.includes("mumbai") ||
-      cityLower.includes("tokyo") ||
-      cityLower.includes("seoul") ||
-      cityLower.includes("bangkok")
-    ) {
+    
+    // ASIA
+    if (['IN', 'CN', 'JP', 'KR', 'TH', 'VN', 'PH', 'ID', 'MY', 'SG', 'TW', 'HK', 'PK', 'BD'].includes(code)) {
       return "ASIA";
     }
-
-    return "ROW";
-  };
+  }
+  
+  // Fallback to city name matching
+  if (
+    cityLower.includes("london") ||
+    cityLower.includes("new york") ||
+    cityLower.includes("los angeles") ||
+    cityLower.includes("toronto") ||
+    cityLower.includes("sydney") ||
+    cityLower.includes("melbourne") ||
+    cityLower.includes("chicago") ||
+    cityLower.includes("miami")
+  ) {
+    return "US_CA_UK_AU";
+  }
+  
+  if (
+    cityLower.includes("amsterdam") ||
+    cityLower.includes("berlin") ||
+    cityLower.includes("paris") ||
+    cityLower.includes("madrid") ||
+    cityLower.includes("barcelona") ||
+    cityLower.includes("oslo") ||
+    cityLower.includes("stockholm")
+  ) {
+    return "EU_WEST";
+  }
+  
+  if (
+    cityLower.includes("são paulo") ||
+    cityLower.includes("sao paulo") ||
+    cityLower.includes("mexico city") ||
+    cityLower.includes("buenos aires") ||
+    cityLower.includes("santiago") ||
+    cityLower.includes("lima") ||
+    cityLower.includes("bogota") ||
+    cityLower.includes("curitiba") ||
+    cityLower.includes("lagos")
+  ) {
+    return "LATAM";
+  }
+  
+  if (
+    cityLower.includes("mumbai") ||
+    cityLower.includes("delhi") ||
+    cityLower.includes("tokyo") ||
+    cityLower.includes("seoul") ||
+    cityLower.includes("bangkok") ||
+    cityLower.includes("manila") ||
+    cityLower.includes("jakarta")
+  ) {
+    return "ASIA";
+  }
+  
+  return "ROW";
+};
 
   // Calculate geo-weighted effective Spotify rate
-  const calculateGeoWeightedRate = (topCities) => {
-    if (!topCities || topCities.length === 0) {
-      return {
-        rate: DEFAULT_SPOTIFY_RATE,
-        method: "DEFAULT",
-      };
-    }
-
-    // Count occurrences of each region from top cities
-    const regionCounts = {};
-    topCities.forEach((city) => {
-      const region = getCityRegion(city);
-      regionCounts[region] = (regionCounts[region] || 0) + 1;
-    });
-
-    // Calculate shares (normalize to sum to 1.0)
-    const totalCities = topCities.length;
-    const regionShares = {};
-    Object.keys(regionCounts).forEach((region) => {
-      regionShares[region] = regionCounts[region] / totalCities;
-    });
-
-    // Calculate weighted rate
-    let effectiveRate = 0;
-    Object.keys(regionShares).forEach((region) => {
-      effectiveRate += regionShares[region] * RATE_BY_REGION[region];
-    });
-
+// Calculate geo-weighted effective Spotify rate
+const calculateGeoWeightedRate = (topCities) => {
+  if (!topCities || topCities.length === 0) {
     return {
-      rate: effectiveRate,
-      method: "WEIGHTED",
-      breakdown: regionShares,
+      rate: DEFAULT_SPOTIFY_RATE,
+      method: "DEFAULT",
     };
+  }
+
+  // Calculate total listeners across all cities
+  const totalListeners = topCities.reduce((sum, city) => {
+    return sum + (city.numberOfListeners || 0);
+  }, 0);
+
+  if (totalListeners === 0) {
+    return {
+      rate: DEFAULT_SPOTIFY_RATE,
+      method: "DEFAULT",
+    };
+  }
+
+  // Count weighted occurrences by listener count
+  const regionWeights = {};
+  topCities.forEach((city) => {
+    const region = getCityRegion(city);
+    const listeners = city.numberOfListeners || 0;
+    regionWeights[region] = (regionWeights[region] || 0) + listeners;
+  });
+
+  // Calculate shares (normalize to sum to 1.0)
+  const regionShares = {};
+  Object.keys(regionWeights).forEach((region) => {
+    regionShares[region] = regionWeights[region] / totalListeners;
+  });
+
+  // Calculate weighted rate
+  let effectiveRate = 0;
+  Object.keys(regionShares).forEach((region) => {
+    effectiveRate += regionShares[region] * (RATE_BY_REGION[region] || DEFAULT_SPOTIFY_RATE);
+  });
+
+  return {
+    rate: effectiveRate,
+    method: "WEIGHTED",
+    breakdown: regionShares,
   };
+};
+
+
+
 
   const getLifetimeStreams = () => {
     if (!artistData) return 0;
@@ -663,27 +711,35 @@ const ArtistValuationDetail = () => {
                   : "Global average rate applied to all calculations"}
               </p>
 
-              {geoMethodUsed === "WEIGHTED" && geoRateData.breakdown && (
-                <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-500/30">
-                  <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-2">
-                    Geographic Breakdown:
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(geoRateData.breakdown).map(
-                      ([region, share]) => (
-                        <div
-                          key={region}
-                          className="text-xs text-emerald-600 dark:text-emerald-400"
-                        >
-                          <span className="font-semibold">{region}:</span>{" "}
-                          {(share * 100).toFixed(0)}% ($
-                          {RATE_BY_REGION[region]?.toFixed(4)})
-                        </div>
-                      ),
-                    )}
-                  </div>
-                </div>
-              )}
+        {geoMethodUsed === "WEIGHTED" && geoRateData.breakdown && (
+  <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-500/30">
+    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3">
+      Geographic Breakdown (by listener count):
+    </p>
+    <div className="grid grid-cols-2 gap-3">
+      {Object.entries(geoRateData.breakdown).map(
+        ([region, share]) => (
+          <div
+            key={region}
+            className="bg-white/50 dark:bg-slate-800/50 rounded-lg p-3 border border-emerald-200 dark:border-emerald-500/20"
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                {region}
+              </span>
+              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                {(share * 100).toFixed(1)}%
+              </span>
+            </div>
+            <div className="text-xs text-emerald-600 dark:text-emerald-500">
+              Rate: ${RATE_BY_REGION[region]?.toFixed(4)}
+            </div>
+          </div>
+        ),
+      )}
+    </div>
+  </div>
+)}
             </div>
           </div>
         </Card>
