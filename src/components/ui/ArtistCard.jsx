@@ -133,7 +133,7 @@ const ArtistCard = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tracks");
   const [enhancedAlbums, setEnhancedAlbums] = useState(albums);
-  const [playingTrackId, setPlayingTrackId] = useState(null);
+
 
   // Helper function to extract Spotify track ID from URL
   const extractSpotifyId = (url) => {
@@ -175,8 +175,9 @@ const ArtistCard = ({
 
   const handleLaunchValuation = () => {
     sessionStorage.setItem("artistCardScrollPos", window.scrollY.toString());
-    
-    navigate("/valuation/detail", {
+// use target _ablank to open in new tab
+
+    navigate("/valuation/detail" , {
       state: {
         artist: {
           name,
@@ -221,14 +222,13 @@ const ArtistCard = ({
     enhanceAlbumsWithSpotifyImages();
   }, [albums, name]);
 
-
   useEffect(() => {
-  const savedScrollPos = sessionStorage.getItem('artistCardScrollPos');
-  if (savedScrollPos) {
-    window.scrollTo(0, parseInt(savedScrollPos));
-    sessionStorage.removeItem('artistCardScrollPos');
-  }
-}, []);
+    const savedScrollPos = sessionStorage.getItem("artistCardScrollPos");
+    if (savedScrollPos) {
+      window.scrollTo(0, parseInt(savedScrollPos));
+      sessionStorage.removeItem("artistCardScrollPos");
+    }
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -651,7 +651,7 @@ const ArtistCard = ({
 
                       {platform === "apify" && track.streamCountFormatted ? (
                         <Badge
-                          className="flex-shrink-0 bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+                          className="flex-shrink-0 bg-gradient-to-r from-primary-500 to-primary-500 text-white"
                           size="sm"
                         >
                           <Play size={12} className="mr-1" />
@@ -677,17 +677,18 @@ const ArtistCard = ({
                     {track.spotifyUrl &&
                       platform === "apify" &&
                       extractSpotifyId(track.spotifyUrl) && (
-                        <div className="mt-3 w-full max-w-md">
+                        <div className="mt-3 w-full">
                           <iframe
-                            key={`spotify-${extractSpotifyId(track.spotifyUrl)}`} // Add stable key
+                            key={`spotify-${extractSpotifyId(track.spotifyUrl)}`}
                             src={`https://open.spotify.com/embed/track/${extractSpotifyId(track.spotifyUrl)}`}
                             width="100%"
-                            height="80"
+                            height="152"
                             frameBorder="0"
                             allowtransparency="true"
                             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                             loading="lazy"
-                            className="rounded-lg shadow-sm"
+                            className="rounded-lg shadow-sm max-w-full"
+                            style={{ minWidth: "280px" }}
                             title={`Spotify player for ${track.title}`}
                           />
                         </div>
