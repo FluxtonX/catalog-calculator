@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   Music,
   ExternalLink,
@@ -132,11 +133,12 @@ const ArtistCard = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tracks");
   const [enhancedAlbums, setEnhancedAlbums] = useState(albums);
+  const [playingTrackId, setPlayingTrackId] = useState(null);
 
   // Helper function to extract Spotify track ID from URL
   const extractSpotifyId = (url) => {
     if (!url) return null;
-    
+
     // Handle different Spotify URL formats
     // https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp
     // spotify:track:3n3Ppam7vgaVa1iaRUc9Lp
@@ -172,6 +174,8 @@ const ArtistCard = ({
   };
 
   const handleLaunchValuation = () => {
+    sessionStorage.setItem("artistCardScrollPos", window.scrollY.toString());
+    
     navigate("/valuation/detail", {
       state: {
         artist: {
@@ -216,6 +220,15 @@ const ArtistCard = ({
 
     enhanceAlbumsWithSpotifyImages();
   }, [albums, name]);
+
+
+  useEffect(() => {
+  const savedScrollPos = sessionStorage.getItem('artistCardScrollPos');
+  if (savedScrollPos) {
+    window.scrollTo(0, parseInt(savedScrollPos));
+    sessionStorage.removeItem('artistCardScrollPos');
+  }
+}, []);
 
   return (
     <div className="space-y-6">
@@ -584,7 +597,7 @@ const ArtistCard = ({
             <div className="space-y-3">
               {topTracks.map((track, idx) => (
                 <div
-                  key={track.id || idx}
+                  key={`track-${track.id || idx}`}
                   className="group flex items-center gap-4 p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-lg"
                 >
                   <div className="flex-shrink-0 w-10 text-center">
@@ -661,21 +674,24 @@ const ArtistCard = ({
                     </div>
 
                     {/* Spotify Embed Player for Apify/Spotify tracks */}
-                    {track.spotifyUrl && platform === "apify" && extractSpotifyId(track.spotifyUrl) && (
-                      <div className="mt-3 w-full max-w-md">
-                        <iframe
-                          src={`https://open.spotify.com/embed/track/${extractSpotifyId(track.spotifyUrl)}`}
-                          width="100%"
-                          height="80"
-                          frameBorder="0"
-                          allowtransparency="true"
-                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                          loading="lazy"
-                          className="rounded-lg shadow-sm"
-                          title={`Spotify player for ${track.title}`}
-                        />
-                      </div>
-                    )}
+                    {track.spotifyUrl &&
+                      platform === "apify" &&
+                      extractSpotifyId(track.spotifyUrl) && (
+                        <div className="mt-3 w-full max-w-md">
+                          <iframe
+                            key={`spotify-${extractSpotifyId(track.spotifyUrl)}`} // Add stable key
+                            src={`https://open.spotify.com/embed/track/${extractSpotifyId(track.spotifyUrl)}`}
+                            width="100%"
+                            height="80"
+                            frameBorder="0"
+                            allowtransparency="true"
+                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                            loading="lazy"
+                            className="rounded-lg shadow-sm"
+                            title={`Spotify player for ${track.title}`}
+                          />
+                        </div>
+                      )}
 
                     {/* HTML5 Audio Player for preview URLs (non-Apify) */}
                     {track.previewUrl && platform !== "apify" && (
