@@ -133,6 +133,17 @@ const ArtistCard = ({
   const [activeTab, setActiveTab] = useState("tracks");
   const [enhancedAlbums, setEnhancedAlbums] = useState(albums);
 
+  // Helper function to extract Spotify track ID from URL
+  const extractSpotifyId = (url) => {
+    if (!url) return null;
+    
+    // Handle different Spotify URL formats
+    // https://open.spotify.com/track/3n3Ppam7vgaVa1iaRUc9Lp
+    // spotify:track:3n3Ppam7vgaVa1iaRUc9Lp
+    const match = url.match(/track[\/:]([a-zA-Z0-9]+)/);
+    return match ? match[1] : null;
+  };
+
   const platformData = {
     youtube: {
       url: youtubeUrl,
@@ -248,67 +259,87 @@ const ArtistCard = ({
             </div>
 
             {/* Artist Details */}
-            <div className="flex-1 space-y-5 w-full">
-              <div className="flex flex-col gap-4">
-                <div>
-                  <div className="flex items-center gap-3 mb-3 flex-wrap">
-                    <Badge
-                      variant="success"
-                      className="bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg"
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className="w-2 h-2 bg-white rounded-full animate-pulse shadow-lg shadow-white/50"></span>
-                        Live Data
-                      </span>
-                    </Badge>
-                    <span className="text-white/80 text-sm font-medium flex items-center gap-2">
-                      <Disc3
-                        size={16}
-                        className="animate-spin"
-                        style={{ animationDuration: "3s" }}
-                      />
-                      Real-time {currentPlatform.label} Stats
+            <div className="flex-1 w-full">
+              {/* Top Section: Artist Identity */}
+              <div className="mb-6">
+                {/* Status Badges */}
+                <div className="flex items-center gap-3 mb-4 flex-wrap">
+                  <Badge
+                    variant="success"
+                    className="bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-white rounded-full animate-pulse shadow-lg shadow-white/50"></span>
+                      Live Data
                     </span>
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 bg-gradient-to-r from-white via-white to-white/80 bg-clip-text">
-                    {name}
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-white/90 text-base sm:text-lg">
-                    <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl">
-                      <Users size={20} />
-                      <span className="font-bold">{followers}</span>
-                      <span className="text-white/70 hidden sm:inline text-sm">
+                  </Badge>
+                  <span className="text-white/80 text-sm font-medium flex items-center gap-2">
+                    <Disc3
+                      size={16}
+                      className="animate-spin"
+                      style={{ animationDuration: "3s" }}
+                    />
+                    Real-time {currentPlatform.label} Stats
+                  </span>
+                </div>
+
+                {/* Artist Name */}
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-5 bg-gradient-to-r from-white via-white to-white/80 bg-clip-text leading-tight">
+                  {name}
+                </h2>
+
+                {/* Follower Stats Row */}
+                <div className="flex flex-wrap items-center gap-3 mb-6">
+                  <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm px-5 py-3 rounded-xl border border-white/20">
+                    <Users size={20} className="text-white/90" />
+                    <div className="flex items-baseline gap-2">
+                      <span className="font-bold text-xl text-white">
+                        {followers}
+                      </span>
+                      <span className="text-white/60 text-sm font-medium">
                         Followers
                       </span>
                     </div>
-                    {monthlyListeners && platform === "apify" && (
-                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl">
-                        <Play size={20} />
-                        <span className="font-bold">{monthlyListeners}</span>
-                        <span className="text-white/70 hidden sm:inline text-sm">
+                  </div>
+
+                  {monthlyListeners && platform === "apify" && (
+                    <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm px-5 py-3 rounded-xl border border-white/20">
+                      <Play size={20} className="text-white/90" />
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-bold text-xl text-white">
+                          {monthlyListeners}
+                        </span>
+                        <span className="text-white/60 text-sm font-medium">
                           Monthly Listeners
                         </span>
                       </div>
-                    )}
-                    {popularity && platform !== "apify" && (
-                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-xl">
-                        <TrendingUp size={20} />
-                        <span className="font-bold">{popularity}</span>
-                        <span className="text-white/70 hidden sm:inline text-sm">
+                    </div>
+                  )}
+
+                  {popularity && platform !== "apify" && (
+                    <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm px-5 py-3 rounded-xl border border-white/20">
+                      <TrendingUp size={20} className="text-white/90" />
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-bold text-xl text-white">
+                          {popularity}
+                        </span>
+                        <span className="text-white/60 text-sm font-medium">
                           Popularity
                         </span>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
+              </div>
 
-                {/* Platform Buttons */}
-                <div className="flex flex-wrap gap-3">
+              {/* Action Buttons Section */}
+              <div className="mb-6">
+                <div className="flex flex-wrap items-center gap-3">
                   {platform?.toLowerCase() === "youtube" && youtubeUrl && (
                     <Button
                       variant="secondary"
                       size="sm"
-                      className="bg-white/15 hover:bg-white/25 border border-white/30 text-white backdrop-blur-xl"
+                      className="bg-white/10 hover:bg-white/20 border border-white/25 hover:border-white/40 text-white backdrop-blur-xl transition-all duration-200"
                       icon={Youtube}
                       onClick={() => window.open(youtubeUrl, "_blank")}
                     >
@@ -320,7 +351,7 @@ const ArtistCard = ({
                     <Button
                       variant="secondary"
                       size="sm"
-                      className="bg-white/15 hover:bg-white/25 border border-white/30 text-white backdrop-blur-xl"
+                      className="bg-white/10 hover:bg-white/20 border border-white/25 hover:border-white/40 text-white backdrop-blur-xl transition-all duration-200"
                       icon={Music}
                       onClick={() => window.open(spotifyUrl, "_blank")}
                     >
@@ -331,120 +362,125 @@ const ArtistCard = ({
                   <Button
                     variant="primary"
                     size="sm"
-                    className="bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600 text-white border-0"
+                    className="relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 transition-all duration-200"
                     icon={Rocket}
                     onClick={handleLaunchValuation}
                   >
-                    Launch Valuation
+                    <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></span>
+                    <span className="relative">Launch Valuation</span>
                   </Button>
                 </div>
               </div>
 
-              {/* Genres */}
+              {/* Genres Section */}
               {genres?.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {genres.slice(0, 6).map((genre, i) => (
-                    <Badge
-                      key={i}
-                      className="bg-white/10 backdrop-blur-sm text-white border border-white/30 hover:bg-white/20 transition-colors"
-                      size="sm"
-                    >
-                      {genre}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-
-              {/* Social Links */}
-              {platform === "apify" && externalLinks?.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {externalLinks.map((link, i) => {
-                    const Icon = getSocialIcon(link.label);
-                    return (
-                      <a
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-2">
+                    {genres.slice(0, 6).map((genre, i) => (
+                      <Badge
                         key={i}
-                        href={link.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl text-sm font-semibold transition-all hover:scale-105"
+                        className="bg-white/8 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all duration-200"
+                        size="sm"
                       >
-                        <Icon size={16} />
-                        <span className="capitalize">{link.label}</span>
-                      </a>
-                    );
-                  })}
+                        {genre}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               )}
 
-              {/* Stats Grid */}
+              {/* Social Links Section */}
+              {platform === "apify" && externalLinks?.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-2">
+                    {externalLinks.map((link, i) => {
+                      const Icon = getSocialIcon(link.label);
+                      return (
+                        <a
+                          key={i}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/8 hover:bg-white/15 backdrop-blur-sm border border-white/20 hover:border-white/30 rounded-xl text-sm font-medium text-white/90 transition-all duration-200"
+                        >
+                          <Icon size={16} />
+                          <span className="capitalize">{link.label}</span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Stats Grid - Four Cards */}
               {stats && (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   {platform === "apify" ? (
                     <>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/15 transition-colors">
-                        <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+                      <div className="bg-white/8 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
+                        <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">
                           Total Streams
                         </p>
-                        <p className="text-2xl sm:text-3xl font-bold">
+                        <p className="text-3xl font-bold text-white">
                           {stats.totalStreams}
                         </p>
                       </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/15 transition-colors">
-                        <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+                      <div className="bg-white/8 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
+                        <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">
                           Avg Streams
                         </p>
-                        <p className="text-2xl sm:text-3xl font-bold">
+                        <p className="text-3xl font-bold text-white">
                           {stats.averageStreams}
                         </p>
                       </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/15 transition-colors">
-                        <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+                      <div className="bg-white/8 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
+                        <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">
                           Top Tracks
                         </p>
-                        <p className="text-2xl sm:text-3xl font-bold">
+                        <p className="text-3xl font-bold text-white">
                           {topTracks?.length || 0}
                         </p>
                       </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/15 transition-colors">
-                        <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+                      <div className="bg-white/8 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
+                        <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">
                           Albums
                         </p>
-                        <p className="text-2xl sm:text-3xl font-bold">
+                        <p className="text-3xl font-bold text-white">
                           {albums?.length || 0}
                         </p>
                       </div>
                     </>
                   ) : (
                     <>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/15 transition-colors">
-                        <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+                      <div className="bg-white/8 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
+                        <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">
                           Avg Popularity
                         </p>
-                        <p className="text-2xl sm:text-3xl font-bold">
+                        <p className="text-3xl font-bold text-white">
                           {stats.averageTrackPopularity}
                         </p>
                       </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/15 transition-colors">
-                        <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+                      <div className="bg-white/8 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
+                        <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">
                           Total Albums
                         </p>
-                        <p className="text-2xl sm:text-3xl font-bold">
+                        <p className="text-3xl font-bold text-white">
                           {stats.totalAlbums}
                         </p>
                       </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/15 transition-colors">
-                        <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+                      <div className="bg-white/8 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
+                        <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">
                           Top Tracks
                         </p>
-                        <p className="text-2xl sm:text-3xl font-bold">
+                        <p className="text-3xl font-bold text-white">
                           {stats.totalTopTracks}
                         </p>
                       </div>
-                      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/30 hover:bg-white/15 transition-colors">
-                        <p className="text-white/70 text-xs font-semibold mb-1 uppercase tracking-wide">
+                      <div className="bg-white/8 backdrop-blur-sm rounded-xl p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
+                        <p className="text-white/60 text-xs font-semibold mb-2 uppercase tracking-wider">
                           Related
                         </p>
-                        <p className="text-2xl sm:text-3xl font-bold">
+                        <p className="text-3xl font-bold text-white">
                           {stats.totalRelatedArtists}
                         </p>
                       </div>
@@ -624,6 +660,24 @@ const ArtistCard = ({
                       )}
                     </div>
 
+                    {/* Spotify Embed Player for Apify/Spotify tracks */}
+                    {track.spotifyUrl && platform === "apify" && extractSpotifyId(track.spotifyUrl) && (
+                      <div className="mt-3 w-full max-w-md">
+                        <iframe
+                          src={`https://open.spotify.com/embed/track/${extractSpotifyId(track.spotifyUrl)}`}
+                          width="100%"
+                          height="80"
+                          frameBorder="0"
+                          allowtransparency="true"
+                          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                          loading="lazy"
+                          className="rounded-lg shadow-sm"
+                          title={`Spotify player for ${track.title}`}
+                        />
+                      </div>
+                    )}
+
+                    {/* HTML5 Audio Player for preview URLs (non-Apify) */}
                     {track.previewUrl && platform !== "apify" && (
                       <div className="mt-3">
                         <audio
@@ -636,21 +690,16 @@ const ArtistCard = ({
                       </div>
                     )}
 
-                    {(track.spotifyUrl || track.youtubeUrl) && (
+                    {/* External Links */}
+                    {track.youtubeUrl && platform === "youtube" && (
                       <a
-                        href={track.youtubeUrl || track.spotifyUrl}
+                        href={track.youtubeUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-1 mt-3 text-sm font-semibold ${
-                          platform === "youtube"
-                            ? "text-red-600 hover:text-red-700 dark:text-red-400"
-                            : platform === "apify"
-                              ? "text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
-                              : "text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
-                        } transition-colors`}
+                        className="inline-flex items-center gap-1 mt-3 text-sm font-semibold text-red-600 hover:text-red-700 dark:text-red-400 transition-colors"
                       >
                         <ExternalLink size={14} />
-                        Open in {platform === "youtube" ? "YouTube" : "Spotify"}
+                        Open in YouTube
                       </a>
                     )}
                   </div>
@@ -823,6 +872,7 @@ const ArtistCard = ({
             </div>
           )}
 
+          {/* Top Cities Tab */}
           {activeTab === "cities" &&
             platform === "apify" &&
             topCities?.length > 0 && (
