@@ -16,7 +16,6 @@ import TrackList from "../artist/TrackList";
 import RelatedArtistCard from "../artist/RelatedArtistCard";
 import AlbumCard from "../artist/AlbumCard";
 import TopCitiesList from "../artist/TopCitiesList";
-
 import ValuationTab from "../artist/ValuationTab";
 
 const ArtistCard = ({
@@ -40,7 +39,7 @@ const ArtistCard = ({
   externalLinks,
 }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("tracks");
+  const [activeTab, setActiveTab] = useState("valuation");
   const [enhancedAlbums, setEnhancedAlbums] = useState([]);
 
   // Helper function to extract Spotify track ID from URL
