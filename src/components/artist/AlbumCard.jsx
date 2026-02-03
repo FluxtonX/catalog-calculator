@@ -1,12 +1,29 @@
-// src/components/artist/AlbumCard.jsx
+// src/components/artist/AlbumCard.jsx - COMPLETE UPDATED VERSION
 import React from "react";
 import { Music, Calendar, Disc3, ExternalLink } from "lucide-react";
 import Badge from "../common/Badge";
 
 const AlbumCard = ({ album, index }) => {
+  // Format the full release date
+  const formatDate = (dateString) => {
+    if (!dateString) return "Unknown";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Generate Spotify URL from album ID
+  const spotifyUrl = album.id ? `https://open.spotify.com/album/${album.id}` : null;
+
   return (
     <div
-      key={album.id || index}
       className="group bg-slate-50 dark:bg-slate-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 dark:hover:border-emerald-500/50"
     >
       {album.image ? (
@@ -42,16 +59,9 @@ const AlbumCard = ({ album, index }) => {
         <div className="flex items-center justify-between text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 mb-1.5 sm:mb-2">
           <span className="font-semibold flex items-center gap-0.5 sm:gap-1">
             <Calendar size={10} className="sm:w-3 sm:h-3" />
-            {album.releaseYear}
+            {formatDate(album.releaseDate)}
           </span>
-          {album.type && (
-            <Badge
-              size="sm"
-              className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white text-[10px] sm:text-xs capitalize"
-            >
-              {album.type}
-            </Badge>
-          )}
+      
         </div>
         {album.totalTracks > 0 && (
           <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mb-2 sm:mb-3 flex items-center gap-0.5 sm:gap-1">
@@ -60,9 +70,9 @@ const AlbumCard = ({ album, index }) => {
           </p>
         )}
 
-        {album.spotifyUrl && (
+        {spotifyUrl && (
           <a
-            href={album.spotifyUrl}
+            href={spotifyUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs font-semibold text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 transition-colors group-hover:underline"

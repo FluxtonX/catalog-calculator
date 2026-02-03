@@ -1,9 +1,11 @@
 // src/components/artist/TabNavigation.jsx
 import React from "react";
-import { Music, Users, Album, MapPin } from "lucide-react";
+import { Music, Users, Album, MapPin, DollarSign } from "lucide-react"; // ADDED DollarSign
 
 const TabNavigation = ({ activeTab, onTabChange, platform, hasRelated, hasCities }) => {
   const tabs = [
+    // ADDED: Valuation tab as first tab
+    { id: "valuation", label: "Valuation", icon: DollarSign, shortLabel: "Value" },
     { id: "tracks", label: "Top Tracks", icon: Music, shortLabel: "Tracks" },
     ...(platform !== "apify" ? [{ id: "related", label: "Related Artists", icon: Users, shortLabel: "Related" }] : []),
     { id: "albums", label: "Albums", icon: Album },
@@ -28,7 +30,6 @@ const TabNavigation = ({ activeTab, onTabChange, platform, hasRelated, hasCities
           >
             <span className="flex items-center gap-1.5 sm:gap-2">
               <Icon size={16} className="sm:w-5 sm:h-5" />
-              {/* Always show label - use shortLabel on small screens, full label on larger screens */}
               <span className="hidden sm:inline">{tab.label}</span>
               <span className="sm:hidden">{tab.shortLabel || tab.label}</span>
             </span>

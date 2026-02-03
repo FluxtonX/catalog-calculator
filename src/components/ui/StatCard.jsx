@@ -19,7 +19,7 @@ const StatCard = ({
   iconBg = "bg-emerald-500/20",
   iconColor = "text-emerald-400"
 }) => {
-  console.log("StatCard props:", { label});
+
   return (
     <div className="bg-white/8 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-5 border border-white/20 hover:bg-white/10 hover:border-white/30 transition-all duration-200">
       <div className="flex flex-col items-center gap-2">
@@ -29,14 +29,14 @@ const StatCard = ({
           </div>
         )}
         <div className="text-center w-full">
-          <p className="text-white/60 text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 uppercase tracking-wider">
+          <p className="text-gray-700 dark:text-white/60 text-[10px] sm:text-xs font-semibold mb-1 sm:mb-2 uppercase tracking-wider">
             {label}
           </p>
-          <p className="text-xl sm:text-3xl font-bold text-white truncate">
+          <p className="text-xl sm:text-3xl font-bold text-gray-900 dark:text-white truncate">
             {value}
           </p>
           {subtitle && (
-            <p className="text-xs text-white/50 font-mono mt-1">
+            <p className="text-xs text-gray-600 dark:text-white/50 font-mono mt-1">
               {subtitle}
             </p>
           )}

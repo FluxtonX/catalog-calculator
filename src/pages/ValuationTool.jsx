@@ -578,6 +578,8 @@ const ValuationTool = () => {
               topTracks={selectedArtist.topTracks}
               relatedArtists={selectedArtist.relatedArtists}
               albums={selectedArtist.albums}
+              singles={selectedArtist.singles}
+              popularReleases={selectedArtist.popularReleases}
               stats={selectedArtist.stats}
               spotifyUrl={selectedArtist.spotifyUrl}
               youtubeUrl={selectedArtist.youtubeUrl}

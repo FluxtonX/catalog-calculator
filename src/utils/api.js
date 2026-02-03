@@ -47,37 +47,79 @@ export async function searchApify(query) {
 }
 
 // Fetch album images from Spotify by searching for albums
-export async function getSpotifyAlbumImages(artistName, albumNames) {
+// Fetch album images from Spotify using album IDs
+// Fetch album images from Spotify using album IDs
+export async function getSpotifyAlbumImages(artistName, albums) {
+  console.log('====== getSpotifyAlbumImages CALLED ======');
+  console.log('Artist Name:', artistName);
+  console.log('Number of albums:', albums?.length);
+  console.log('Albums received:', JSON.stringify(albums, null, 2));
+  
   try {
-    const headers = await getAuthHeaders()
+    const headers = await getAuthHeaders();
+    console.log('Auth headers obtained:', headers);
     
-    // Search for each album on Spotify
+    // Fetch images for each album using their Spotify IDs
     const albumsData = await Promise.all(
-      albumNames.map(async (albumName) => {
+      albums.map(async (album, index) => {
+        console.log(`\n--- Processing album ${index + 1}/${albums.length} ---`);
+        console.log('Album object:', JSON.stringify(album, null, 2));
+        console.log('Album ID:', album.id);
+        console.log('Album Name:', album.name);
+        
         try {
-          const response = await searchSpotify(`${artistName} ${albumName}`)
-          if (response?.albums?.[0]?.image) {
-            return {
-              albumName,
-              image: response.albums[0].image,
+          // If we have an album ID, fetch directly from Spotify
+          if (album.id) {
+            console.log(`Calling spotify-album function for ID: ${album.id}`);
+            
+            const { data, error } = await supabase.functions.invoke('spotify-album', {
+              body: { albumId: album.id },
+              headers,
+            });
+            
+            console.log('Supabase response for', album.name);
+            console.log('  - Data:', JSON.stringify(data, null, 2));
+            console.log('  - Error:', error);
+            
+            if (error) {
+              console.error(`❌ Error fetching album ${album.name}:`, error);
+              return { albumName: album.name, image: null };
             }
+            
+            // Extract image from response
+            const image = data?.image || data?.images?.[0]?.url || null;
+            console.log(`  - Extracted image URL:`, image);
+            
+            return {
+              albumName: album.name,
+              image,
+            };
           }
-          return { albumName, image: null }
+          
+          // Fallback: if no ID, return null
+          console.warn(`⚠️ No ID for album: ${album.name}`);
+          return { albumName: album.name, image: null };
         } catch (err) {
-          console.warn(`Failed to fetch image for album: ${albumName}`, err)
-          return { albumName, image: null }
+          console.error(`❌ Exception fetching album ${album.name}:`, err);
+          console.error('Error details:', err.message, err.stack);
+          return { albumName: album.name, image: null };
         }
       })
-    )
+    );
     
-    return albumsData
+    console.log('\n====== FINAL RESULTS ======');
+    console.log('Albums with images:', JSON.stringify(albumsData, null, 2));
+    console.log('Total albums processed:', albumsData.length);
+    console.log('Albums with images:', albumsData.filter(a => a.image).length);
+    console.log('Albums without images:', albumsData.filter(a => !a.image).length);
+    
+    return albumsData;
   } catch (err) {
-    console.warn('Failed to fetch Spotify album images:', err)
-    return []
+    console.error('❌ Fatal error in getSpotifyAlbumImages:', err);
+    console.error('Error details:', err.message, err.stack);
+    return [];
   }
 }
-
-
 
 // Add this new function to api.js
 export async function getArtistSuggestions(query, platform = 'spotify') {

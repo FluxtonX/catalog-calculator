@@ -5,7 +5,7 @@ import { DollarSign, Music, TrendingUp, Album } from "lucide-react";
 
 const ArtistStats = ({ stats, platform, topTracks, albums }) => {
   const isApify = platform === "apify";
-  console.log("ArtistStats props:", { stats, platform, topTracks, albums });
+
 
 
   if (!stats) return null;
