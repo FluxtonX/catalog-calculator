@@ -51,149 +51,205 @@ const ArtistValuationDetail = () => {
   };
 
   // Map cities to regions for geo-weighting
-// Map cities to regions for geo-weighting
-const getCityRegion = (cityObj) => {
-  if (!cityObj) return "ROW";
-  
-  // Handle both string and object formats
-  const cityStr = typeof cityObj === 'string' ? cityObj : cityObj.city;
-  const countryCode = typeof cityObj === 'object' ? cityObj.country : null;
-  
-  if (!cityStr) return "ROW";
-  
-  const cityLower = cityStr.toLowerCase();
-  
-  // Use country code first if available (more reliable)
-  if (countryCode) {
-    const code = countryCode.toUpperCase();
-    
-    // US_CA_UK_AU
-    if (['US', 'CA', 'GB', 'UK', 'AU'].includes(code)) {
+  // Map cities to regions for geo-weighting
+  const getCityRegion = (cityObj) => {
+    if (!cityObj) return "ROW";
+
+    // Handle both string and object formats
+    const cityStr = typeof cityObj === "string" ? cityObj : cityObj.city;
+    const countryCode = typeof cityObj === "object" ? cityObj.country : null;
+
+    if (!cityStr) return "ROW";
+
+    const cityLower = cityStr.toLowerCase();
+
+    // Use country code first if available (more reliable)
+    if (countryCode) {
+      const code = countryCode.toUpperCase();
+
+      // US_CA_UK_AU
+      if (["US", "CA", "GB", "UK", "AU"].includes(code)) {
+        return "US_CA_UK_AU";
+      }
+
+      // EU_WEST
+      if (
+        [
+          "DE",
+          "FR",
+          "ES",
+          "IT",
+          "NL",
+          "BE",
+          "AT",
+          "PT",
+          "IE",
+          "SE",
+          "DK",
+          "FI",
+          "NO",
+          "CH",
+        ].includes(code)
+      ) {
+        return "EU_WEST";
+      }
+
+      // LATAM
+      if (
+        [
+          "MX",
+          "BR",
+          "AR",
+          "CO",
+          "CL",
+          "PE",
+          "VE",
+          "EC",
+          "GT",
+          "CU",
+          "BO",
+          "DO",
+          "HN",
+          "PY",
+          "NI",
+          "SV",
+          "CR",
+          "PA",
+          "UY",
+          "NG",
+          "ZA",
+        ].includes(code)
+      ) {
+        return "LATAM";
+      }
+
+      // ASIA
+      if (
+        [
+          "IN",
+          "CN",
+          "JP",
+          "KR",
+          "TH",
+          "VN",
+          "PH",
+          "ID",
+          "MY",
+          "SG",
+          "TW",
+          "HK",
+          "PK",
+          "BD",
+        ].includes(code)
+      ) {
+        return "ASIA";
+      }
+    }
+
+    // Fallback to city name matching
+    if (
+      cityLower.includes("london") ||
+      cityLower.includes("new york") ||
+      cityLower.includes("los angeles") ||
+      cityLower.includes("toronto") ||
+      cityLower.includes("sydney") ||
+      cityLower.includes("melbourne") ||
+      cityLower.includes("chicago") ||
+      cityLower.includes("miami")
+    ) {
       return "US_CA_UK_AU";
     }
-    
-    // EU_WEST
-    if (['DE', 'FR', 'ES', 'IT', 'NL', 'BE', 'AT', 'PT', 'IE', 'SE', 'DK', 'FI', 'NO', 'CH'].includes(code)) {
+
+    if (
+      cityLower.includes("amsterdam") ||
+      cityLower.includes("berlin") ||
+      cityLower.includes("paris") ||
+      cityLower.includes("madrid") ||
+      cityLower.includes("barcelona") ||
+      cityLower.includes("oslo") ||
+      cityLower.includes("stockholm")
+    ) {
       return "EU_WEST";
     }
-    
-    // LATAM
-    if (['MX', 'BR', 'AR', 'CO', 'CL', 'PE', 'VE', 'EC', 'GT', 'CU', 'BO', 'DO', 'HN', 'PY', 'NI', 'SV', 'CR', 'PA', 'UY', 'NG', 'ZA'].includes(code)) {
+
+    if (
+      cityLower.includes("são paulo") ||
+      cityLower.includes("sao paulo") ||
+      cityLower.includes("mexico city") ||
+      cityLower.includes("buenos aires") ||
+      cityLower.includes("santiago") ||
+      cityLower.includes("lima") ||
+      cityLower.includes("bogota") ||
+      cityLower.includes("curitiba") ||
+      cityLower.includes("lagos")
+    ) {
       return "LATAM";
     }
-    
-    // ASIA
-    if (['IN', 'CN', 'JP', 'KR', 'TH', 'VN', 'PH', 'ID', 'MY', 'SG', 'TW', 'HK', 'PK', 'BD'].includes(code)) {
+
+    if (
+      cityLower.includes("mumbai") ||
+      cityLower.includes("delhi") ||
+      cityLower.includes("tokyo") ||
+      cityLower.includes("seoul") ||
+      cityLower.includes("bangkok") ||
+      cityLower.includes("manila") ||
+      cityLower.includes("jakarta")
+    ) {
       return "ASIA";
     }
-  }
-  
-  // Fallback to city name matching
-  if (
-    cityLower.includes("london") ||
-    cityLower.includes("new york") ||
-    cityLower.includes("los angeles") ||
-    cityLower.includes("toronto") ||
-    cityLower.includes("sydney") ||
-    cityLower.includes("melbourne") ||
-    cityLower.includes("chicago") ||
-    cityLower.includes("miami")
-  ) {
-    return "US_CA_UK_AU";
-  }
-  
-  if (
-    cityLower.includes("amsterdam") ||
-    cityLower.includes("berlin") ||
-    cityLower.includes("paris") ||
-    cityLower.includes("madrid") ||
-    cityLower.includes("barcelona") ||
-    cityLower.includes("oslo") ||
-    cityLower.includes("stockholm")
-  ) {
-    return "EU_WEST";
-  }
-  
-  if (
-    cityLower.includes("são paulo") ||
-    cityLower.includes("sao paulo") ||
-    cityLower.includes("mexico city") ||
-    cityLower.includes("buenos aires") ||
-    cityLower.includes("santiago") ||
-    cityLower.includes("lima") ||
-    cityLower.includes("bogota") ||
-    cityLower.includes("curitiba") ||
-    cityLower.includes("lagos")
-  ) {
-    return "LATAM";
-  }
-  
-  if (
-    cityLower.includes("mumbai") ||
-    cityLower.includes("delhi") ||
-    cityLower.includes("tokyo") ||
-    cityLower.includes("seoul") ||
-    cityLower.includes("bangkok") ||
-    cityLower.includes("manila") ||
-    cityLower.includes("jakarta")
-  ) {
-    return "ASIA";
-  }
-  
-  return "ROW";
-};
+
+    return "ROW";
+  };
 
   // Calculate geo-weighted effective Spotify rate
-// Calculate geo-weighted effective Spotify rate
-const calculateGeoWeightedRate = (topCities) => {
-  if (!topCities || topCities.length === 0) {
+  // Calculate geo-weighted effective Spotify rate
+  const calculateGeoWeightedRate = (topCities) => {
+    if (!topCities || topCities.length === 0) {
+      return {
+        rate: DEFAULT_SPOTIFY_RATE,
+        method: "DEFAULT",
+      };
+    }
+
+    // Calculate total listeners across all cities
+    const totalListeners = topCities.reduce((sum, city) => {
+      return sum + (city.numberOfListeners || 0);
+    }, 0);
+
+    if (totalListeners === 0) {
+      return {
+        rate: DEFAULT_SPOTIFY_RATE,
+        method: "DEFAULT",
+      };
+    }
+
+    // Count weighted occurrences by listener count
+    const regionWeights = {};
+    topCities.forEach((city) => {
+      const region = getCityRegion(city);
+      const listeners = city.numberOfListeners || 0;
+      regionWeights[region] = (regionWeights[region] || 0) + listeners;
+    });
+
+    // Calculate shares (normalize to sum to 1.0)
+    const regionShares = {};
+    Object.keys(regionWeights).forEach((region) => {
+      regionShares[region] = regionWeights[region] / totalListeners;
+    });
+
+    // Calculate weighted rate
+    let effectiveRate = 0;
+    Object.keys(regionShares).forEach((region) => {
+      effectiveRate +=
+        regionShares[region] * (RATE_BY_REGION[region] || DEFAULT_SPOTIFY_RATE);
+    });
+
     return {
-      rate: DEFAULT_SPOTIFY_RATE,
-      method: "DEFAULT",
+      rate: effectiveRate,
+      method: "WEIGHTED",
+      breakdown: regionShares,
     };
-  }
-
-  // Calculate total listeners across all cities
-  const totalListeners = topCities.reduce((sum, city) => {
-    return sum + (city.numberOfListeners || 0);
-  }, 0);
-
-  if (totalListeners === 0) {
-    return {
-      rate: DEFAULT_SPOTIFY_RATE,
-      method: "DEFAULT",
-    };
-  }
-
-  // Count weighted occurrences by listener count
-  const regionWeights = {};
-  topCities.forEach((city) => {
-    const region = getCityRegion(city);
-    const listeners = city.numberOfListeners || 0;
-    regionWeights[region] = (regionWeights[region] || 0) + listeners;
-  });
-
-  // Calculate shares (normalize to sum to 1.0)
-  const regionShares = {};
-  Object.keys(regionWeights).forEach((region) => {
-    regionShares[region] = regionWeights[region] / totalListeners;
-  });
-
-  // Calculate weighted rate
-  let effectiveRate = 0;
-  Object.keys(regionShares).forEach((region) => {
-    effectiveRate += regionShares[region] * (RATE_BY_REGION[region] || DEFAULT_SPOTIFY_RATE);
-  });
-
-  return {
-    rate: effectiveRate,
-    method: "WEIGHTED",
-    breakdown: regionShares,
   };
-};
-
-
-
 
   const getLifetimeStreams = () => {
     if (!artistData) return 0;
@@ -243,24 +299,42 @@ const calculateGeoWeightedRate = (topCities) => {
     return 0;
   };
 
-  // Get average release date from top tracks
   const getAverageReleaseDate = () => {
-    if (!artistData?.topTracks || artistData.topTracks.length === 0) {
-      return "2022-01-01"; // fallback
+    const dates = [];
+
+    // Albums
+    artistData?.albums?.forEach((album) => {
+      if (album.releaseDate) {
+        const t = new Date(album.releaseDate).getTime();
+        if (!isNaN(t)) dates.push(t);
+      }
+    });
+
+    // Singles / Top Tracks
+    artistData?.topTracks?.forEach((track) => {
+      let dateStr = track.releaseDate;
+
+      // If releaseDate is missing, fallback to releaseYear
+      if (!dateStr && track.releaseYear) {
+        dateStr = `${track.releaseYear}-01-01`;
+      }
+
+      if (dateStr) {
+        const t = new Date(dateStr).getTime();
+        if (!isNaN(t)) dates.push(t);
+      }
+    });
+
+    // If no valid dates, fallback
+    if (dates.length === 0) {
+      return "2022-01-01";
     }
 
-    const releaseDates = artistData.topTracks
-      .filter((track) => track.releaseDate)
-      .map((track) => new Date(track.releaseDate).getTime());
+    // Calculate average timestamp
+    const avgTimestamp = dates.reduce((sum, t) => sum + t, 0) / dates.length;
 
-    if (releaseDates.length === 0) {
-      return "2022-01-01"; // fallback
-    }
-
-    const avgTimestamp =
-      releaseDates.reduce((a, b) => a + b, 0) / releaseDates.length;
-    const avgDate = new Date(avgTimestamp);
-    return avgDate.toISOString().split("T")[0];
+    // Convert back to YYYY-MM-DD
+    return new Date(avgTimestamp).toISOString().split("T")[0];
   };
 
   const initialLifetimeStreams = getLifetimeStreams();
@@ -583,26 +657,30 @@ const calculateGeoWeightedRate = (topCities) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
-                {/* //use icon also like  you did in other inputs */}
-
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                   <TrendingUp size={18} />
                   Lifetime Streams
                 </label>
+                <div className="relative w-full">
+                  {/* TrendingUp icon on the left */}
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10">
+                    <TrendingUp size={20} />
+                  </div>
 
-                <input
-                  type="text"
-                  value={formatNumber(
-                    parseFloat(lifetimeStreamsInput.replace(/,/g, "")),
-                  )}
-                  onChange={(e) =>
-                    setLifetimeStreamsInput(
-                      e.target.value.replace(/[^0-9]/g, ""),
-                    )
-                  }
-                  className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all shadow-sm hover:shadow-md"
-                  placeholder="0"
-                />
+                  <input
+                    type="text"
+                    value={formatNumber(
+                      parseFloat(lifetimeStreamsInput.replace(/,/g, "")),
+                    )}
+                    onChange={(e) =>
+                      setLifetimeStreamsInput(
+                        e.target.value.replace(/[^0-9]/g, ""),
+                      )
+                    }
+                    className="w-full pl-12 pr-5 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all shadow-sm hover:shadow-md"
+                    placeholder="0"
+                  />
+                </div>
               </div>
 
               <div>
@@ -610,46 +688,35 @@ const calculateGeoWeightedRate = (topCities) => {
                   <Calendar size={18} />
                   Average Release Date
                 </label>
-                <div className="relative">
-                  {/* //when i open the date picker the calendar icon is misaligned */}
-                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                <div className="relative w-full">
+                  {/* Calendar icon on the left */}
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10">
                     <Calendar size={20} />
                   </div>
 
-                  <DatePicker
-                    placeholderText="YYYY-MM-DD"
-                    value={new Date(releaseDate)}
-                    withPortal
+                  {/* DatePicker Input - wrapped in a full-width container */}
+                  <div className="w-full">
+                    <DatePicker
+                      placeholderText="YYYY-MM-DD"
+                      selected={releaseDate ? new Date(releaseDate) : null}
+                      onChange={(date) => {
+                        if (date) {
+                          setReleaseDate(date.toISOString().split("T")[0]);
+                        }
+                      }}
+                       withPortal
                     withFullScreenPortal
                     portalContainer={document.body}
                     portalId="date-picker-portal"
-                    isDisabled
-                    isOutsideRange={() => false}
-                    shouldCloseOnSelect
-                    open
-                    openToDate={new Date(releaseDate)}
-                    openToYearSelection
-                    selected={new Date(releaseDate)}
-                    onChange={(date) =>
-                      setReleaseDate(date.toISOString().split("T")[0])
-                    }
-                    // i want the cross icon to be on the left side of the input
-
-                    dateFormat="yyyy-MM-dd"
-                    className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all shadow-sm hover:shadow-md"
-                    maxDate={new Date()}
-                    showMonthDropdown
-                    showYearDropdown
-                    dropdownMode="select"
-                  />
-
-                  <Calendar
-                    className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                    size={20}
-                  />
-
-                  <div className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                    <Calendar size={20} />
+                      dateFormat="yyyy-MM-dd"
+                      maxDate={new Date()}
+                      showMonthDropdown
+                      showYearDropdown
+                      dropdownMode="select"
+                      wrapperClassName="w-full block"
+                      className="w-full pl-12 pr-5 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-lg font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all shadow-sm hover:shadow-md"
+                      calendarClassName="date-picker-calendar-center"
+                    />
                   </div>
                 </div>
               </div>
@@ -711,35 +778,35 @@ const calculateGeoWeightedRate = (topCities) => {
                   : "Global average rate applied to all calculations"}
               </p>
 
-        {geoMethodUsed === "WEIGHTED" && geoRateData.breakdown && (
-  <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-500/30">
-    <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3">
-      Geographic Breakdown (by listener count):
-    </p>
-    <div className="grid grid-cols-2 gap-3">
-      {Object.entries(geoRateData.breakdown).map(
-        ([region, share]) => (
-          <div
-            key={region}
-            className="bg-white/50 dark:bg-slate-800/50 rounded-lg p-3 border border-emerald-200 dark:border-emerald-500/20"
-          >
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                {region}
-              </span>
-              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                {(share * 100).toFixed(1)}%
-              </span>
-            </div>
-            <div className="text-xs text-emerald-600 dark:text-emerald-500">
-              Rate: ${RATE_BY_REGION[region]?.toFixed(4)}
-            </div>
-          </div>
-        ),
-      )}
-    </div>
-  </div>
-)}
+              {geoMethodUsed === "WEIGHTED" && geoRateData.breakdown && (
+                <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-500/30">
+                  <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 mb-3">
+                    Geographic Breakdown (by listener count):
+                  </p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {Object.entries(geoRateData.breakdown).map(
+                      ([region, share]) => (
+                        <div
+                          key={region}
+                          className="bg-white/50 dark:bg-slate-800/50 rounded-lg p-3 border border-emerald-200 dark:border-emerald-500/20"
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                              {region}
+                            </span>
+                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                              {(share * 100).toFixed(1)}%
+                            </span>
+                          </div>
+                          <div className="text-xs text-emerald-600 dark:text-emerald-500">
+                            Rate: ${RATE_BY_REGION[region]?.toFixed(4)}
+                          </div>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </Card>
