@@ -91,9 +91,9 @@ const ArtistHeader = ({
                   <span className="font-bold text-base sm:text-xl text-white">
                     {followers}
                   </span>
-                  <span className="text-white/60 text-xs sm:text-sm font-medium hidden xs:inline">
-                    Followers
-                  </span>
+                   <span className="text-white/60 text-xs sm:text-sm font-medium sm:inline">
+                      Followers 
+                    </span>
                 </div>
               </div>
 
@@ -104,7 +104,7 @@ const ArtistHeader = ({
                     <span className="font-bold text-base sm:text-xl text-white">
                       {monthlyListeners}
                     </span>
-                    <span className="text-white/60 text-xs sm:text-sm font-medium hidden sm:inline">
+                    <span className="text-white/60 text-xs sm:text-sm font-medium  sm:inline">
                       Monthly Listeners
                     </span>
                   </div>
