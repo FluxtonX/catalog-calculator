@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { calculateMonthlyStreamsAndRevenue } from "../../utils/calculations";
 import {
   ArrowLeft,
   Save,
@@ -351,40 +352,74 @@ const ValuationTab = () => {
 
   if (!artistData) return null;
 
+  // const lifetimeStreams =
+  //   parseFloat(lifetimeStreamsInput.replace(/,/g, "")) || 0;
+  // const currentDate = new Date();
+  // const monthsLive = getMonthsBetween(releaseDate, currentDate);
+
   const lifetimeStreams =
     parseFloat(lifetimeStreamsInput.replace(/,/g, "")) || 0;
   const currentDate = new Date();
   const monthsLive = getMonthsBetween(releaseDate, currentDate);
 
   // Calculate monthly streams estimate with priority logic
-  let monthlyStreamsEst = 0;
-  let methodUsed = "";
+  //   let monthlyStreamsEst = 0;
+  //   let methodUsed = "";
 
-  // Priority 1: Recent 30 days
-  if (artistData.streams_last_30_days) {
-    monthlyStreamsEst = artistData.streams_last_30_days;
-    methodUsed = "RECENT_30D";
-  }
-  // Priority 2: Recent 28 days (normalized to 30)
-  else if (artistData.streams_last_28_days) {
-    monthlyStreamsEst = Math.round(artistData.streams_last_28_days * (30 / 28));
-    methodUsed = "RECENT_28D_NORMALIZED";
-  }
-  // Priority 3: Lifetime with decay
-  else {
-    const avgMonthly = monthsLive > 0 ? lifetimeStreams / monthsLive : 0;
-    const decayFactor = getDecayFactor(monthsLive);
-    monthlyStreamsEst = Math.round(avgMonthly * decayFactor);
-    methodUsed = "LIFETIME_RUNRATE_ADJ";
-  }
+  //   // Priority 1: Recent 30 days
+  //   if (artistData.streams_last_30_days) {
+  //     monthlyStreamsEst = artistData.streams_last_30_days;
+  //     methodUsed = "RECENT_30D";
+  //   }
+  //   // Priority 2: Recent 28 days (normalized to 30)
+  //   else if (artistData.streams_last_28_days) {
+  //     monthlyStreamsEst = Math.round(artistData.streams_last_28_days * (30 / 28));
+  //     methodUsed = "RECENT_28D_NORMALIZED";
+  //   }
+  //   // Priority 3: Lifetime with decay
+  //   else {
+  //     const avgMonthly = monthsLive > 0 ? lifetimeStreams / monthsLive : 0;
+  //     const decayFactor = getDecayFactor(monthsLive);
+  //     monthlyStreamsEst = Math.round(avgMonthly * decayFactor);
+  //     methodUsed = "LIFETIME_RUNRATE_ADJ";
+  //   }
 
-  // Calculate geo-weighted effective rate
+  //   // Calculate geo-weighted effective rate
+  //   // const geoRateData = calculateGeoWeightedRate(artistData.topCities);
+  //   // const effectiveSpotifyRate = geoRateData.rate;
+  // const geoRateData = calculateGeoWeightedRate(artistData.topCities);
+  // const effectiveSpotifyRate = geoRateData.rate;
+
+  //   const geoMethodUsed = geoRateData.method;
+
+  //   const monthlySpotifyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
+  //   const ltmSpotifyRevenue = monthlySpotifyRevenue * 12;
+
+  //   const conservativeValuation = ltmSpotifyRevenue * 6;
+  //   const marketValuation = ltmSpotifyRevenue * 8;
+  //   const premiumValuation = ltmSpotifyRevenue * 10;
+
+  // Calculate geo-weighted effective rate (needed for calculation function)
   const geoRateData = calculateGeoWeightedRate(artistData.topCities);
   const effectiveSpotifyRate = geoRateData.rate;
   const geoMethodUsed = geoRateData.method;
 
-  const monthlySpotifyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
-  const ltmSpotifyRevenue = monthlySpotifyRevenue * 12;
+  // Use new calculation function with featured track logic
+  const {
+    monthlyStreamsEst,
+    monthlyRevenue,
+    methodUsed,
+    featuredTrackCount,
+    totalTrackCount,
+  } = calculateMonthlyStreamsAndRevenue(
+    artistData,
+    lifetimeStreams,
+    monthsLive,
+    effectiveSpotifyRate,
+  );
+
+  const monthlySpotifyRevenue = monthlyRevenue;
+  const ltmSpotifyRevenue = monthlyRevenue * 12;
 
   const conservativeValuation = ltmSpotifyRevenue * 6;
   const marketValuation = ltmSpotifyRevenue * 8;
@@ -687,9 +722,33 @@ const ValuationTab = () => {
                   {methodUsed === "RECENT_30D" && "Recent 30-day streams"}
                   {methodUsed === "RECENT_28D_NORMALIZED" &&
                     "Recent 28-day streams (normalized to 30 days)"}
+                  {methodUsed === "TOP_TRACKS_FEATURED_ADJ" &&
+                    `Top Tracks with Featured Track Adjustments (${totalTrackCount} tracks analyzed)`}
                   {methodUsed === "LIFETIME_RUNRATE_ADJ" &&
                     `Lifetime Streams with Age Decay (${(getDecayFactor(monthsLive) * 100).toFixed(0)}% decay factor applied, ${monthsLive} months old)`}
                 </div>
+                {/* Featured Track Disclaimer */}
+                {methodUsed === "TOP_TRACKS_FEATURED_ADJ" &&
+                  featuredTrackCount > 0 && (
+                    <div className="mt-4 p-5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-200 dark:border-amber-500/30 rounded-xl">
+                      <div className="flex items-start gap-3">
+                        <Info
+                          size={20}
+                          className="text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5"
+                        />
+                        <div className="text-sm text-amber-700 dark:text-amber-400">
+                          <strong className="font-bold">
+                            Featured Track Adjustment:
+                          </strong>{" "}
+                          {featuredTrackCount} of {totalTrackCount} top tracks
+                          identified as featured collaborations. Featured tracks
+                          are calculated at 25% of streaming revenue, as artists
+                          typically receive a smaller share on collaborations
+                          where they are not the primary artist.
+                        </div>
+                      </div>
+                    </div>
+                  )}
               </div>
             </div>
           </div>
@@ -843,6 +902,13 @@ const ValuationTab = () => {
                 </div>
                 <p className="text-sm text-emerald-700 dark:text-emerald-400">
                   {formatCurrency(monthlySpotifyRevenue)} × 12 months
+                  {methodUsed === "TOP_TRACKS_FEATURED_ADJ" &&
+                    featuredTrackCount > 0 && (
+                      <span className="block mt-2 text-xs">
+                        (Includes featured track revenue adjustment:{" "}
+                        {featuredTrackCount}/{totalTrackCount} tracks at 25%)
+                      </span>
+                    )}
                 </p>
               </div>
             </div>
@@ -923,11 +989,15 @@ const ValuationTab = () => {
               <h3 className="text-xl font-bold text-blue-800 dark:text-blue-300 mb-4">
                 Valuation Methodology
               </h3>
-              <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 list-disc list-inside">
+            <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 list-disc list-inside">
                 <li>
-                  Monthly streams calculated using priority: (1) Recent 30-day
-                  data, (2) Recent 28-day data normalized, (3) Lifetime history
-                  with age-based decay factors
+                  Monthly streams calculated using priority: (1) Recent 30-day data, 
+                  (2) Recent 28-day data normalized, (3) Top tracks with featured track 
+                  revenue adjustments, (4) Lifetime history with age-based decay factors
+                </li>
+                <li>
+                  <strong>Featured tracks (containing "feat." or "featuring")</strong> are 
+                  calculated at 25% revenue share when the artist is not the primary artist
                 </li>
                 <li>
                   Geo-weighted Spotify payout rates applied based on listener
@@ -947,6 +1017,9 @@ const ValuationTab = () => {
                 <li>
                   Regional rates: US/CA/UK/AU ($0.0042), EU West ($0.0036),
                   LATAM ($0.0018), Asia ($0.0022), Rest of World ($0.0016)
+                </li>
+                <li>
+                  <strong>API Limitation:</strong> Calculations based on top 10 tracks only
                 </li>
               </ul>
             </div>

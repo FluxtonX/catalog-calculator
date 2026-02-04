@@ -1,6 +1,7 @@
 // src/utils/calculations.js
 import { RATE_BY_REGION, DEFAULT_SPOTIFY_RATE, DECAY_FACTORS, VALUATION_MULTIPLES } from "./constants";
 import { parseStreamCount } from "./formatters";
+import { getRevenueMultiplier, calculateTrackRevenue } from './featuredTrackUtils';
 
 /**
  * Get decay factor based on months since release
@@ -216,34 +217,168 @@ export const getAverageReleaseDate = (artistData) => {
 /**
  * Calculate monthly streams estimate with priority logic
  */
-export const calculateMonthlyStreams = (artistData, lifetimeStreams, monthsLive) => {
+// export const calculateMonthlyStreams = (artistData, lifetimeStreams, monthsLive) => {
+//   let monthlyStreamsEst = 0;
+//   let methodUsed = "";
+
+//   // Priority 1: Recent 30 days
+//   if (artistData.streams_last_30_days) {
+//     monthlyStreamsEst = artistData.streams_last_30_days;
+//     methodUsed = "RECENT_30D";
+//   }
+//   // Priority 2: Recent 28 days (normalized to 30)
+//   else if (artistData.streams_last_28_days) {
+//     monthlyStreamsEst = Math.round(artistData.streams_last_28_days * (30 / 28));
+//     methodUsed = "RECENT_28D_NORMALIZED";
+//   }
+//   // Priority 3: Lifetime with decay
+//   else {
+//     const avgMonthly = monthsLive > 0 ? lifetimeStreams / monthsLive : 0;
+//     const decayFactor = getDecayFactor(monthsLive);
+//     monthlyStreamsEst = Math.round(avgMonthly * decayFactor);
+//     methodUsed = "LIFETIME_RUNRATE_ADJ";
+//   }
+
+//   return { monthlyStreamsEst, methodUsed };
+// };
+
+/**
+ * Calculate all valuations
+ */
+
+
+// export const calculateValuations = (
+
+
+//   artistData,
+//   lifetimeStreams,
+//   releaseDate,
+//   topCities
+// ) => {
+//   const currentDate = new Date();
+//   const monthsLive = getMonthsBetween(releaseDate, currentDate);
+
+//   const { monthlyStreamsEst, methodUsed } = calculateMonthlyStreams(
+//     artistData,
+//     lifetimeStreams,
+//     monthsLive
+//   );
+
+//   const geoRateData = calculateGeoWeightedRate(topCities);
+//   const effectiveSpotifyRate = geoRateData.rate;
+
+//   const monthlySpotifyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
+//   const ltmSpotifyRevenue = monthlySpotifyRevenue * 12;
+
+//   const conservativeValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.CONSERVATIVE;
+//   const marketValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.MARKET;
+//   const premiumValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.PREMIUM;
+
+//   return {
+//     monthsLive,
+//     monthlyStreamsEst,
+//     methodUsed,
+//     effectiveSpotifyRate,
+//     geoRateData,
+//     monthlySpotifyRevenue,
+//     ltmSpotifyRevenue,
+//     conservativeValuation,
+//     marketValuation,
+//     premiumValuation,
+//   };
+// };
+
+
+
+export const calculateMonthlyStreamsAndRevenue = (
+  artistData,
+  lifetimeStreams,
+  monthsLive,
+  effectiveSpotifyRate
+) => {
   let monthlyStreamsEst = 0;
+  let monthlyRevenue = 0;
   let methodUsed = "";
+  let featuredTrackCount = 0;
+  let totalTrackCount = 0;
 
   // Priority 1: Recent 30 days
   if (artistData.streams_last_30_days) {
     monthlyStreamsEst = artistData.streams_last_30_days;
+    monthlyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
     methodUsed = "RECENT_30D";
   }
   // Priority 2: Recent 28 days (normalized to 30)
   else if (artistData.streams_last_28_days) {
     monthlyStreamsEst = Math.round(artistData.streams_last_28_days * (30 / 28));
+    monthlyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
     methodUsed = "RECENT_28D_NORMALIZED";
   }
-  // Priority 3: Lifetime with decay
+  // Priority 3: Top tracks with featured logic
+  else if (artistData.topTracks && artistData.topTracks.length > 0) {
+    const topTracks = artistData.topTracks.slice(0, 10); // Only use top 10
+    totalTrackCount = topTracks.length;
+    
+    let totalMonthlyStreams = 0;
+    let totalMonthlyRevenue = 0;
+
+    topTracks.forEach((track) => {
+      let trackStreams = 0;
+      
+      // Parse stream count
+      if (track.streamCount) {
+        trackStreams = parseInt(track.streamCount);
+      } else if (track.streamCountFormatted) {
+        trackStreams = parseStreamCount(track.streamCountFormatted);
+      }
+
+      if (trackStreams > 0) {
+        // Estimate monthly streams (assuming track is evenly distributed over time)
+        const trackMonthlyStreams = monthsLive > 0 
+          ? (trackStreams / monthsLive) * getDecayFactor(monthsLive)
+          : trackStreams * 0.1; // 10% monthly if no release date
+
+        // Apply featured track logic
+        const multiplier = getRevenueMultiplier(track, artistData.name);
+        if (multiplier === 0.25) {
+          featuredTrackCount++;
+        }
+
+        const trackRevenue = calculateTrackRevenue(
+          trackMonthlyStreams,
+          effectiveSpotifyRate,
+          multiplier
+        );
+
+        totalMonthlyStreams += trackMonthlyStreams;
+        totalMonthlyRevenue += trackRevenue;
+      }
+    });
+
+    monthlyStreamsEst = Math.round(totalMonthlyStreams);
+    monthlyRevenue = totalMonthlyRevenue;
+    methodUsed = "TOP_TRACKS_FEATURED_ADJ";
+  }
+  // Priority 4: Lifetime with decay (fallback)
   else {
     const avgMonthly = monthsLive > 0 ? lifetimeStreams / monthsLive : 0;
     const decayFactor = getDecayFactor(monthsLive);
     monthlyStreamsEst = Math.round(avgMonthly * decayFactor);
+    monthlyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
     methodUsed = "LIFETIME_RUNRATE_ADJ";
   }
 
-  return { monthlyStreamsEst, methodUsed };
+  return {
+    monthlyStreamsEst,
+    monthlyRevenue,
+    methodUsed,
+    featuredTrackCount,
+    totalTrackCount,
+  };
 };
 
-/**
- * Calculate all valuations
- */
+// Update calculateValuations to use the new function:
+
 export const calculateValuations = (
   artistData,
   lifetimeStreams,
@@ -253,17 +388,23 @@ export const calculateValuations = (
   const currentDate = new Date();
   const monthsLive = getMonthsBetween(releaseDate, currentDate);
 
-  const { monthlyStreamsEst, methodUsed } = calculateMonthlyStreams(
-    artistData,
-    lifetimeStreams,
-    monthsLive
-  );
-
   const geoRateData = calculateGeoWeightedRate(topCities);
   const effectiveSpotifyRate = geoRateData.rate;
 
-  const monthlySpotifyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
-  const ltmSpotifyRevenue = monthlySpotifyRevenue * 12;
+  const {
+    monthlyStreamsEst,
+    monthlyRevenue,
+    methodUsed,
+    featuredTrackCount,
+    totalTrackCount,
+  } = calculateMonthlyStreamsAndRevenue(
+    artistData,
+    lifetimeStreams,
+    monthsLive,
+    effectiveSpotifyRate
+  );
+
+  const ltmSpotifyRevenue = monthlyRevenue * 12;
 
   const conservativeValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.CONSERVATIVE;
   const marketValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.MARKET;
@@ -272,13 +413,15 @@ export const calculateValuations = (
   return {
     monthsLive,
     monthlyStreamsEst,
+    monthlyRevenue,
     methodUsed,
     effectiveSpotifyRate,
     geoRateData,
-    monthlySpotifyRevenue,
     ltmSpotifyRevenue,
     conservativeValuation,
     marketValuation,
     premiumValuation,
+    featuredTrackCount,
+    totalTrackCount,
   };
 };
