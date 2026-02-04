@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { calculateMonthlyStreamsAndRevenue } from "../../utils/calculations";
+import { generateValuationPDF } from "../../utils/pdfGenerator";
 import {
   ArrowLeft,
   Save,
@@ -455,6 +456,7 @@ const ValuationTab = () => {
     return "$" + num.toFixed(2);
   };
 
+  // Replace the handleSave function (around line 470-490)
   const handleSave = () => {
     const reportData = {
       artist: artistData.name,
@@ -476,6 +478,8 @@ const ValuationTab = () => {
         geoBreakdown: geoRateData.breakdown,
         monthlySpotifyRevenue: monthlySpotifyRevenue,
         ltmSpotifyRevenue: ltmSpotifyRevenue,
+        featuredTrackCount: featuredTrackCount || 0,
+        totalTrackCount: totalTrackCount || 0,
       },
       valuations: {
         conservative: conservativeValuation,
@@ -483,8 +487,16 @@ const ValuationTab = () => {
         premium: premiumValuation,
       },
     };
-    console.log("Saving report:", reportData);
-    alert("Valuation report saved successfully!");
+
+    console.log("Generating PDF report:", reportData);
+
+    try {
+      generateValuationPDF(reportData);
+      alert("Valuation report PDF downloaded successfully!");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      alert("Error generating PDF. Please try again.");
+    }
   };
 
   const hasValidData = lifetimeStreams > 0;
@@ -989,15 +1001,19 @@ const ValuationTab = () => {
               <h3 className="text-xl font-bold text-blue-800 dark:text-blue-300 mb-4">
                 Valuation Methodology
               </h3>
-            <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 list-disc list-inside">
+              <ul className="text-sm text-blue-700 dark:text-blue-400 space-y-2 list-disc list-inside">
                 <li>
-                  Monthly streams calculated using priority: (1) Recent 30-day data, 
-                  (2) Recent 28-day data normalized, (3) Top tracks with featured track 
-                  revenue adjustments, (4) Lifetime history with age-based decay factors
+                  Monthly streams calculated using priority: (1) Recent 30-day
+                  data, (2) Recent 28-day data normalized, (3) Top tracks with
+                  featured track revenue adjustments, (4) Lifetime history with
+                  age-based decay factors
                 </li>
                 <li>
-                  <strong>Featured tracks (containing "feat." or "featuring")</strong> are 
-                  calculated at 25% revenue share when the artist is not the primary artist
+                  <strong>
+                    Featured tracks (containing "feat." or "featuring")
+                  </strong>{" "}
+                  are calculated at 25% revenue share when the artist is not the
+                  primary artist
                 </li>
                 <li>
                   Geo-weighted Spotify payout rates applied based on listener
@@ -1019,7 +1035,8 @@ const ValuationTab = () => {
                   LATAM ($0.0018), Asia ($0.0022), Rest of World ($0.0016)
                 </li>
                 <li>
-                  <strong>API Limitation:</strong> Calculations based on top 10 tracks only
+                  <strong>API Limitation:</strong> Calculations based on top 10
+                  tracks only
                 </li>
               </ul>
             </div>
@@ -1036,7 +1053,7 @@ const ValuationTab = () => {
             disabled={!hasValidData}
             className={`${hasValidData ? "bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600" : "bg-slate-400 cursor-not-allowed"} text-white shadow-xl px-8 py-4 text-lg font-bold w-full sm:w-auto`}
           >
-            Save Valuation Report
+            Download PDF Report
           </Button>
         </div>
       </div>
