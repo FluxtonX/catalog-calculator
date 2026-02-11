@@ -7,14 +7,17 @@ import {
   X,
   Sparkles,
 } from "lucide-react";
+
 import Card from "../components/common/Card";
 import Button from "../components/common/Button";
 import ArtistCard from "../components/ui/ArtistCard";
 import Badge from "../components/common/Badge";
 import SkeletonLoader from "../components/ui/SkeletonLoader";
 import { usePageTitle } from "../hooks/usePageTitle";
-import { searchYouTube, searchApify, getArtistSuggestions } from "../utils/api";
+import { searchYouTube, searchApify, getArtistSuggestions, getYouTubeChannelDetails } from "../utils/api";
 import { useArtistStore } from "../store/artistStore";
+// At the top of ValuationTool.jsx
+import ChannelSelector from "../components/youtube/ChannelSelector";
 const ValuationTool = () => {
   usePageTitle("Valuation Tool", "Analyze artist metrics with real-time data");
   const {
@@ -34,6 +37,8 @@ const ValuationTool = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [showSuggestionsDropdown, setShowSuggestionsDropdown] = useState(false);
+    const [youtubeChannels, setYoutubeChannels] = useState([]);
+  const [showChannelSelector, setShowChannelSelector] = useState(false);
 
   const [shouldShowSuggestions, setShouldShowSuggestions] = useState(true);
   const suggestedArtists = [
@@ -146,6 +151,10 @@ const ValuationTool = () => {
     return () => clearTimeout(timer);
   }, [searchQuery, platform, shouldShowSuggestions]);
 
+
+  // ... keep all your existing useEffects ...
+
+  // UPDATE handleSearch function
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
       setError("Please enter a search query");
@@ -156,6 +165,8 @@ const ValuationTool = () => {
     setError(null);
     setSelectedArtist(null);
     setShowSuggestionsDropdown(false);
+    setShowChannelSelector(false); // ADDED
+    setYoutubeChannels([]); // ADDED
 
     try {
       let result;
@@ -167,6 +178,14 @@ const ValuationTool = () => {
 
         case "youtube":
           result = await searchYouTube(searchQuery);
+          
+          // ADDED: Handle YouTube channel list
+          if (result.type === 'channel_list') {
+            setYoutubeChannels(result.channels);
+            setShowChannelSelector(true);
+            setIsLoading(false);
+            return; // Don't set selectedArtist yet
+          }
           break;
 
         default:
@@ -198,6 +217,8 @@ const ValuationTool = () => {
     setError(null);
     setIsLoading(true);
     setSelectedArtist(null);
+    setShowChannelSelector(false); // ADDED
+    setYoutubeChannels([]); // ADDED
 
     try {
       let result;
@@ -209,6 +230,14 @@ const ValuationTool = () => {
 
         case "youtube":
           result = await searchYouTube(artist);
+          
+          // ADDED: Handle YouTube channel list
+          if (result.type === 'channel_list') {
+            setYoutubeChannels(result.channels);
+            setShowChannelSelector(true);
+            setIsLoading(false);
+            return;
+          }
           break;
       }
 
@@ -217,6 +246,12 @@ const ValuationTool = () => {
       }
 
       setSelectedArtist(result);
+      console.log("📊 Artist Data:", {
+        singles: result.singles,
+        popularReleases: result.popularReleases,
+        albums: result.albums,
+        relatedArtists: result.relatedArtists,
+      });
       setError(null);
     } catch (err) {
       console.error("API error:", err);
@@ -228,6 +263,30 @@ const ValuationTool = () => {
       setIsLoading(false);
     }
   };
+
+    const handleChannelSelect = async (channel) => {
+    setIsLoading(true);
+    setError(null);
+    setShowChannelSelector(false);
+
+    try {
+      const result = await getYouTubeChannelDetails(searchQuery, channel.id);
+      
+      if (!result || !result.name) {
+        throw new Error("Invalid response from API");
+      }
+
+      setSelectedArtist(result);
+      setError(null);
+    } catch (err) {
+      console.error("API error:", err);
+      setError(err.message || "Failed to fetch channel details");
+      setSelectedArtist(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
   const handleSuggestedArtistClick = (artist) => {
     handleSuggestionClick(artist);
@@ -531,6 +590,14 @@ const ValuationTool = () => {
 
         {/* Loading State */}
         {isLoading && <SkeletonLoader />}
+
+           {!isLoading && showChannelSelector && youtubeChannels.length > 0 && (
+          <ChannelSelector
+            channels={youtubeChannels}
+            onSelectChannel={handleChannelSelect}
+            isLoading={isLoading}
+          />
+        )}
 
         {/* Artist Analysis */}
         {!isLoading && selectedArtist && (

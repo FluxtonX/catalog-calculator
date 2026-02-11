@@ -57,3 +57,44 @@
 .react-datepicker__input-container input {
   width: 100% !important;
 }
+
+
+/* Slider Styles */
+.slider-thumb::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #dc2626;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-webkit-slider-thumb:hover {
+  background: #b91c1c;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+.slider-thumb::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #dc2626;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.slider-thumb::-moz-range-thumb:hover {
+  background: #b91c1c;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
+}
+
+/* Dark mode slider track */
+.dark .slider-thumb {
+  background: linear-gradient(to right, #dc2626 0%, #dc2626 var(--value), rgb(51 65 85) var(--value), rgb(51 65 85) 100%);
+}

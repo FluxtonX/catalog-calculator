@@ -1,15 +1,62 @@
 // src/components/artist/TabNavigation.jsx
 import React from "react";
-import { Music, Users, Album, MapPin, DollarSign } from "lucide-react"; // ADDED DollarSign
+import { Music, Users, Album, MapPin, DollarSign, Star, Disc } from "lucide-react";
 
-const TabNavigation = ({ activeTab, onTabChange, platform, hasRelated, hasCities }) => {
+const TabNavigation = ({ 
+  activeTab, 
+  onTabChange, 
+  platform, 
+  hasRelated, 
+  hasCities,
+  hasPopularReleases,
+  hasSingles
+}) => {
   const tabs = [
-    // ADDED: Valuation tab as first tab
-    { id: "valuation", label: "Valuation", icon: DollarSign, shortLabel: "Value" },
-    { id: "tracks", label: "Top Tracks", icon: Music, shortLabel: "Tracks" },
-    ...(platform !== "apify" ? [{ id: "related", label: "Related Artists", icon: Users, shortLabel: "Related" }] : []),
-    { id: "albums", label: "Albums", icon: Album },
-    ...(platform === "apify" && hasCities ? [{ id: "cities", label: "Top Cities", icon: MapPin, shortLabel: "Cities" }] : []),
+    { 
+      id: "valuation", 
+      label: "Valuation", 
+      icon: DollarSign, 
+      shortLabel: "Value" 
+    },
+    { 
+      id: "tracks", 
+      label: "Top Tracks", 
+      icon: Music, 
+      shortLabel: "Tracks" 
+    },
+    { 
+      id: "albums", 
+      label: "Albums", 
+      icon: Album 
+    },
+    // Singles tab (only show if singles data exists)
+    ...(hasSingles ? [{ 
+      id: "singles", 
+      label: "Singles", 
+      icon: Disc, 
+      shortLabel: "Singles" 
+    }] : []),
+    // Popular Releases tab (only show if popular releases data exists)
+    ...(hasPopularReleases ? [{ 
+      id: "popular", 
+      label: "Popular Releases", 
+      icon: Star, 
+      shortLabel: "Popular" 
+    }] : []),
+    // Related Artists tab (hide for apify, show for spotify)
+    ...(hasRelated ? [{ 
+      id: "related", 
+      label: "Related Artists", 
+      icon: Users, 
+      shortLabel: "Related" 
+    }] : []),
+    // Top Cities tab (only for apify platform)
+    ...(platform === "apify" && hasCities ? [{ 
+      id: "cities", 
+      label: "Top Cities", 
+      icon: MapPin, 
+      shortLabel: "Cities" 
+    }] : []),
   ];
 
   return (

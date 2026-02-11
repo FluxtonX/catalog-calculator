@@ -1,5 +1,5 @@
 // src/components/artist/TrackItem.jsx
-import React, { useCallback } from "react";
+import React from "react";
 import { Calendar, Play, ExternalLink } from "lucide-react";
 import Badge from "../common/Badge";
 import SpotifyEmbed from "./SpotifyEmbed";
@@ -10,6 +10,28 @@ import SpotifyEmbed from "./SpotifyEmbed";
 const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
   const trackId = extractSpotifyId ? extractSpotifyId(track.spotifyUrl) : null;
 
+  // Format the full release date
+  const formatDate = (dateString) => {
+    if (!dateString) return null;
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Determine what date to display - prioritize full date over year
+  const displayDate = track.releaseDate 
+    ? formatDate(track.releaseDate) 
+    : track.releaseYear 
+      ? track.releaseYear 
+      : null;
+
   return (
     <div className="group flex flex-col gap-3 p-3 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-lg">
       <div className="flex items-center gap-3 sm:gap-4">
@@ -18,18 +40,6 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
             {track.rank || index + 1}
           </span>
         </div>
-
-        {track.albumImage && (
-          <img
-            src={track.albumImage}
-            alt={track.album}
-            className="w-14 h-14 sm:w-20 sm:h-20 rounded-lg object-cover shadow-md ring-2 ring-slate-200 dark:ring-slate-700 group-hover:ring-emerald-500/50 transition-all flex-shrink-0"
-            loading="lazy"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-          />
-        )}
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 sm:gap-4">
@@ -48,10 +58,10 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
                     {track.album}
                   </span>
                 )}
-                {track.releaseYear && (
+                {displayDate && (
                   <span className="flex items-center gap-1 flex-shrink-0">
                     <Calendar size={12} className="sm:w-[14px] sm:h-[14px]" />
-                    {track.releaseYear}
+                    {displayDate}
                   </span>
                 )}
                 {track.durationFormatted && (

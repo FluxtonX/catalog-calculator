@@ -214,81 +214,93 @@ export const getAverageReleaseDate = (artistData) => {
   return avgDate.toISOString().split("T")[0];
 };
 
-/**
- * Calculate monthly streams estimate with priority logic
- */
-// export const calculateMonthlyStreams = (artistData, lifetimeStreams, monthsLive) => {
-//   let monthlyStreamsEst = 0;
-//   let methodUsed = "";
-
-//   // Priority 1: Recent 30 days
-//   if (artistData.streams_last_30_days) {
-//     monthlyStreamsEst = artistData.streams_last_30_days;
-//     methodUsed = "RECENT_30D";
-//   }
-//   // Priority 2: Recent 28 days (normalized to 30)
-//   else if (artistData.streams_last_28_days) {
-//     monthlyStreamsEst = Math.round(artistData.streams_last_28_days * (30 / 28));
-//     methodUsed = "RECENT_28D_NORMALIZED";
-//   }
-//   // Priority 3: Lifetime with decay
-//   else {
-//     const avgMonthly = monthsLive > 0 ? lifetimeStreams / monthsLive : 0;
-//     const decayFactor = getDecayFactor(monthsLive);
-//     monthlyStreamsEst = Math.round(avgMonthly * decayFactor);
-//     methodUsed = "LIFETIME_RUNRATE_ADJ";
-//   }
-
-//   return { monthlyStreamsEst, methodUsed };
-// };
+// src/utils/calculations.js - ADD this new function
 
 /**
- * Calculate all valuations
+ * Calculate Dollar Age (Weighted Average Age of Earnings)
+ * Formula: Σ(Age of Track × LTM Earnings of Track) / Total LTM Earnings
  */
+export const calculateDollarAge = (artistData, effectiveSpotifyRate, currentDate) => {
+  if (!artistData?.topTracks || artistData.topTracks.length === 0) {
+    return {
+      dollarAge: 0,
+      totalWeightedAge: 0,
+      totalLTMEarnings: 0,
+      trackBreakdown: []
+    };
+  }
 
+  const topTracks = artistData.topTracks.slice(0, 10);
+  let totalWeightedAge = 0;
+  let totalLTMEarnings = 0;
+  const trackBreakdown = [];
 
-// export const calculateValuations = (
+  topTracks.forEach((track) => {
+    // Get track release date
+    let releaseDate = track.releaseDate;
+    if (!releaseDate && track.releaseYear) {
+      releaseDate = `${track.releaseYear}-01-01`;
+    }
+    
+    if (!releaseDate) return; // Skip if no date available
 
+    // Calculate age in years
+    const release = new Date(releaseDate);
+    const ageInMonths = getMonthsBetween(releaseDate, currentDate);
+    const ageInYears = ageInMonths / 12;
 
-//   artistData,
-//   lifetimeStreams,
-//   releaseDate,
-//   topCities
-// ) => {
-//   const currentDate = new Date();
-//   const monthsLive = getMonthsBetween(releaseDate, currentDate);
+    // Get stream count
+    let trackStreams = 0;
+    if (track.streamCount) {
+      trackStreams = parseInt(track.streamCount);
+    } else if (track.streamCountFormatted) {
+      trackStreams = parseStreamCount(track.streamCountFormatted);
+    }
 
-//   const { monthlyStreamsEst, methodUsed } = calculateMonthlyStreams(
-//     artistData,
-//     lifetimeStreams,
-//     monthsLive
-//   );
+    if (trackStreams === 0) return; // Skip if no streams
 
-//   const geoRateData = calculateGeoWeightedRate(topCities);
-//   const effectiveSpotifyRate = geoRateData.rate;
+    // Estimate monthly streams
+    const trackMonthlyStreams = ageInMonths > 0 
+      ? (trackStreams / ageInMonths) * getDecayFactor(ageInMonths)
+      : trackStreams * 0.1;
 
-//   const monthlySpotifyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
-//   const ltmSpotifyRevenue = monthlySpotifyRevenue * 12;
+    // Apply featured track logic
+    const multiplier = getRevenueMultiplier(track, artistData.name);
 
-//   const conservativeValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.CONSERVATIVE;
-//   const marketValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.MARKET;
-//   const premiumValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.PREMIUM;
+    // Calculate LTM earnings for this track
+    const trackLTMEarnings = calculateTrackRevenue(
+      trackMonthlyStreams,
+      effectiveSpotifyRate,
+      multiplier
+    ) * 12;
 
-//   return {
-//     monthsLive,
-//     monthlyStreamsEst,
-//     methodUsed,
-//     effectiveSpotifyRate,
-//     geoRateData,
-//     monthlySpotifyRevenue,
-//     ltmSpotifyRevenue,
-//     conservativeValuation,
-//     marketValuation,
-//     premiumValuation,
-//   };
-// };
+    // Calculate weighted age
+    const weightedAge = ageInYears * trackLTMEarnings;
 
+    totalWeightedAge += weightedAge;
+    totalLTMEarnings += trackLTMEarnings;
 
+    trackBreakdown.push({
+      name: track.title || track.name,
+      ageInYears: parseFloat(ageInYears.toFixed(2)),
+      ltmEarnings: trackLTMEarnings,
+      weightedAge: weightedAge,
+      releaseDate: releaseDate
+    });
+  });
+
+  // Calculate final Dollar Age
+  const dollarAge = totalLTMEarnings > 0 
+    ? totalWeightedAge / totalLTMEarnings 
+    : 0;
+
+  return {
+    dollarAge: parseFloat(dollarAge.toFixed(2)),
+    totalWeightedAge: totalWeightedAge,
+    totalLTMEarnings: totalLTMEarnings,
+    trackBreakdown: trackBreakdown
+  };
+};
 
 export const calculateMonthlyStreamsAndRevenue = (
   artistData,
@@ -425,3 +437,4 @@ export const calculateValuations = (
     totalTrackCount,
   };
 };
+

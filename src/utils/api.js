@@ -4,7 +4,8 @@
 
 
 import { supabase } from './supabase'
-
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 // Helper to get auth headers
 async function getAuthHeaders() {
   const { data: { session } } = await supabase.auth.getSession()
@@ -25,15 +26,63 @@ export async function searchSpotify(query) {
 }
 
 // YouTube
-export async function searchYouTube(query) {
-  const headers = await getAuthHeaders()
-  const { data, error } = await supabase.functions.invoke('youtube', {
-    body: { query },
-    headers,
-  })
-  if (error) throw error
-  return data
-}
+// src/utils/api.js - ADD these functions to your existing file
+
+// ... your existing searchApify and other functions ...
+
+/**
+ * Search YouTube channels
+ */
+export const searchYouTube = async (query) => {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to search YouTube');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('YouTube search error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get YouTube channel details
+ */
+export const getYouTubeChannelDetails = async (query, channelId) => {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ query, channelId }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get channel details');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('YouTube channel details error:', error);
+    throw error;
+  }
+};
 
 // Apify
 export async function searchApify(query) {
