@@ -4,9 +4,14 @@ import { Users, Eye, ExternalLink } from "lucide-react";
 import Card from "../common/Card";
 import Badge from "../common/Badge";
 
-
 const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
   if (!channels || channels.length === 0) return null;
+  // ✅ ADD: Sort channels by subscribers (descending)
+  const sortedChannels = [...channels].sort((a, b) => {
+    const subsA = a.subscribers || 0;
+    const subsB = b.subscribers || 0;
+    return subsB - subsA; // Descending order (highest first)
+  });
 
   const formatNumber = (num) => {
     if (!num) return "0";
@@ -33,7 +38,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {channels.map((channel, index) => (
+        {sortedChannels.map((channel, index) => (
           <button
             key={channel.id}
             onClick={() => onSelectChannel(channel)}
@@ -49,7 +54,8 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
                   className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-110"
                   loading="lazy"
                   onError={(e) => {
-                    e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23dc2626' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-size='40'%3EYT%3C/text%3E%3C/svg%3E";
+                    e.currentTarget.src =
+                      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23dc2626' width='100' height='100'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='white' font-size='40'%3EYT%3C/text%3E%3C/svg%3E";
                   }}
                 />
               ) : (
@@ -69,7 +75,8 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
               <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                 <Users size={14} />
                 <span className="font-semibold">
-                  {channel.subscribersFormatted || formatNumber(channel.subscribers)}
+                  {channel.subscribersFormatted ||
+                    formatNumber(channel.subscribers)}
                 </span>
                 <span className="text-xs">subscribers</span>
               </div>
@@ -78,7 +85,8 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
               <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                 <Eye size={14} />
                 <span className="font-semibold">
-                  {channel.totalViewsFormatted || formatNumber(channel.totalViews)}
+                  {channel.totalViewsFormatted ||
+                    formatNumber(channel.totalViews)}
                 </span>
                 <span className="text-xs">views</span>
               </div>

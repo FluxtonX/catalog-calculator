@@ -265,7 +265,7 @@ const ArtistCard = ({
             artistData={{
               name,
               image,
-            totalViews: totalViews|| 0,
+           totalViews: stats?.totalViews || 0,
               followers,
               popularity,
               platform,

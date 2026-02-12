@@ -250,6 +250,8 @@ export const generateValuationPDF = (reportData) => {
       });
       yPos += 15;
     }
+
+    
     
     // ========== METHODOLOGY ==========
     if (yPos > 220) {
