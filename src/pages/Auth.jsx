@@ -11,14 +11,23 @@ export default function Auth() {
 
   const from = location.state?.from?.pathname || '/valuation';
 
-  useEffect(() => {
-    // Check if user is already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate(from, { replace: true });
-      }
-    });
-  }, [navigate, from]);
+useEffect(() => {
+  // Listen for auth changes (triggered after OAuth redirect)
+  const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    if (session) {
+      navigate(from, { replace: true });
+    }
+  });
+
+  // Also check session on mount (page refresh)
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) navigate(from, { replace: true });
+  });
+
+  return () => {
+    listener.subscription.unsubscribe();
+  };
+}, [navigate, from]);
 
   const handleGoogleSignIn = async () => {
     try {
