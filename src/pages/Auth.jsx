@@ -10,24 +10,21 @@ export default function Auth() {
   const [error, setError] = useState(null);
 
   const from = location.state?.from?.pathname || '/valuation';
-
 useEffect(() => {
-  // Listen for auth changes (triggered after OAuth redirect)
+  // Listen for auth changes
   const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
     if (session) {
-      navigate(from, { replace: true });
+      navigate('/valuation', { replace: true });
     }
   });
 
-  // Also check session on mount (page refresh)
+  // Check session on mount
   supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) navigate(from, { replace: true });
+    if (session) navigate('/valuation', { replace: true });
   });
 
-  return () => {
-    listener.subscription.unsubscribe();
-  };
-}, [navigate, from]);
+  return () => listener.subscription.unsubscribe();
+}, [navigate]);
 
   const handleGoogleSignIn = async () => {
     try {
