@@ -28,7 +28,7 @@ export default function Auth() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}${from}`,
+          redirectTo: `${window.location.origin}/valuation`,
         },
       });
 
@@ -45,13 +45,19 @@ export default function Auth() {
       setLoading({ ...loading, spotify: true });
       setError(null);
 
+      console.log('Starting Spotify OAuth...');
+      console.log('Redirect URL:', `${window.location.origin}/valuation`);
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'spotify',
         options: {
-          redirectTo: `${window.location.origin}${from}`,
-          scopes: 'user-read-email',
+          redirectTo: `${window.location.origin}/valuation`,
+          scopes: 'user-read-email user-read-private', // ✅ BOTH SCOPES REQUIRED
         },
       });
+
+      console.log('Spotify OAuth data:', data);
+      console.log('Spotify OAuth error:', error);
 
       if (error) throw error;
     } catch (error) {
