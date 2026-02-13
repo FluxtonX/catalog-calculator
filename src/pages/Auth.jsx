@@ -10,21 +10,41 @@ export default function Auth() {
   const [error, setError] = useState(null);
 
   const from = location.state?.from?.pathname || '/valuation';
-useEffect(() => {
-  // Listen for auth changes
-  const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-    if (session) {
-      navigate('/valuation', { replace: true });
-    }
-  });
 
-  // Check session on mount
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) navigate('/valuation', { replace: true });
-  });
+  useEffect(() => {
+    console.log('🔍 Auth Component Mounted');
+    console.log('📍 Current Location:', window.location.href);
+    console.log('📍 Origin:', window.location.origin);
+    console.log('📍 Pathname:', window.location.pathname);
+    
+    // Listen for auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔔 Auth State Changed:', event);
+      console.log('👤 Session:', session);
+      
+      if (session) {
+        console.log('✅ Session Found - Navigating to /valuation');
+        console.log('👤 User:', session.user);
+        navigate('/valuation', { replace: true });
+      } else {
+        console.log('❌ No Session Found');
+      }
+    });
 
-  return () => listener.subscription.unsubscribe();
-}, [navigate]);
+    // Check session on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('🔍 Initial Session Check:', session);
+      if (session) {
+        console.log('✅ Existing Session - Navigating to /valuation');
+        navigate('/valuation', { replace: true });
+      }
+    });
+
+    return () => {
+      console.log('🧹 Cleaning up auth listener');
+      listener.subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const handleGoogleSignIn = async () => {
     try {
@@ -48,26 +68,73 @@ useEffect(() => {
 
   const handleSpotifySignIn = async () => {
     try {
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('🎵 SPOTIFY SIGN IN - START');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
       setLoading({ ...loading, spotify: true });
       setError(null);
 
-      console.log('Starting Spotify OAuth...');
-      console.log('Redirect URL:', `${window.location.origin}/valuation`);
+      // Log environment details
+      console.log('📍 Current URL:', window.location.href);
+      console.log('📍 Origin:', window.location.origin);
+      console.log('📍 Protocol:', window.location.protocol);
+      console.log('📍 Hostname:', window.location.hostname);
+      console.log('📍 Port:', window.location.port);
+      
+      const redirectUrl = `${window.location.origin}/valuation`;
+      console.log('🔗 Redirect URL:', redirectUrl);
+      
+      // Check current session before OAuth
+      const { data: sessionData } = await supabase.auth.getSession();
+      console.log('👤 Current Session Before OAuth:', sessionData.session);
 
+      console.log('🚀 Calling Supabase OAuth...');
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'spotify',
         options: {
-          redirectTo: `${window.location.origin}/valuation`,
-          scopes: 'user-read-email user-read-private', // ✅ BOTH SCOPES REQUIRED
+          redirectTo: redirectUrl,
+          scopes: 'user-read-email user-read-private',
         },
       });
 
-      console.log('Spotify OAuth data:', data);
-      console.log('Spotify OAuth error:', error);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('📦 OAUTH RESPONSE:');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('✅ Data:', JSON.stringify(data, null, 2));
+      console.log('❌ Error:', JSON.stringify(error, null, 2));
+      
+      if (data?.url) {
+        console.log('🔗 OAuth URL Generated:', data.url);
+        console.log('🚀 Browser will redirect to Spotify...');
+      }
+      
+      if (data?.provider) {
+        console.log('🔑 Provider:', data.provider);
+      }
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ OAuth Error Details:', {
+          message: error.message,
+          status: error.status,
+          code: error.code,
+          details: error
+        });
+        throw error;
+      }
+
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
     } catch (error) {
-      console.error('Spotify sign in error:', error);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('💥 SPOTIFY SIGN IN ERROR');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('Error Type:', typeof error);
+      console.error('Error Message:', error.message);
+      console.error('Error Stack:', error.stack);
+      console.error('Full Error:', error);
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      
       setError(error.message || 'Failed to sign in with Spotify');
       setLoading({ ...loading, spotify: false });
     }
