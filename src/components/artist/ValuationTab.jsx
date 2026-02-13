@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { calculateMonthlyStreamsAndRevenue } from "../../utils/calculations";
 import { generateValuationPDF } from "../../utils/pdfGenerator";
 import {
@@ -21,10 +21,17 @@ import Badge from "../common/Badge";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { calculateDollarAge } from "../../utils/calculations";
+import { supabase } from "../../utils/supabase";
 
 const ValuationTab = () => {
   const navigate = useNavigate();
   const { selectedArtist: artistData } = useArtistStore();
+
+  // ====================================
+  // 🆕 NEW: Add state for user and saving
+  // ====================================
+  const [user, setUser] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Region payout rate table (as per client spec document)
   const RATE_BY_REGION = {
@@ -53,7 +60,6 @@ const ValuationTab = () => {
     return Math.max(1, months);
   };
 
-  // Map cities to regions for geo-weighting
   // Map cities to regions for geo-weighting
   const getCityRegion = (cityObj) => {
     if (!cityObj) return "ROW";
@@ -205,7 +211,6 @@ const ValuationTab = () => {
   };
 
   // Calculate geo-weighted effective Spotify rate
-  // Calculate geo-weighted effective Spotify rate
   const calculateGeoWeightedRate = (topCities) => {
     if (!topCities || topCities.length === 0) {
       return {
@@ -253,8 +258,6 @@ const ValuationTab = () => {
       breakdown: regionShares,
     };
   };
-
-
 
   const getLifetimeStreams = () => {
     if (!artistData) return 0;
@@ -348,6 +351,19 @@ const ValuationTab = () => {
   );
   const [releaseDate, setReleaseDate] = useState(getAverageReleaseDate());
 
+  // ====================================
+  // 🆕 NEW: Get current user on mount
+  // ====================================
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    fetchUser();
+  }, []);
+
   useEffect(() => {
     if (!artistData) {
       navigate("/valuation");
@@ -356,41 +372,32 @@ const ValuationTab = () => {
 
   if (!artistData) return null;
 
-  // const lifetimeStreams =
-  //   parseFloat(lifetimeStreamsInput.replace(/,/g, "")) || 0;
-  // const currentDate = new Date();
-  // const monthsLive = getMonthsBetween(releaseDate, currentDate);
-
   const lifetimeStreams =
     parseFloat(lifetimeStreamsInput.replace(/,/g, "")) || 0;
   const currentDate = new Date();
   const monthsLive = getMonthsBetween(releaseDate, currentDate);
 
- 
   const geoRateData = calculateGeoWeightedRate(artistData.topCities);
   const effectiveSpotifyRate = geoRateData.rate;
   const geoMethodUsed = geoRateData.method;
 
+  const dollarAgeData = useMemo(() => {
+    return calculateDollarAge(artistData, effectiveSpotifyRate, currentDate);
+  }, [artistData, effectiveSpotifyRate, currentDate]);
 
-
-// ADD THIS HERE (after effectiveSpotifyRate and currentDate are defined)
-const dollarAgeData = useMemo(() => {
-  return calculateDollarAge(artistData, effectiveSpotifyRate, currentDate);
-}, [artistData, effectiveSpotifyRate, currentDate]);
-
-// Use new calculation function with featured track logic
-const {
-  monthlyStreamsEst,
-  monthlyRevenue,
-  methodUsed,
-  featuredTrackCount,
-  totalTrackCount,
-} = calculateMonthlyStreamsAndRevenue(
-  artistData,
-  lifetimeStreams,
-  monthsLive,
-  effectiveSpotifyRate,
-);
+  // Use new calculation function with featured track logic
+  const {
+    monthlyStreamsEst,
+    monthlyRevenue,
+    methodUsed,
+    featuredTrackCount,
+    totalTrackCount,
+  } = calculateMonthlyStreamsAndRevenue(
+    artistData,
+    lifetimeStreams,
+    monthsLive,
+    effectiveSpotifyRate,
+  );
 
   const monthlySpotifyRevenue = monthlyRevenue;
   const ltmSpotifyRevenue = monthlyRevenue * 12;
@@ -429,46 +436,100 @@ const {
     return "$" + num.toFixed(2);
   };
 
-  // Replace the handleSave function (around line 470-490)
-  const handleSave = () => {
-    const reportData = {
-      artist: artistData.name,
-      date: new Date().toISOString(),
-      inputs: {
-        lifetimeStreams: lifetimeStreams,
-        releaseDate: releaseDate,
-      },
-      calculations: {
-        monthsLive: monthsLive,
-        monthlyStreamsEst: monthlyStreamsEst,
-        methodUsed: methodUsed,
-        decayFactor:
-          methodUsed === "LIFETIME_RUNRATE_ADJ"
-            ? getDecayFactor(monthsLive)
-            : null,
-        effectiveSpotifyRate: effectiveSpotifyRate,
-        geoMethodUsed: geoMethodUsed,
-        geoBreakdown: geoRateData.breakdown,
-        monthlySpotifyRevenue: monthlySpotifyRevenue,
-        ltmSpotifyRevenue: ltmSpotifyRevenue,
-        featuredTrackCount: featuredTrackCount || 0,
-        totalTrackCount: totalTrackCount || 0,
-      },
-      valuations: {
-        conservative: conservativeValuation,
-        market: marketValuation,
-        premium: premiumValuation,
-      },
-    };
-
-    console.log("Generating PDF report:", reportData);
-
+  // ====================================
+  // 🆕 UPDATED: handleSave function with Supabase integration
+  // ====================================
+  const handleSave = async () => {
     try {
+      // Check if user is authenticated
+      if (!user) {
+        alert("Please sign in to download and save reports");
+        navigate("/auth");
+        return;
+      }
+
+      setIsSaving(true);
+
+      // Prepare report data
+      const reportData = {
+        artist: artistData.name,
+        date: new Date().toISOString(),
+        generatedBy: {
+          email: user.email,
+          provider: user.app_metadata?.provider || "unknown",
+          userId: user.id,
+        },
+        inputs: {
+          lifetimeStreams: lifetimeStreams,
+          releaseDate: releaseDate,
+        },
+        calculations: {
+          monthsLive: monthsLive,
+          monthlyStreamsEst: monthlyStreamsEst,
+          methodUsed: methodUsed,
+          decayFactor:
+            methodUsed === "LIFETIME_RUNRATE_ADJ"
+              ? getDecayFactor(monthsLive)
+              : null,
+          effectiveSpotifyRate: effectiveSpotifyRate,
+          geoMethodUsed: geoMethodUsed,
+          geoBreakdown: geoRateData.breakdown,
+          monthlySpotifyRevenue: monthlySpotifyRevenue,
+          ltmSpotifyRevenue: ltmSpotifyRevenue,
+          featuredTrackCount: featuredTrackCount || 0,
+          totalTrackCount: totalTrackCount || 0,
+          dollarAge: dollarAgeData.dollarAge,
+        },
+        valuations: {
+          conservative: conservativeValuation,
+          market: marketValuation,
+          premium: premiumValuation,
+        },
+      };
+
+      console.log("Generating PDF report:", reportData);
+
+      // Generate and download PDF
       generateValuationPDF(reportData);
-      alert("Valuation report PDF downloaded successfully!");
+
+      // Save report to database
+      const { data: savedReport, error: saveError } = await supabase
+        .from("user_reports")
+        .insert([
+          {
+            user_id: user.id,
+            artist_name: artistData.name,
+            report_data: reportData,
+          },
+        ])
+        .select()
+        .single();
+
+      if (saveError) {
+        console.error("Error saving report to database:", saveError);
+        alert(
+          "PDF downloaded successfully, but failed to save to your account: " +
+            saveError.message,
+        );
+        setIsSaving(false);
+        return;
+      }
+
+      console.log("Report saved to database:", savedReport);
+
+      // Success message with option to view dashboard
+      const viewDashboard = window.confirm(
+        "Valuation report downloaded and saved to your account!\n\nWould you like to view your saved reports?",
+      );
+
+      if (viewDashboard) {
+        navigate("/dashboard");
+      }
     } catch (error) {
-      console.error("Error generating PDF:", error);
+      console.error("Error generating/saving PDF:", error);
       alert("Error generating PDF. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -492,6 +553,37 @@ const {
                   No lifetime stream data available. Please enter valid stream
                   counts to calculate valuation.
                 </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* ====================================
+            🆕 NEW: Authentication warning banner
+            ==================================== */}
+        {!user && (
+          <Card className="bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 border-2 border-amber-300 dark:border-amber-500/50 shadow-xl">
+            <div className="flex items-start gap-4 p-5">
+              <div className="p-3 bg-amber-500/20 rounded-xl flex-shrink-0">
+                <Info
+                  size={24}
+                  className="text-amber-600 dark:text-amber-400"
+                />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-amber-800 dark:text-amber-300 mb-2">
+                  Sign in to Save Reports
+                </h3>
+                <p className="text-sm text-amber-700 dark:text-amber-400 mb-3">
+                  You can view valuations, but you'll need to sign in to
+                  download PDFs and save reports to your account.
+                </p>
+                <button
+                  onClick={() => navigate("/auth")}
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg text-sm"
+                >
+                  Sign In Now
+                </button>
               </div>
             </div>
           </Card>
@@ -902,160 +994,184 @@ const {
           </div>
         </Card>
 
-         {/* Dollar Age Card - ADD THIS NEW SECTION */}
-      <Card className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 shadow-xl">
-        <div className="p-6 sm:p-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl">
-              <Calendar size={24} className="text-amber-600 dark:text-amber-400" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                Dollar Age Analysis
-              </h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Weighted average age of catalog earnings
-              </p>
-            </div>
-          </div>
-
-          {/* Dollar Age Display */}
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-300 dark:border-amber-500/30 rounded-xl p-6 mb-6">
-            <div className="flex items-center justify-between mb-4">
+        {/* Dollar Age Card - ADD THIS NEW SECTION */}
+        <Card className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 shadow-xl">
+          <div className="p-6 sm:p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl">
+                <Calendar
+                  size={24}
+                  className="text-amber-600 dark:text-amber-400"
+                />
+              </div>
               <div>
-                <span className="text-sm font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
-                  Catalog Dollar Age
-                </span>
-                <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
-                  Weighted by LTM earnings
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                  Dollar Age Analysis
+                </h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Weighted average age of catalog earnings
                 </p>
               </div>
-              <div className="text-right">
-                <div className="text-4xl font-bold text-amber-600 dark:text-amber-400">
-                  {dollarAgeData.dollarAge.toFixed(1)}
+            </div>
+
+            {/* Dollar Age Display */}
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-300 dark:border-amber-500/30 rounded-xl p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <span className="text-sm font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
+                    Catalog Dollar Age
+                  </span>
+                  <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
+                    Weighted by LTM earnings
+                  </p>
                 </div>
-                <span className="text-sm text-amber-600 dark:text-amber-500">years</span>
+                <div className="text-right">
+                  <div className="text-4xl font-bold text-amber-600 dark:text-amber-400">
+                    {dollarAgeData.dollarAge.toFixed(1)}
+                  </div>
+                  <span className="text-sm text-amber-600 dark:text-amber-500">
+                    years
+                  </span>
+                </div>
+              </div>
+
+              {/* Quality Indicator */}
+              <div className="flex items-center gap-2 pt-4 border-t border-amber-200 dark:border-amber-500/30">
+                {dollarAgeData.dollarAge >= 5 ? (
+                  <>
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-green-700 dark:text-green-400">
+                      Mature Catalog - High Stability
+                    </span>
+                  </>
+                ) : dollarAgeData.dollarAge >= 3 ? (
+                  <>
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-400">
+                      Established Catalog - Moderate Stability
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-orange-700 dark:text-orange-400">
+                      Young Catalog - Growth Phase
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Quality Indicator */}
-            <div className="flex items-center gap-2 pt-4 border-t border-amber-200 dark:border-amber-500/30">
-              {dollarAgeData.dollarAge >= 5 ? (
-                <>
-                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-semibold text-green-700 dark:text-green-400">
-                    Mature Catalog - High Stability
-                  </span>
-                </>
-              ) : dollarAgeData.dollarAge >= 3 ? (
-                <>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-400">
-                    Established Catalog - Moderate Stability
-                  </span>
-                </>
-              ) : (
-                <>
-                  <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm font-semibold text-orange-700 dark:text-orange-400">
-                    Young Catalog - Growth Phase
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Explanation */}
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 mb-6">
-            <h4 className="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-              <Info size={18} className="text-blue-500" />
-              What is Dollar Age?
-            </h4>
-            <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
-              <p>
-                <strong className="text-slate-900 dark:text-white">Dollar Age</strong> is a weighted average that measures how long your catalog's earnings have been generating income.
-              </p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li><strong>Higher Dollar Age:</strong> Earnings from older, proven tracks → More stable income</li>
-                <li><strong>Lower Dollar Age:</strong> Earnings from newer tracks → Growth potential but less proven</li>
-              </ul>
-              <p className="pt-2 text-xs">
-                Formula: Σ(Track Age × Track LTM Earnings) / Total LTM Earnings
-              </p>
-            </div>
-          </div>
-
-          {/* Track Breakdown */}
-          {dollarAgeData.trackBreakdown.length > 0 && (
-            <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-4">
-                Top Tracks Contribution
+            {/* Explanation */}
+            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-200 dark:border-slate-700 mb-6">
+              <h4 className="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                <Info size={18} className="text-blue-500" />
+                What is Dollar Age?
               </h4>
-              <div className="space-y-2">
-                {dollarAgeData.trackBreakdown.map((track, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700"
-                  >
-                    <div className="flex items-start justify-between gap-4 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <h5 className="font-semibold text-sm text-slate-900 dark:text-white truncate">
-                          {track.name}
-                        </h5>
-                        <p className="text-xs text-slate-500 dark:text-slate-500">
-                          Released: {new Date(track.releaseDate).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'short' 
-                          })}
-                        </p>
+              <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <p>
+                  <strong className="text-slate-900 dark:text-white">
+                    Dollar Age
+                  </strong>{" "}
+                  is a weighted average that measures how long your catalog's
+                  earnings have been generating income.
+                </p>
+                <ul className="list-disc list-inside space-y-1 ml-2">
+                  <li>
+                    <strong>Higher Dollar Age:</strong> Earnings from older,
+                    proven tracks → More stable income
+                  </li>
+                  <li>
+                    <strong>Lower Dollar Age:</strong> Earnings from newer
+                    tracks → Growth potential but less proven
+                  </li>
+                </ul>
+                <p className="pt-2 text-xs">
+                  Formula: Σ(Track Age × Track LTM Earnings) / Total LTM
+                  Earnings
+                </p>
+              </div>
+            </div>
+
+            {/* Track Breakdown */}
+            {dollarAgeData.trackBreakdown.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-slate-900 dark:text-white mb-4">
+                  Top Tracks Contribution
+                </h4>
+                <div className="space-y-2">
+                  {dollarAgeData.trackBreakdown.map((track, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700"
+                    >
+                      <div className="flex items-start justify-between gap-4 mb-2">
+                        <div className="flex-1 min-w-0">
+                          <h5 className="font-semibold text-sm text-slate-900 dark:text-white truncate">
+                            {track.name}
+                          </h5>
+                          <p className="text-xs text-slate-500 dark:text-slate-500">
+                            Released:{" "}
+                            {new Date(track.releaseDate).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "short",
+                              },
+                            )}
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <div className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                            {track.ageInYears.toFixed(1)}y
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <div className="text-lg font-bold text-amber-600 dark:text-amber-400">
-                          {track.ageInYears.toFixed(1)}y
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <span className="text-slate-600 dark:text-slate-400">
+                            LTM Earnings:
+                          </span>
+                          <span className="ml-1 font-semibold text-slate-900 dark:text-white">
+                            {formatCurrency(track.ltmEarnings)}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-600 dark:text-slate-400">
+                            Weighted Age:
+                          </span>
+                          <span className="ml-1 font-semibold text-slate-900 dark:text-white">
+                            {(track.weightedAge / 1000).toFixed(1)}K
+                          </span>
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        <span className="text-slate-600 dark:text-slate-400">LTM Earnings:</span>
-                        <span className="ml-1 font-semibold text-slate-900 dark:text-white">
-                          {formatCurrency(track.ltmEarnings)}
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-slate-600 dark:text-slate-400">Weighted Age:</span>
-                        <span className="ml-1 font-semibold text-slate-900 dark:text-white">
-                          {(track.weightedAge / 1000).toFixed(1)}K
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Summary Stats */}
-          <div className="mt-6 grid grid-cols-2 gap-4">
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-              <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">
-                Total Weighted Age
+            {/* Summary Stats */}
+            <div className="mt-6 grid grid-cols-2 gap-4">
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                  Total Weighted Age
+                </div>
+                <div className="text-xl font-bold text-slate-900 dark:text-white">
+                  {(dollarAgeData.totalWeightedAge / 1000).toFixed(1)}K
+                </div>
               </div>
-              <div className="text-xl font-bold text-slate-900 dark:text-white">
-                {(dollarAgeData.totalWeightedAge / 1000).toFixed(1)}K
-              </div>
-            </div>
-            <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
-              <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">
-                Total LTM Earnings
-              </div>
-              <div className="text-xl font-bold text-slate-900 dark:text-white">
-                {formatCurrency(dollarAgeData.totalLTMEarnings)}
+              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                <div className="text-xs text-slate-600 dark:text-slate-400 mb-1">
+                  Total LTM Earnings
+                </div>
+                <div className="text-xl font-bold text-slate-900 dark:text-white">
+                  {formatCurrency(dollarAgeData.totalLTMEarnings)}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
 
         {/* Valuation Ranges */}
         <Card className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 shadow-xl">
@@ -1180,10 +1296,14 @@ const {
             icon={Save}
             onClick={handleSave}
             size="lg"
-            disabled={!hasValidData}
-            className={`${hasValidData ? "bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600" : "bg-slate-400 cursor-not-allowed"} text-white shadow-xl px-8 py-4 text-lg font-bold w-full sm:w-auto`}
+            disabled={!hasValidData || isSaving}
+            className={`${
+              hasValidData && !isSaving
+                ? "bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-600 hover:to-blue-600"
+                : "bg-slate-400 cursor-not-allowed"
+            } text-white shadow-xl px-8 py-4 text-lg font-bold w-full sm:w-auto`}
           >
-            Download PDF Report
+            {isSaving ? "Saving..." : "Download & Save PDF Report"}
           </Button>
         </div>
       </div>

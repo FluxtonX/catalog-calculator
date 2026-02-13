@@ -155,7 +155,7 @@ const ArtistHeader = ({
                   </Button>
                 )}
 
-                <Button
+                {/* <Button
                   variant="primary"
                   size="sm"
                   className="relative overflow-hidden bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white border-0 font-semibold shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/40 transition-all duration-200"
@@ -167,7 +167,7 @@ const ArtistHeader = ({
                     <span className="hidden xs:inline">Launch Valuation</span>
                     <span className="xs:hidden">Valuation</span>
                   </span>
-                </Button>
+                </Button> */}
               </div>
             </div>
 
@@ -178,7 +178,7 @@ const ArtistHeader = ({
                   {genres.slice(0, 6).map((genre, i) => (
                     <Badge
                       key={i}
-                      className="bg-white/8 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all duration-200"
+                      className="bg-white/15 backdrop-blur-sm text-white/90 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all duration-200"
                       size="sm"
                     >
                       {genre}
