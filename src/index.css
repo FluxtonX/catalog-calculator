@@ -98,3 +98,8 @@
 .dark .slider-thumb {
   background: linear-gradient(to right, #dc2626 0%, #dc2626 var(--value), rgb(51 65 85) var(--value), rgb(51 65 85) 100%);
 }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
