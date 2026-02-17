@@ -6,7 +6,7 @@ import MainLayout from './components/layout/MainLayout';
 import Auth from './pages/Auth';
 import AdminPanel from './pages/AdminPanel';
 import ValuationTool from './pages/ValuationTool';
-import ArtistValuationDetail from './pages/ArtistValuationDetail';
+// import ArtistValuationDetail from './pages/ArtistValuationDetail';
 import UserDashboard from './pages/UserDashboard';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -32,7 +32,7 @@ function App() {
           >
             <Route path="/admin" element={<AdminPanel />} />
             <Route path="/valuation" element={<ValuationTool />} />
-            <Route path="/valuation/detail" element={<ArtistValuationDetail />} />
+          
             <Route path="/dashboard" element={<UserDashboard />} />
           </Route>
 
