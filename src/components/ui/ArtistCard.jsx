@@ -21,7 +21,6 @@ import {
   Album,
 } from "lucide-react";
 import { getSpotifyAlbumImages } from "../../utils/api";
-import Card from "../common/Card";
 import SectionHeader from "../common/SectionHeader";
 import EmptyState from "../common/EmptyState";
 import ArtistHeader from "../artist/ArtistHeader";
@@ -77,7 +76,7 @@ const TabTrigger = ({ id, label, Icon, platform }) => {
         data-[state=inactive]:hover:text-slate-700 dark:data-[state=inactive]:hover:text-slate-200
         data-[state=inactive]:hover:bg-slate-200/60 dark:data-[state=inactive]:hover:bg-slate-700/50
         ${isItunes
-          ? "data-[state=active]:text-pink-600 dark:data-[state=active]:text-pink-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
+          ? "data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
           : "data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
         }
       `}
@@ -87,11 +86,11 @@ const TabTrigger = ({ id, label, Icon, platform }) => {
         className="sm:w-4 sm:h-4 flex-shrink-0 transition-transform group-hover:scale-110 group-data-[state=active]:scale-110"
       />
       <span>{label}</span>
-      {/* Active underline */}
+      {/* Active underline — black for iTunes, emerald for others */}
       <span
         className={`
           absolute bottom-0 left-0 right-0 h-0.5 rounded-full
-          ${isItunes ? "bg-pink-500" : "bg-emerald-500"}
+          ${isItunes ? "bg-slate-900 dark:bg-white" : "bg-emerald-500"}
           scale-x-0 data-[state=active]:scale-x-100
           transition-transform duration-200
         `}
@@ -122,7 +121,7 @@ const ArtistCard = ({
   stats,
   spotifyUrl,
   youtubeUrl,
-  appleUrl,        // ← iTunes/Apple Music artist URL
+  appleUrl,
   platform,
   monthlyListeners,
   biography,
@@ -234,27 +233,28 @@ const ArtistCard = ({
     hasSingles: singles?.length > 0,
   });
 
-  // ── Valuation button styles per platform ──────────────
+  // ── Valuation styles per platform ─────────────────────
+  // Apple-black for iTunes
   const valuationBtnActive = isItunes
-    ? "bg-gradient-to-r from-pink-500 to-rose-600 text-white shadow-lg shadow-pink-500/30 group-hover:shadow-pink-500/50 group-hover:scale-105"
+    ? "bg-gradient-to-r from-slate-900 to-zinc-800 text-white shadow-lg shadow-slate-900/30 group-hover:shadow-slate-900/50 group-hover:scale-105"
     : isYouTube
     ? "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 group-hover:shadow-red-500/50 group-hover:scale-105"
     : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-105";
 
   const valuationBorderColor = isItunes
-    ? "border-pink-200 dark:border-pink-800/60"
+    ? "border-slate-300 dark:border-slate-700"
     : isYouTube
     ? "border-red-200 dark:border-red-800/60"
     : "border-emerald-200 dark:border-emerald-800/60";
 
   const valuationBgColor = isItunes
-    ? "from-pink-50 to-rose-50 dark:from-pink-950/40 dark:to-rose-950/40"
+    ? "from-slate-100 to-zinc-100 dark:from-slate-900/60 dark:to-zinc-900/40"
     : isYouTube
     ? "from-red-50 to-rose-50 dark:from-red-950/40 dark:to-rose-950/40"
     : "from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40";
 
   const valuationIconBg = isItunes
-    ? "from-pink-500 to-rose-600"
+    ? "from-slate-900 to-zinc-800"
     : isYouTube
     ? "from-red-500 to-rose-600"
     : "from-emerald-500 to-teal-600";
@@ -265,9 +265,12 @@ const ArtistCard = ({
       return (
         <YouTubeValuationTab
           artistData={{
-            name, image,
+            name,
+            image,
             totalViews: stats?.totalViews || 0,
-            followers, popularity, platform,
+            followers,
+            popularity,
+            platform,
           }}
         />
       );
@@ -276,8 +279,15 @@ const ArtistCard = ({
       return (
         <ITunesValuationTab
           artistData={{
-            name, image, topTracks, albums, singles,
-            stats, platform, popularity, genres,
+            name,
+            image,
+            topTracks,
+            albums,
+            singles,
+            stats,
+            platform,
+            popularity,
+            genres,
           }}
         />
       );
@@ -285,8 +295,14 @@ const ArtistCard = ({
     return (
       <ValuationTab
         artistData={{
-          name, image, topTracks, albums,
-          monthlyListeners, stats, platform, topCities,
+          name,
+          image,
+          topTracks,
+          albums,
+          monthlyListeners,
+          stats,
+          platform,
+          topCities,
         }}
       />
     );
@@ -294,6 +310,7 @@ const ArtistCard = ({
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+
       {/* ── Artist Info Card ─────────────────────────────── */}
       <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
         <ArtistHeader
@@ -322,7 +339,9 @@ const ArtistCard = ({
       </div>
 
       {/* ── Valuation Toggle ─────────────────────────────── */}
-      <div className={`rounded-3xl overflow-hidden border-2 ${valuationBorderColor} shadow-xl bg-gradient-to-br ${valuationBgColor}`}>
+      <div
+        className={`rounded-3xl overflow-hidden border-2 ${valuationBorderColor} shadow-xl bg-gradient-to-br ${valuationBgColor}`}
+      >
         <button
           onClick={() => setShowValuation((v) => !v)}
           className="w-full flex items-center justify-between gap-4 px-5 sm:px-8 py-5 sm:py-6 group"
@@ -357,7 +376,9 @@ const ArtistCard = ({
         </button>
 
         {showValuation && (
-          <div className={`border-t-2 ${valuationBorderColor} p-4 sm:p-6 lg:p-8 bg-white dark:bg-slate-900`}>
+          <div
+            className={`border-t-2 ${valuationBorderColor} p-4 sm:p-6 lg:p-8 bg-white dark:bg-slate-900`}
+          >
             {renderValuation()}
           </div>
         )}
@@ -369,8 +390,16 @@ const ArtistCard = ({
           <SectionHeader
             icon={Music}
             title="Biography"
-            iconBg={isItunes ? "from-pink-500/20 to-rose-500/20" : "from-emerald-500/20 to-blue-500/20"}
-            iconColor={isItunes ? "text-pink-600 dark:text-pink-400" : "text-emerald-600 dark:text-emerald-400"}
+            iconBg={
+              isItunes
+                ? "from-slate-800/15 to-zinc-800/15"
+                : "from-emerald-500/20 to-blue-500/20"
+            }
+            iconColor={
+              isItunes
+                ? "text-slate-900 dark:text-white"
+                : "text-emerald-600 dark:text-emerald-400"
+            }
           />
           <Separator.Root
             className="bg-slate-100 dark:bg-slate-800 h-px mb-4"
@@ -383,6 +412,7 @@ const ArtistCard = ({
       {/* ── Radix Tabs Card ──────────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
         <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
+
           {/* Tab List */}
           <div className="bg-slate-50 dark:bg-slate-800/70 border-b-2 border-slate-200 dark:border-slate-700">
             <ScrollArea.Root className="w-full">
@@ -392,7 +422,13 @@ const ArtistCard = ({
                   aria-label="Artist content"
                 >
                   {tabs.map(({ id, label, icon }) => (
-                    <TabTrigger key={id} id={id} label={label} Icon={icon} platform={platform} />
+                    <TabTrigger
+                      key={id}
+                      id={id}
+                      label={label}
+                      Icon={icon}
+                      platform={platform}
+                    />
                   ))}
                 </Tabs.List>
               </ScrollArea.Viewport>
@@ -400,7 +436,12 @@ const ArtistCard = ({
                 orientation="horizontal"
                 className="flex h-0.5 bg-slate-200 dark:bg-slate-700"
               >
-                <ScrollArea.Thumb className={`rounded-full ${isItunes ? "bg-pink-500" : "bg-emerald-500"}`} />
+                {/* Black scrollbar thumb for iTunes */}
+                <ScrollArea.Thumb
+                  className={`rounded-full ${
+                    isItunes ? "bg-slate-900 dark:bg-white" : "bg-emerald-500"
+                  }`}
+                />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
           </div>
@@ -408,6 +449,7 @@ const ArtistCard = ({
           {/* Tab Content */}
           <div className="p-4 sm:p-6 lg:p-8 min-h-[380px] sm:min-h-[480px]">
 
+            {/* Tracks */}
             <Tabs.Content
               value="tracks"
               className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0"
@@ -423,6 +465,7 @@ const ArtistCard = ({
               )}
             </Tabs.Content>
 
+            {/* Albums */}
             <Tabs.Content
               value="albums"
               className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0"
@@ -430,7 +473,12 @@ const ArtistCard = ({
               {enhancedAlbums?.length > 0 ? (
                 <MediaGrid>
                   {enhancedAlbums.map((album, i) => (
-                    <AlbumCard key={album.id || i} album={album} index={i} platform={platform} />
+                    <AlbumCard
+                      key={album.id || i}
+                      album={album}
+                      index={i}
+                      platform={platform}
+                    />
                   ))}
                 </MediaGrid>
               ) : (
@@ -438,6 +486,7 @@ const ArtistCard = ({
               )}
             </Tabs.Content>
 
+            {/* Singles */}
             <Tabs.Content
               value="singles"
               className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0"
@@ -445,7 +494,12 @@ const ArtistCard = ({
               {singles?.length > 0 ? (
                 <MediaGrid>
                   {singles.map((s, i) => (
-                    <SingleCard key={s.id || i} single={s} index={i} platform={platform} />
+                    <SingleCard
+                      key={s.id || i}
+                      single={s}
+                      index={i}
+                      platform={platform}
+                    />
                   ))}
                 </MediaGrid>
               ) : (
@@ -453,6 +507,7 @@ const ArtistCard = ({
               )}
             </Tabs.Content>
 
+            {/* Popular */}
             <Tabs.Content
               value="popular"
               className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0"
@@ -460,7 +515,12 @@ const ArtistCard = ({
               {popularReleases?.length > 0 ? (
                 <MediaGrid>
                   {popularReleases.map((r, i) => (
-                    <PopularReleaseCard key={r.id || i} release={r} index={i} platform={platform} />
+                    <PopularReleaseCard
+                      key={r.id || i}
+                      release={r}
+                      index={i}
+                      platform={platform}
+                    />
                   ))}
                 </MediaGrid>
               ) : (
@@ -468,6 +528,7 @@ const ArtistCard = ({
               )}
             </Tabs.Content>
 
+            {/* Related Artists */}
             <Tabs.Content
               value="related"
               className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0"
@@ -475,7 +536,11 @@ const ArtistCard = ({
               {relatedArtists?.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {relatedArtists.map((a, i) => (
-                    <RelatedArtistCard key={a.id || i} artist={a} index={i} />
+                    <RelatedArtistCard
+                      key={a.id || i}
+                      artist={a}
+                      index={i}
+                    />
                   ))}
                 </div>
               ) : (
@@ -483,6 +548,7 @@ const ArtistCard = ({
               )}
             </Tabs.Content>
 
+            {/* Top Cities */}
             <Tabs.Content
               value="cities"
               className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0"
@@ -493,9 +559,11 @@ const ArtistCard = ({
                 <EmptyState icon={MapPin} message="No city data available" />
               )}
             </Tabs.Content>
+
           </div>
         </Tabs.Root>
       </div>
+
     </div>
   );
 };
