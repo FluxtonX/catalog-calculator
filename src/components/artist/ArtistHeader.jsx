@@ -2,9 +2,19 @@ import React from "react";
 import * as Tooltip from "@radix-ui/react-tooltip";
 import * as Separator from "@radix-ui/react-separator";
 import {
-  Music, Users, TrendingUp, Play, Disc3, Youtube,
-  ExternalLink, Globe, Facebook, Instagram, Twitter,
-  MapPin, Headphones,
+  Music,
+  Users,
+  TrendingUp,
+  Play,
+  Disc3,
+  Youtube,
+  ExternalLink,
+  Globe,
+  Facebook,
+  Instagram,
+  Twitter,
+  MapPin,
+  Headphones,
 } from "lucide-react";
 import Badge from "../common/Badge";
 import Button from "../common/Button";
@@ -45,62 +55,131 @@ const SocialLink = ({ href, label, Icon }) => (
 
 // ── Stat pill ────────────────────────────────────────────
 const StatPill = ({ icon: Icon, value, label, gradient }) => (
-  <div className={`group flex items-center gap-2 sm:gap-3 bg-white/10 hover:bg-white/15 backdrop-blur-sm px-3 py-2 sm:px-5 sm:py-3 rounded-xl border border-white/20 hover:border-white/30 transition-all duration-200 cursor-default`}>
+  <div className="group flex items-center gap-2 sm:gap-3 bg-white/10 hover:bg-white/15 backdrop-blur-sm px-3 py-2 sm:px-5 sm:py-3 rounded-xl border border-white/20 hover:border-white/30 transition-all duration-200 cursor-default">
     <div className={`p-1.5 rounded-lg bg-gradient-to-br ${gradient} shadow-md flex-shrink-0`}>
       <Icon size={12} className="sm:w-3.5 sm:h-3.5 text-white" />
     </div>
     <div className="flex items-baseline gap-1 sm:gap-2 min-w-0">
       <span className="font-black text-sm sm:text-xl text-white truncate">{value}</span>
-      <span className="text-white/60 text-[10px] sm:text-sm font-medium whitespace-nowrap hidden xs:inline">{label}</span>
+      <span className="text-white/60 text-[10px] sm:text-sm font-medium whitespace-nowrap hidden xs:inline">
+        {label}
+      </span>
     </div>
   </div>
 );
 
 const ArtistHeader = ({
-  name, image, followers, monthlyListeners, popularity,
-  genres, platform, spotifyUrl, youtubeUrl,
-  externalLinks, onLaunchValuation, getSocialIcon,
+  name,
+  image,
+  followers,
+  monthlyListeners,
+  popularity,
+  genres,
+  platform,
+  spotifyUrl,
+  youtubeUrl,
+  appleUrl,
+  externalLinks,
+  onLaunchValuation,
+  getSocialIcon,
 }) => {
   const isApify = platform === "apify";
   const isYoutube = platform === "youtube";
+  const isItunes = platform === "itunes";
+
+  // ── Platform-aware gradient & accents ────────────────
+  const headerGradient = isItunes
+    ? "from-slate-900 via-rose-950/60 to-slate-900 dark:from-slate-950 dark:via-rose-950/40 dark:to-slate-950"
+    : "from-slate-900 via-slate-800 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950";
+
+  const accentLine = isItunes
+    ? "from-pink-500 via-rose-400 to-red-500"
+    : isYoutube
+    ? "from-red-500 via-rose-400 to-pink-500"
+    : "from-emerald-500 via-green-400 to-teal-500";
+
+  const imageGlow = isItunes
+    ? "from-pink-500 to-rose-600"
+    : isYoutube
+    ? "from-red-500 to-pink-600"
+    : "from-emerald-500 to-blue-600";
+
+  const platformBadgeBg = isItunes
+    ? "bg-gradient-to-br from-pink-500 to-rose-600"
+    : isYoutube
+    ? "bg-red-500"
+    : "bg-emerald-500";
+
+  const liveRingColor = isItunes
+    ? "bg-pink-500/20 border-pink-500/30"
+    : "bg-emerald-500/20 border-emerald-500/30";
+
+  const liveDotColor = isItunes
+    ? "bg-pink-400"
+    : "bg-emerald-400";
+
+  const liveTextColor = isItunes
+    ? "text-pink-300"
+    : "text-emerald-300";
+
+  const platformLabel = isItunes
+    ? "Apple Music"
+    : isYoutube
+    ? "YouTube"
+    : "Spotify";
 
   const getSocialIconComponent = (label) => {
-    const map = { facebook: Facebook, instagram: Instagram, twitter: Twitter, x: Twitter };
+    const map = {
+      facebook: Facebook,
+      instagram: Instagram,
+      twitter: Twitter,
+      x: Twitter,
+    };
     return map[label?.toLowerCase()] || Globe;
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-white overflow-hidden relative rounded-2xl sm:rounded-3xl shadow-2xl">
+    <div className={`bg-gradient-to-br ${headerGradient} text-white overflow-hidden relative rounded-2xl sm:rounded-3xl shadow-2xl`}>
       <AnimatedBackground />
 
       {/* Top accent line */}
-      <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${isYoutube ? "from-red-500 via-rose-400 to-pink-500" : "from-emerald-500 via-green-400 to-teal-500"}`} />
+      <div className={`absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r ${accentLine}`} />
+
+      {/* iTunes decorative gradient blob */}
+      {isItunes && (
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-pink-600/10 to-transparent rounded-full pointer-events-none" />
+      )}
 
       <div className="relative z-10 p-4 sm:p-6 lg:p-10">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-5 sm:gap-7 lg:gap-10">
-
           {/* ── Artist Image ─────────────────────────────── */}
           <div className="flex-shrink-0 mx-auto lg:mx-0">
             {image ? (
               <div className="relative group">
                 {/* Glow ring */}
-                <div className={`absolute -inset-1 bg-gradient-to-br ${isYoutube ? "from-red-500 to-pink-600" : "from-emerald-500 to-blue-600"} rounded-2xl sm:rounded-3xl blur-lg opacity-40 group-hover:opacity-70 transition-all duration-500`} />
+                <div className={`absolute -inset-1 bg-gradient-to-br ${imageGlow} rounded-2xl sm:rounded-3xl blur-lg opacity-40 group-hover:opacity-70 transition-all duration-500`} />
                 <img
                   src={image}
                   alt={name}
                   className="relative w-28 h-28 sm:w-48 sm:h-48 lg:w-60 lg:h-60 rounded-2xl sm:rounded-3xl object-cover shadow-2xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all duration-300 group-hover:scale-[1.02]"
                   loading="eager"
-                  onError={(e) => { e.currentTarget.src = "https://via.placeholder.com/256?text=No+Image"; }}
+                  onError={(e) => {
+                    e.currentTarget.src = "https://via.placeholder.com/256?text=No+Image";
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
                   <div className="flex items-center gap-1.5 text-white text-xs font-semibold">
                     <Music size={14} />
-                    <span>{isYoutube ? "YouTube" : "Spotify"}</span>
+                    <span>{platformLabel}</span>
                   </div>
                 </div>
                 {/* Platform badge on image */}
-                <div className={`absolute -bottom-2 -right-2 p-2 rounded-xl shadow-lg ${isYoutube ? "bg-red-500" : "bg-emerald-500"}`}>
-                  {isYoutube ? <Youtube size={14} className="text-white" /> : <Music size={14} className="text-white" />}
+                <div className={`absolute -bottom-2 -right-2 p-2 rounded-xl shadow-lg ${platformBadgeBg}`}>
+                  {isYoutube ? (
+                    <Youtube size={14} className="text-white" />
+                  ) : (
+                    <Music size={14} className="text-white" />
+                  )}
                 </div>
               </div>
             ) : (
@@ -112,17 +191,31 @@ const ArtistHeader = ({
 
           {/* ── Artist Details ────────────────────────────── */}
           <div className="flex-1 w-full min-w-0">
-
-            {/* Live badge + platform */}
+            {/* Live badge + platform label */}
             <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
-              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/30 rounded-full">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                <span className="text-emerald-300 text-xs font-bold uppercase tracking-wide">Live Data</span>
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-full ${liveRingColor}`}>
+                <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${liveDotColor}`} />
+                <span className={`text-xs font-bold uppercase tracking-wide ${liveTextColor}`}>
+                  Live Data
+                </span>
               </div>
               <div className="flex items-center gap-1.5 text-white/60 text-xs">
-                <Disc3 size={12} className="animate-spin" style={{ animationDuration: "4s" }} />
-                <span>Real-time {isApify ? "Spotify" : "YouTube"} Stats</span>
+                <Disc3
+                  size={12}
+                  className="animate-spin"
+                  style={{ animationDuration: "4s" }}
+                />
+                <span>Real-time {platformLabel} Stats</span>
               </div>
+
+              {/* iTunes API mode badge */}
+              {isItunes && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-pink-500/15 border border-pink-400/25 rounded-full">
+                  <span className="text-pink-300 text-[10px] font-bold uppercase tracking-wide">
+                    Apple Music
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Artist name */}
@@ -132,12 +225,29 @@ const ArtistHeader = ({
 
             {/* Stats row */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-              <StatPill icon={Users} value={followers} label="Followers" gradient="from-blue-500 to-blue-700" />
+              {followers && (
+                <StatPill
+                  icon={Users}
+                  value={followers}
+                  label={isItunes ? "Listeners" : "Followers"}
+                  gradient={isItunes ? "from-pink-500 to-rose-700" : "from-blue-500 to-blue-700"}
+                />
+              )}
               {monthlyListeners && isApify && (
-                <StatPill icon={Headphones} value={monthlyListeners} label="Monthly Listeners" gradient="from-emerald-500 to-emerald-700" />
+                <StatPill
+                  icon={Headphones}
+                  value={monthlyListeners}
+                  label="Monthly Listeners"
+                  gradient="from-emerald-500 to-emerald-700"
+                />
               )}
               {popularity && !isApify && (
-                <StatPill icon={TrendingUp} value={popularity} label="Popularity" gradient="from-purple-500 to-purple-700" />
+                <StatPill
+                  icon={TrendingUp}
+                  value={popularity}
+                  label="Popularity"
+                  gradient={isItunes ? "from-rose-500 to-pink-700" : "from-purple-500 to-purple-700"}
+                />
               )}
             </div>
 
@@ -147,7 +257,9 @@ const ArtistHeader = ({
                 {genres.slice(0, 6).map((genre, i) => (
                   <span
                     key={i}
-                    className="px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/15 backdrop-blur-sm border border-white/15 hover:border-white/25 rounded-full text-[10px] sm:text-xs font-semibold text-white/85 hover:text-white transition-all duration-200 cursor-default capitalize"
+                    className={`px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/15 backdrop-blur-sm border rounded-full text-[10px] sm:text-xs font-semibold text-white/85 hover:text-white transition-all duration-200 cursor-default capitalize ${
+                      isItunes ? "border-pink-400/20" : "border-white/15 hover:border-white/25"
+                    }`}
                   >
                     {genre}
                   </span>
@@ -160,6 +272,7 @@ const ArtistHeader = ({
 
             {/* Action buttons */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+              {/* YouTube button */}
               {isYoutube && youtubeUrl && (
                 <a
                   href={youtubeUrl}
@@ -172,6 +285,8 @@ const ArtistHeader = ({
                   <span className="xs:hidden">YouTube</span>
                 </a>
               )}
+
+              {/* Spotify button */}
               {isApify && spotifyUrl && (
                 <a
                   href={spotifyUrl}
@@ -184,15 +299,49 @@ const ArtistHeader = ({
                   <span className="xs:hidden">Spotify</span>
                 </a>
               )}
+
+              {/* Apple Music button */}
+              {isItunes && appleUrl && (
+                <a
+                  href={appleUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-400/30 hover:border-pink-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
+                >
+                  <Music size={15} />
+                  <span className="hidden xs:inline">Open in Apple Music</span>
+                  <span className="xs:hidden">Apple Music</span>
+                </a>
+              )}
             </div>
 
-            {/* Social links */}
+            {/* Social links (Spotify only) */}
             {isApify && externalLinks?.length > 0 && (
               <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {externalLinks.map((link, i) => {
                   const Icon = getSocialIconComponent(link.label);
-                  return <SocialLink key={i} href={link.url} label={link.label} Icon={Icon} />;
+                  return (
+                    <SocialLink key={i} href={link.url} label={link.label} Icon={Icon} />
+                  );
                 })}
+              </div>
+            )}
+
+            {/* iTunes external links */}
+            {isItunes && externalLinks?.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                {externalLinks.map((link, i) => (
+                  <a
+                    key={i}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-pink-400/40 rounded-xl text-xs font-semibold text-white/90 hover:text-white transition-all duration-200 hover:scale-105"
+                  >
+                    <ExternalLink size={12} />
+                    {link.label}
+                  </a>
+                ))}
               </div>
             )}
           </div>

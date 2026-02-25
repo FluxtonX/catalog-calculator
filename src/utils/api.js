@@ -319,3 +319,97 @@ export function filterArtistSuggestions(artists, query) {
     .sort((a, b) => a.name.localeCompare(b.name))
     .slice(0, 10);
 }
+
+
+
+/**
+ * Search iTunes (FREE mode)
+ */
+export async function searchItunes(query) {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/itunes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ 
+        query,
+        useMusicKit: false // FREE mode
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to search iTunes');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('iTunes search error:', error);
+    throw error;
+  }
+}
+
+/**
+ * Search Apple Music (PREMIUM mode with MusicKit)
+ */
+export async function searchAppleMusic(query) {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/itunes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ 
+        query,
+        useMusicKit: true // PREMIUM mode
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to search Apple Music');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Apple Music search error:', error);
+    // Fallback to free mode if premium fails
+    console.log('Falling back to FREE iTunes Search API...');
+    return searchItunes(query);
+  }
+}
+
+/**
+ * Get iTunes/Apple Music artist by ID
+ */
+export async function getItunesArtist(artistId, usePremium = true) {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/itunes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+      body: JSON.stringify({ 
+        artistId,
+        useMusicKit: usePremium
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to get artist');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('iTunes artist error:', error);
+    throw error;
+  }
+}

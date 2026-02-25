@@ -103,19 +103,31 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
       )}
 
       {/* HTML5 Audio Player */}
-      {track.previewUrl && platform !== "apify" && (
-        <div className="mt-2">
-          <audio
-            controls
-            className="w-full h-10 rounded-lg"
-            style={{ maxWidth: "400px" }}
-            preload="none"
-          >
-            <source src={track.previewUrl} type="audio/mpeg" />
-          </audio>
-        </div>
-      )}
-
+     {track.previewUrl && platform !== "apify" && (
+  <div className="mt-2 flex items-center gap-3">
+    <audio
+      controls
+      className="w-full h-10 rounded-lg"
+      style={{ maxWidth: "400px" }}
+      preload="none"
+      onError={(e) => {
+        e.currentTarget.style.display = "none";
+        e.currentTarget.nextElementSibling?.style.removeProperty("display");
+      }}
+    >
+      <source src={track.previewUrl} type="audio/mpeg" />
+    </audio>
+    <a
+      href={track.appleUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="hidden text-xs font-semibold text-pink-500 hover:text-pink-600 whitespace-nowrap"
+      style={{ display: "none" }}
+    >
+      Preview on Apple Music ↗
+    </a>
+  </div>
+)}
       {/* External Links */}
       {track.youtubeUrl && platform === "youtube" && (
         <a

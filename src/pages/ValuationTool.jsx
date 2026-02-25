@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   Loader2,
   Info,
+  Music,
+ 
 } from "lucide-react";
 
 import Card from "../components/common/Card";
@@ -25,6 +27,8 @@ import {
   searchApify,
   getArtistSuggestions,
   getYouTubeChannelDetails,
+   searchAppleMusic,  // PREMIUM with MusicKit
+  searchItunes, 
 } from "../utils/api";
 import { useArtistStore } from "../store/artistStore";
 import ChannelSelector from "../components/youtube/ChannelSelector";
@@ -54,6 +58,14 @@ const PLATFORM_CONFIG = {
     bgPattern:
       "radial-gradient(circle at 70% 50%, rgba(239, 68, 68, 0.2) 0%, transparent 50%)",
     tip: "Discover channel statistics, subscriber counts, and video performance.",
+  },
+   itunes: {
+    label: "Apple Music",
+    icon: Music,
+    placeholder: "Search artist on Apple Music...",
+    color: "from-pink-500 via-rose-500 to-red-500",
+    iconColor: "text-pink-500",
+    bgPattern: "radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 50%)",
   },
 };
 
@@ -218,53 +230,126 @@ const ValuationTool = () => {
   }, [searchQuery, platform, shouldShowSuggestions]);
 
   // ── All original handlers — UNCHANGED ────────────────────
+  // const handleSearch = async () => {
+  //   if (!searchQuery.trim()) {
+  //     setError("Please enter a search query");
+  //     return;
+  //   }
+  //   setIsLoading(true);
+  //   setError(null);
+  //   setSelectedArtist(null);
+  //   setShowSuggestionsDropdown(false);
+  //   setShowChannelSelector(false);
+  //   setYoutubeChannels([]);
+  //   try {
+  //     let result;
+  //     if (platform === "spotify") result = await searchApify(searchQuery);
+  //     else {
+  //       result = await searchYouTube(searchQuery);
+  //       if (result.type === "channel_list") {
+  //         setYoutubeChannels(result.channels);
+  //         setShowChannelSelector(true);
+  //         setIsLoading(false);
+  //         return;
+  //       }
+  //     }
+  //     if (!result || !result.name) throw new Error("Invalid response from API");
+  //     setSelectedArtist(result);
+  //     setError(null);
+  //   } catch (err) {
+  //     setError(err.message || `Failed to fetch data from ${cfg.label}`);
+  //     setSelectedArtist(null);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+
+
   const handleSearch = async () => {
-    if (!searchQuery.trim()) {
-      setError("Please enter a search query");
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-    setSelectedArtist(null);
-    setShowSuggestionsDropdown(false);
-    setShowChannelSelector(false);
-    setYoutubeChannels([]);
-    try {
-      let result;
-      if (platform === "spotify") result = await searchApify(searchQuery);
-      else {
+  if (!searchQuery.trim()) {
+    setError("Please enter a search query");
+    return;
+  }
+
+  setIsLoading(true);
+  setError(null);
+  setSelectedArtist(null);
+  setShowSuggestionsDropdown(false);
+  setShowChannelSelector(false);
+  setYoutubeChannels([]);
+
+  try {
+    let result;
+
+    switch (platform) {
+      case "spotify":
+        result = await searchApify(searchQuery);
+        break;
+
+      case "youtube":
         result = await searchYouTube(searchQuery);
-        if (result.type === "channel_list") {
+        
+        if (result.type === 'channel_list') {
           setYoutubeChannels(result.channels);
           setShowChannelSelector(true);
           setIsLoading(false);
           return;
         }
-      }
-      if (!result || !result.name) throw new Error("Invalid response from API");
-      setSelectedArtist(result);
-      setError(null);
-    } catch (err) {
-      setError(err.message || `Failed to fetch data from ${cfg.label}`);
-      setSelectedArtist(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        break;
 
-  const handleSuggestionClick = async (artist) => {
-    setSearchQuery(artist);
-    setShowSuggestionsDropdown(false);
-    setShouldShowSuggestions(false);
+      case "itunes":
+        // Try PREMIUM first, fallback to FREE if it fails
+        try {
+          result = await searchAppleMusic(searchQuery);
+          console.log('✅ Using PREMIUM Apple Music API');
+        } catch (premiumError) {
+          console.log('⚠️ Premium failed, using FREE iTunes API');
+          result = await searchItunes(searchQuery);
+        }
+        break;
+
+      default:
+        throw new Error("Invalid platform selected");
+    }
+
+    if (!result || !result.name) {
+      throw new Error("Invalid response from API");
+    }
+
+    setSelectedArtist(result);
     setError(null);
-    setIsLoading(true);
+  } catch (err) {
+    console.error("API error:", err);
+    const errorMessage =
+      err.message ||
+      `Failed to fetch data from ${PLATFORM_CONFIG[platform].label}`;
+    setError(errorMessage);
     setSelectedArtist(null);
-    setShowChannelSelector(false);
-    setYoutubeChannels([]);
-    try {
-      let result;
-      if (platform === "spotify") result = await searchApify(artist);
-      else {
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const handleSuggestionClick = async (artist) => {
+  setSearchQuery(artist);
+  setShowSuggestionsDropdown(false);
+  setShouldShowSuggestions(false);
+  setError(null);
+  setIsLoading(true);
+  setSelectedArtist(null);
+  setShowChannelSelector(false);
+  setYoutubeChannels([]);
+
+  try {
+    let result;
+
+    switch (platform) {
+      case "spotify":
+        result = await searchApify(artist);
+        break;
+
+      case "youtube":
         result = await searchYouTube(artist);
         if (result.type === "channel_list") {
           setYoutubeChannels(result.channels);
@@ -272,16 +357,29 @@ const ValuationTool = () => {
           setIsLoading(false);
           return;
         }
-      }
-      if (!result || !result.name) throw new Error("Invalid response from API");
-      setSelectedArtist(result);
-      setError(null);
-    } catch (err) {
-      setError(err.message || `Failed to fetch data from ${cfg.label}`);
-    } finally {
-      setIsLoading(false);
+        break;
+
+      case "itunes":
+        try {
+          result = await searchAppleMusic(artist);
+        } catch {
+          result = await searchItunes(artist);
+        }
+        break;
+
+      default:
+        throw new Error("Invalid platform selected");
     }
-  };
+
+    if (!result || !result.name) throw new Error("Invalid response from API");
+    setSelectedArtist(result);
+    setError(null);
+  } catch (err) {
+    setError(err.message || `Failed to fetch data from ${cfg.label}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleChannelSelect = async (channel) => {
     setIsLoading(true);
@@ -593,6 +691,7 @@ const ValuationTool = () => {
               stats={selectedArtist.stats}
               spotifyUrl={selectedArtist.spotifyUrl}
               youtubeUrl={selectedArtist.youtubeUrl}
+               appleUrl={selectedArtist.appleUrl}
               platform={selectedArtist.platform}
               monthlyListeners={selectedArtist.monthlyListeners}
               biography={selectedArtist.biography}
