@@ -35,7 +35,7 @@ import ValuationTab from "../valuation/ValuationTab";
 import PopularReleaseCard from "../artist/PopularReleaseCard";
 import SingleCard from "../artist/SingleCard";
 import YouTubeValuationTab from "../youtube/YouTubeValuationTab";
-import ITunesValuationTab from "../itunes/iTunesValuationTab";
+import ITunesValuationTab from "../itunes/ITunesValuationTab";
 
 // ── Tab config ────────────────────────────────────────────
 const buildTabs = ({
