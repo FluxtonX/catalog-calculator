@@ -1,5 +1,5 @@
 // src/utils/constants.js
-import { Youtube, Database } from "lucide-react";
+import { Youtube, Database, Music } from "lucide-react";
 
 /**
  * Platform configurations for search interface
@@ -13,6 +13,18 @@ export const PLATFORM_CONFIG = {
     iconColor: "text-emerald-500",
     bgPattern:
       "radial-gradient(circle at 30% 50%, rgba(16, 185, 129, 0.2) 0%, transparent 50%)",
+    tip: "Get official artist metrics, stream counts, and detailed analytics.",
+    accentBg: "bg-emerald-500/20",
+    accentBorder: "border-emerald-500/30",
+    accentText: "text-emerald-300",
+    // Dropdown item checked colors
+    checkedText: "data-[state=checked]:text-emerald-600 dark:data-[state=checked]:text-emerald-400",
+    checkedBg: "data-[state=checked]:bg-emerald-50 dark:data-[state=checked]:bg-emerald-900/30",
+    checkColor: "text-emerald-500",
+    // Live badge on results
+    liveBadgeBg: "bg-emerald-500/10 border-emerald-500/20",
+    liveDot: "bg-emerald-500",
+    liveText: "text-emerald-600 dark:text-emerald-400",
   },
   youtube: {
     label: "YouTube",
@@ -22,6 +34,35 @@ export const PLATFORM_CONFIG = {
     iconColor: "text-red-500",
     bgPattern:
       "radial-gradient(circle at 70% 50%, rgba(239, 68, 68, 0.2) 0%, transparent 50%)",
+    tip: "Discover channel statistics, subscriber counts, and video performance.",
+    accentBg: "bg-red-500/20",
+    accentBorder: "border-red-500/30",
+    accentText: "text-red-300",
+    checkedText: "data-[state=checked]:text-red-600 dark:data-[state=checked]:text-red-400",
+    checkedBg: "data-[state=checked]:bg-red-50 dark:data-[state=checked]:bg-red-900/30",
+    checkColor: "text-red-500",
+    liveBadgeBg: "bg-red-500/10 border-red-500/20",
+    liveDot: "bg-red-500",
+    liveText: "text-red-600 dark:text-red-400",
+  },
+  itunes: {
+    label: "Apple Music",
+    icon: Music,
+    placeholder: "Search artist on Apple Music...",
+    color: "from-pink-500 via-rose-500 to-red-500",
+    iconColor: "text-pink-500",
+    bgPattern:
+      "radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.2) 0%, transparent 50%)",
+    tip: "Get Apple Music track previews, album catalog, and popularity scores directly from Apple's catalog.",
+    accentBg: "bg-pink-500/20",
+    accentBorder: "border-pink-500/30",
+    accentText: "text-pink-300",
+    checkedText: "data-[state=checked]:text-pink-600 dark:data-[state=checked]:text-pink-400",
+    checkedBg: "data-[state=checked]:bg-pink-50 dark:data-[state=checked]:bg-pink-900/30",
+    checkColor: "text-pink-500",
+    liveBadgeBg: "bg-pink-500/10 border-pink-500/20",
+    liveDot: "bg-pink-500",
+    liveText: "text-pink-600 dark:text-pink-400",
   },
 };
 
@@ -40,6 +81,11 @@ export const RATE_BY_REGION = {
  * Default Spotify payout rate (global average)
  */
 export const DEFAULT_SPOTIFY_RATE = 0.0035;
+
+/**
+ * Apple Music payout rate (per stream)
+ */
+export const APPLE_MUSIC_RATE = 0.01;
 
 /**
  * Suggested artists for quick search
