@@ -1022,7 +1022,7 @@ const ValuationTool = () => {
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent tracking-tight">
-            Artist Valuation Tool
+            Artist Catalog Valuation Tool
           </h1>
           <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
             Discover insights &amp; metrics from Spotify, YouTube &amp; Apple Music in real-time
