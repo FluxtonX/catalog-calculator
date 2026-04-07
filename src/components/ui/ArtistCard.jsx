@@ -335,6 +335,7 @@ const ArtistCard = ({
             platform={platform}
             topTracks={topTracks}
             albums={albums}
+            singles={singles}  
           />
         </div>
       </div>
