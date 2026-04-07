@@ -32,7 +32,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
             Select the Correct YouTube Channel
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Choose the official artist channel to view valuation
+            Choose the official artist channel to Calculate Royalties. If the correct channel isn't listed, please verify the artist's name and try again.
           </p>
         </div>
       </div>
@@ -102,7 +102,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
             {/* Select Button */}
             <div className="mt-3 flex items-center justify-center gap-1 text-xs sm:text-sm font-semibold text-red-600 hover:text-red-700 dark:text-red-400 transition-colors">
               <ExternalLink size={14} />
-              View Valuation
+            Calculate Royalties
             </div>
           </button>
         ))}

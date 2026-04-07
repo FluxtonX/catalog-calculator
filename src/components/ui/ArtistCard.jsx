@@ -327,6 +327,7 @@ const ArtistCard = ({
           externalLinks={externalLinks}
           onLaunchValuation={handleLaunchValuation}
           getSocialIcon={getSocialIcon}
+          onCalculateRoyalties={() => setShowValuation(true)}
         />
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
           <ArtistStats
@@ -371,7 +372,7 @@ const ArtistCard = ({
             }`}
           >
             <BarChart3 size={15} />
-            {showValuation ? "Hide" : "View Valuation"}
+            {showValuation ? "Hide" : "Calculate Royalties"}
           </div>
         </button>
 
