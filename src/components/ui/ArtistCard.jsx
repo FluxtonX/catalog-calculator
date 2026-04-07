@@ -359,7 +359,7 @@ const ArtistCard = ({
                 {isItunes
                   ? "Apple Music revenue estimate & catalog analysis"
                   : isYouTube
-                  ? "YouTube revenue estimate & channel analytics"
+                  ? " Youtube Revenue Estimates and Catalog Valuuation"
                   : "Revenue estimate, deal score & market breakdown"}
               </p>
             </div>

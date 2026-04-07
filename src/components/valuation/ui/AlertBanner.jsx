@@ -8,7 +8,9 @@ const AlertBanner = ({ icon: Icon, title, message, accent, action }) => (
       <p className={`text-xs sm:text-sm ${accent.text} leading-relaxed`}>{message}</p>
       {action && <div className="mt-3">{action}</div>}
     </div>
+    
   </div>
+
 );
 
 export default AlertBanner;

@@ -30,6 +30,7 @@ const YouTubeValuationTab = ({ artistData }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+    const [authLoading, setAuthLoading] = useState(true);  // ADD THIS
 
   // Slider state — default values unchanged from original
   const [annualViewPercentage, setAnnualViewPercentage] = useState(25);
@@ -38,8 +39,18 @@ const YouTubeValuationTab = ({ artistData }) => {
   const [creatorCut, setCreatorCut] = useState(55);
   const [streamingRate, setStreamingRate] = useState(0.002);
 
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+ useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const totalViews = parseViewCount(artistData.totalViews);
@@ -56,19 +67,18 @@ const YouTubeValuationTab = ({ artistData }) => {
   });
 
   // handleSave — logic unchanged
-  const handleSave = async () => {
-    try {
-     const handleSave = async () => {
+ const handleSave = async () => {
   if (!user) {
     navigate("/auth", { state: { from: location } });
     return;
   }
-  // Remove this block when Pro is implemented
+
   const isProEnabled = false;
   if (!isProEnabled) {
     navigate("/pro-plan");
     return;
   }
+
   try {
     setIsSaving(true);
     const reportData = {
@@ -119,58 +129,6 @@ const YouTubeValuationTab = ({ artistData }) => {
     setIsSaving(false);
   }
 };
-      setIsSaving(true);
-      const reportData = {
-        artist: artistData.name,
-        date: new Date().toISOString(),
-        generatedBy: {
-          email: user.email,
-          provider: user.app_metadata?.provider || "unknown",
-          userId: user.id,
-        },
-        inputs: {
-          totalViews,
-          annualViewPercentage,
-          monetizationRate,
-          avgCpm,
-          creatorCut,
-          streamingRate,
-          contentIdMultiplier: CONTENT_ID_MULTIPLIER,
-        },
-        calculations: { ...metrics },
-        valuations: {
-          conservative: metrics.conservativeValuation,
-          market: metrics.marketValuation,
-          premium: metrics.premiumValuation,
-          advancePackage: metrics.totalAdvancePackage,
-          caccAdjusted: metrics.caccAdjustedValuation,
-        },
-      };
-      generateYouTubeValuationPDF(reportData);
-      const { error: saveError } = await supabase
-        .from("user_reports")
-        .insert([
-          {
-            user_id: user.id,
-            artist_name: artistData.name,
-            report_type: "youtube_valuation",
-            report_data: reportData,
-          },
-        ])
-        .select()
-        .single();
-      if (saveError) {
-        alert("PDF downloaded, but failed to save: " + saveError.message);
-        return;
-      }
-      if (window.confirm("Report saved!\n\nView saved reports?"))
-        navigate("/dashboard");
-    } catch {
-      alert("Error generating PDF. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <div className="space-y-5 sm:space-y-6">
@@ -190,30 +148,31 @@ const YouTubeValuationTab = ({ artistData }) => {
           }}
         />
       )}
-      {!user && (
-        <AlertBanner
-          icon={LogIn}
-          title="Sign in to Save Reports"
-          message="You can calculate Royalties, but sign in to download PDFs and save reports."
-          accent={{
-            border: "border-amber-200 dark:border-amber-500/40",
-            bg: "bg-amber-50 dark:bg-amber-900/20",
-            iconBg: "bg-amber-100 dark:bg-amber-800/40",
-            icon: "text-amber-600 dark:text-amber-400",
-            title: "text-amber-800 dark:text-amber-300",
-            text: "text-amber-700 dark:text-amber-400",
-          }}
-          action={
-            <button
-              onClick={() => navigate("/auth", { state: { from: location } })}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-md"
-            >
-              <LogIn size={14} />
-              Sign In Now
-            </button>
-          }
-        />
-      )}
+     {!authLoading && !user && (
+  <AlertBanner
+    icon={LogIn}
+    title="Sign in to Save Reports"
+    message="You can calculate Royalties, but sign in to download PDFs and save reports."
+    accent={{
+      border: "border-green-200 dark:border-green-500/40",
+      bg: "bg-green-50 dark:bg-green-900/20",
+      iconBg: "bg-green-100 dark:bg-green-800/40",
+      icon: "text-green-600 dark:text-green-400",
+      title: "text-green-800 dark:text-green-300",
+      text: "text-green-700 dark:text-green-400",
+    }}
+    action={
+      <button
+        onClick={() => navigate("/auth", { state: { from: location } })}
+        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-md"
+      >
+        <LogIn size={14} />
+        Sign In Now
+      </button>
+    }
+  />
+)}
+
 
       <ValuationAssumptions
         annualViewPercentage={annualViewPercentage}

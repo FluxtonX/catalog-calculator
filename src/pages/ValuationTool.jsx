@@ -69,7 +69,7 @@ const PLATFORM_CONFIG = {
     // Apple black
     color: "from-slate-900 via-zinc-800 to-slate-900",
     bgPattern: "radial-gradient(circle at 50% 50%, rgba(15, 15, 15, 0.4) 0%, transparent 60%)",
-    tip: "Get Apple Music track previews, album catalog, and popularity scores from Apple's catalog.",
+    tip: "Get Apple Music track previews, Royalty analytics, and popularity scores from Apple's catalog.",
     itemCheckedText: "text-slate-900 dark:text-white",
     itemCheckedBg: "bg-slate-100 dark:bg-slate-700",
     checkColor: "text-slate-900 dark:text-white",
@@ -545,7 +545,7 @@ const ValuationTool = () => {
                   Ready to Discover?
                 </h3>
                 <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mb-5 sm:mb-6">
-                  Search any artist on <strong className="text-slate-700 dark:text-slate-200">{cfg.label}</strong> to see their analytics
+                  Search any artist on <strong className="text-slate-700 dark:text-slate-200">{cfg.label}</strong> to see their Royalty Revenue
                 </p>
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
                   {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
