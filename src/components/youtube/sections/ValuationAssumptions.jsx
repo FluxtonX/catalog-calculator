@@ -39,14 +39,14 @@ const ValuationAssumptions = ({
             label="Annual Views % of Total"
             value={annualViewPercentage}
             onValueChange={setAnnualViewPercentage}
-            min={5} max={100} step={1} unit="%"
+            min={0} max={100} step={1} unit="%"
             tooltip="Percentage of lifetime views that occur within a given year."
           />
           <InputSlider
             label="Monetization Rate"
             value={monetizationRate}
             onValueChange={setMonetizationRate}
-            min={30} max={80} step={1} unit="%"
+            min={0} max={100} step={1} unit="%"
             tooltip="Percentage of views that are monetized with ads."
           />
         </div>

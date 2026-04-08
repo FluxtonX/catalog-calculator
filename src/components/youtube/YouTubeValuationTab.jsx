@@ -152,7 +152,7 @@ const YouTubeValuationTab = ({ artistData }) => {
   <AlertBanner
     icon={LogIn}
     title="Sign in to Save Reports"
-    message="You can calculate Royalties, but sign in to download PDFs and save reports."
+    message="You can view and save reports, but sign in to download PDFs and save reports."
     accent={{
       border: "border-green-200 dark:border-green-500/40",
       bg: "bg-green-50 dark:bg-green-900/20",

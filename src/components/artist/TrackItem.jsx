@@ -1,6 +1,6 @@
 // src/components/artist/TrackItem.jsx
 import React from "react";
-import { Calendar, Play, ExternalLink } from "lucide-react";
+import { Calendar, Play, ExternalLink, TrendingUp } from "lucide-react";
 import Badge from "../common/Badge";
 import SpotifyEmbed from "./SpotifyEmbed";
 
@@ -25,12 +25,27 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
     }
   };
 
-  // Determine what date to display - prioritize full date over year
   const displayDate = track.releaseDate 
     ? formatDate(track.releaseDate) 
     : track.releaseYear 
       ? track.releaseYear 
       : null;
+
+  // Returns Tailwind classes that look great in both light & dark mode
+  const getPopularityStyle = (score) => {
+    if (score >= 80) return {
+      badge: "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-500/40",
+      label: "🔥 Hot",
+    };
+    if (score >= 60) return {
+      badge: "bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 border border-violet-300 dark:border-violet-500/40",
+      label: "⚡ Popular",
+    };
+    return {
+      badge: "bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-500/40",
+      label: "📈 Growing",
+    };
+  };
 
   return (
     <div className="group flex flex-col gap-3 p-3 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all duration-300 border border-slate-200 dark:border-slate-700 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 hover:shadow-lg">
@@ -79,20 +94,21 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
                 <span className="hidden xs:inline">{track.streamCountFormatted}</span>
                 <span className="xs:hidden">{track.streamCountFormatted.replace(/\s/g, '')}</span>
               </Badge>
-            ) : track.popularity ? (
-              <Badge
-                className={`flex-shrink-0 ${
-                  track.popularity >= 80
-                    ? "bg-gradient-to-r from-emerald-500 to-green-600"
-                    : track.popularity >= 60
-                      ? "bg-gradient-to-r from-yellow-500 to-orange-500"
-                      : "bg-gradient-to-r from-slate-500 to-slate-600"
-                } text-white`}
-                size="sm"
-              >
-                {track.popularity}
-              </Badge>
-            ) : null}
+            ) : track.popularity && platform !== "youtube" ? (() => {
+              const style = getPopularityStyle(track.popularity);
+              return (
+                <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${style.badge}`}>
+                    {style.label}
+                    <span className="opacity-60 font-normal">{track.popularity}/100</span>
+                  </span>
+                  <span className="flex items-center gap-0.5 text-[10px] text-slate-400 dark:text-slate-500">
+                    <TrendingUp size={9} />
+                    Popularity Score
+                  </span>
+                </div>
+              );
+            })() : null}
           </div>
         </div>
       </div>
@@ -103,31 +119,32 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
       )}
 
       {/* HTML5 Audio Player */}
-     {track.previewUrl && platform !== "apify" && (
-  <div className="mt-2 flex items-center gap-3">
-    <audio
-      controls
-      className="w-full h-10 rounded-lg"
-      style={{ maxWidth: "400px" }}
-      preload="none"
-      onError={(e) => {
-        e.currentTarget.style.display = "none";
-        e.currentTarget.nextElementSibling?.style.removeProperty("display");
-      }}
-    >
-      <source src={track.previewUrl} type="audio/mpeg" />
-    </audio>
-    <a
-      href={track.appleUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hidden text-xs font-semibold text-pink-500 hover:text-pink-600 whitespace-nowrap"
-      style={{ display: "none" }}
-    >
-      Preview on Apple Music ↗
-    </a>
-  </div>
-)}
+      {track.previewUrl && platform !== "apify" && (
+        <div className="mt-2 flex items-center gap-3">
+          <audio
+            controls
+            className="w-full h-10 rounded-lg"
+            style={{ maxWidth: "400px" }}
+            preload="none"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              e.currentTarget.nextElementSibling?.style.removeProperty("display");
+            }}
+          >
+            <source src={track.previewUrl} type="audio/mpeg" />
+          </audio>
+          <a
+            href={track.appleUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden text-xs font-semibold text-pink-500 hover:text-pink-600 whitespace-nowrap"
+            style={{ display: "none" }}
+          >
+            Preview on Apple Music ↗
+          </a>
+        </div>
+      )}
+
       {/* External Links */}
       {track.youtubeUrl && platform === "youtube" && (
         <a
