@@ -103,6 +103,7 @@ const SUGGESTED_ARTISTS = [
   "The Weeknd",
   "Bad Bunny",
   "Ariana Grande",
+  "KCee"
 ];
 
 const PLATFORM_FEATURES = {
