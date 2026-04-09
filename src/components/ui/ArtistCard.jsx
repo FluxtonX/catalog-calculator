@@ -46,7 +46,7 @@ const buildTabs = ({
 }) => {
   const tabs = [
     { id: "tracks", label: "Tracks", icon: ListMusic, always: true },
-    { id: "albums", label: "Albums", icon: Disc3, always: true },
+     { id: "albums", label: "Albums", icon: Disc3, always: platform !== "youtube" },
     { id: "singles", label: "Singles", icon: Disc, show: hasSingles },
     { id: "popular", label: "Popular", icon: Star, show: hasPopularReleases },
     { id: "related", label: "Related", icon: Heart, show: hasRelated },

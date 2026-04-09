@@ -96,6 +96,21 @@ const PLATFORM_CONFIG = {
     liveText: "text-slate-900 dark:text-slate-200",
   },
 };
+// Add this object near PLATFORM_CONFIG
+const PLATFORM_TITLES = {
+  spotify: "Spotify Artist Valuation Tool",
+  youtube: "YouTube Channel Valuation Tool",
+  itunes: "Apple Music Valuation Tool",
+};
+
+const PLATFORM_DESCRIPTIONS = {
+  spotify:
+    "Real-time valuation, stream analytics, and listener insights powered by Spotify data",
+  youtube:
+    "Subscriber analytics, view counts, and channel performance powered by YouTube data",
+  itunes:
+    "Track catalog, popularity scores, and royalty insights powered by Apple Music data",
+};
 
 const SUGGESTED_ARTISTS = [
   "Taylor Swift",
@@ -103,7 +118,7 @@ const SUGGESTED_ARTISTS = [
   "The Weeknd",
   "Bad Bunny",
   "Ariana Grande",
-  "KCee"
+  "KCee",
 ];
 
 const PLATFORM_FEATURES = {
@@ -233,9 +248,9 @@ const FeaturePill = ({ label }) => (
   </span>
 );
 
-const ValuationTool = () => {
-  usePageTitle("Valuation Tool", "Analyze artist metrics with real-time data");
 
+
+const ValuationTool = () => {
   const {
     searchQuery,
     setSearchQuery,
@@ -244,6 +259,16 @@ const ValuationTool = () => {
     platform,
     setPlatform,
   } = useArtistStore();
+
+  const cfg = PLATFORM_CONFIG[platform];        // ← define cfg FIRST
+  const SelectedIcon = cfg.icon;
+  const features = PLATFORM_FEATURES[platform];
+
+  usePageTitle(                                  // ← THEN use it here
+    `${cfg.label} Valuation Tool`,
+    `Analyze ${cfg.label} artist metrics with real-time data`
+  );
+
   const isInitialMount = useRef(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -272,9 +297,7 @@ const ValuationTool = () => {
   };
   const inputRef = useRef(null);
 
-  const cfg = PLATFORM_CONFIG[platform];
-  const SelectedIcon = cfg.icon;
-  const features = PLATFORM_FEATURES[platform];
+
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -351,42 +374,42 @@ const ValuationTool = () => {
     }
   };
 
-const handleSearch = async () => {
-  if (!searchQuery.trim()) {
-    setError("Please enter a search query");
-    return;
-  }
-  setIsLoading(true);
-  setError(null);
-  setSelectedArtist(null);
-  setShowSuggestionsDropdown(false);
-  setShowChannelSelector(false);
-  setYoutubeChannels([]);
-  try {
-    const result = await doSearch(searchQuery);
-    if (result?.type === "channel_list") {
-      setYoutubeChannels(result.channels);
-      setShowChannelSelector(true);
-      setIsLoading(false);
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      setError("Please enter a search query");
       return;
     }
-    if (!result?.name) throw new Error("Invalid response from API");
-    setSelectedArtist(result);
+    setIsLoading(true);
     setError(null);
-    saveRecentSearch(searchQuery); // ← added here
-  } catch (err) {
-    setError(err.message || `Failed to fetch data from ${cfg.label}`);
     setSelectedArtist(null);
-  } finally {
-    setIsLoading(false);
-  }
-};
+    setShowSuggestionsDropdown(false);
+    setShowChannelSelector(false);
+    setYoutubeChannels([]);
+    try {
+      const result = await doSearch(searchQuery);
+      if (result?.type === "channel_list") {
+        setYoutubeChannels(result.channels);
+        setShowChannelSelector(true);
+        setIsLoading(false);
+        return;
+      }
+      if (!result?.name) throw new Error("Invalid response from API");
+      setSelectedArtist(result);
+      setError(null);
+      saveRecentSearch(searchQuery); // ← added here
+    } catch (err) {
+      setError(err.message || `Failed to fetch data from ${cfg.label}`);
+      setSelectedArtist(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleSuggestionClick = async (artist) => {
     setSearchQuery(artist);
     setShowSuggestionsDropdown(false);
     setShouldShowSuggestions(false);
     setError(null);
-    
+
     setIsLoading(true);
     setSelectedArtist(null);
     setShowChannelSelector(false);
@@ -438,15 +461,14 @@ const handleSearch = async () => {
               className="text-emerald-600 dark:text-emerald-400"
             />
             <span className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
-              Real-Time Analytics
+              {cfg.label} · Real-Time Analytics
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent tracking-tight">
-            Artist Catalog Valuation Tool
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent tracking-tight transition-all duration-300">
+            {PLATFORM_TITLES[platform]}
           </h1>
-          <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-            Real-time valuation, pricing analysis, and buyer insights powered by
-            Spotify, YouTube & Apple Music data
+          <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto transition-all duration-300">
+            {PLATFORM_DESCRIPTIONS[platform]}
           </p>
 
           {/* Platform switcher pills */}
@@ -671,23 +693,42 @@ const handleSearch = async () => {
               </div>
             )}
 
-          <div className="mt-5 sm:mt-7">
-  <p className="text-xs font-bold text-white/60 uppercase tracking-widest mb-3">
-    {recentSearches.length > 0 ? "🕐 Recent Searches:" : "🔥 Most Popular Searches:"}
-  </p>
-  <div className="flex flex-wrap gap-2">
-    {(recentSearches.length > 0 ? recentSearches : SUGGESTED_ARTISTS).map((artist) => (
-      <button
-        key={artist}
-        onClick={() => handleSuggestionClick(artist)}
-        disabled={isLoading}
-        className="px-3.5 py-2 sm:px-4 sm:py-2.5 bg-white/15 hover:bg-white/25 active:bg-white/30 border border-white/25 hover:border-white/45 rounded-full text-xs sm:text-sm font-semibold text-white transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg backdrop-blur-xl"
-      >
-        {artist}
-      </button>
-    ))}
-  </div>
-</div>
+            <div className="mt-5 sm:mt-7">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs font-bold text-white/60 uppercase tracking-widest">
+                  {recentSearches.length > 0
+                    ? "🕐 Recent Searches:"
+                    : "🔥 Most Popular Searches:"}
+                </p>
+                {recentSearches.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setRecentSearches([]);
+                      localStorage.removeItem("recentSearches");
+                    }}
+                    className="flex items-center gap-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/35 rounded-full text-[10px] font-bold text-white/60 hover:text-white transition-all duration-200"
+                  >
+                    <X size={10} />
+                    Clear
+                  </button>
+                )}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {(recentSearches.length > 0
+                  ? recentSearches
+                  : SUGGESTED_ARTISTS
+                ).map((artist) => (
+                  <button
+                    key={artist}
+                    onClick={() => handleSuggestionClick(artist)}
+                    disabled={isLoading}
+                    className="px-3.5 py-2 sm:px-4 sm:py-2.5 bg-white/15 hover:bg-white/25 active:bg-white/30 border border-white/25 hover:border-white/45 rounded-full text-xs sm:text-sm font-semibold text-white transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg backdrop-blur-xl"
+                  >
+                    {artist}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
