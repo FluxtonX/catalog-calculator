@@ -98,9 +98,9 @@ const PLATFORM_CONFIG = {
 };
 // Add this object near PLATFORM_CONFIG
 const PLATFORM_TITLES = {
-  spotify: "Spotify Artist Valuation Tool",
-  youtube: "YouTube Channel Valuation Tool",
-  itunes: "Apple Music Valuation Tool",
+  spotify: "Spotify  Artist Catalog Valuation Tool",
+  youtube: "YouTube Channel Artist Catalog Valuation Tool",
+  itunes: "Apple Music Artist Catalog Valuation Tool",
 };
 
 const PLATFORM_DESCRIPTIONS = {
@@ -265,7 +265,7 @@ const ValuationTool = () => {
   const features = PLATFORM_FEATURES[platform];
 
   usePageTitle(                                  // ← THEN use it here
-    `${cfg.label} Valuation Tool`,
+    `${cfg.label} Artist Catalog Valuation Tool`,
     `Analyze ${cfg.label} artist metrics with real-time data`
   );
 
@@ -515,9 +515,9 @@ const ValuationTool = () => {
 
           <div className="relative z-10 p-5 sm:p-7 lg:p-10">
             <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
-              <div className="p-3 sm:p-4 bg-white/20 backdrop-blur-xl rounded-2xl shadow-lg ring-1 ring-white/30 flex-shrink-0">
+             
                 <SelectedIcon size={24} className="sm:w-7 sm:h-7 text-white" />
-              </div>
+          
               <div className="flex-1 min-w-0">
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">
                   Search Artist
