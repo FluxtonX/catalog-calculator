@@ -42,10 +42,13 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Total LTM Earnings</p>
             <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">{formatCurrency(totalLTMEarnings)}</p>
           </div>
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
-            <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Weighted Age Sum</p>
-            <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">{(totalWeightedAge / 1000).toFixed(1)}K</p>
-          </div>
+       <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+  <div className="flex items-center gap-1 mb-1">
+    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Weighted Age Sum</p>
+    <InfoTooltip content="The sum of (Track Age × LTM Earnings) for all tracks. Example: a 5-year-old track earning $10K contributes 50K to this sum. Dividing this by Total LTM Earnings gives the Dollar Age." />
+  </div>
+  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">{(totalWeightedAge / 1000).toFixed(1)}K</p>
+</div>
           <div className="col-span-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30 rounded-2xl p-3">
             <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase mb-1">Formula</p>
             <p className="text-xs text-blue-600 dark:text-blue-500 font-mono">

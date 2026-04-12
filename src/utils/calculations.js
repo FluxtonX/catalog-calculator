@@ -220,63 +220,68 @@ export const getAverageReleaseDate = (artistData) => {
  * Calculate Dollar Age (Weighted Average Age of Earnings)
  * Formula: Σ(Age of Track × LTM Earnings of Track) / Total LTM Earnings
  */
-export const calculateDollarAge = (artistData, effectiveSpotifyRate, currentDate) => {
+// In calculateDollarAge — replace the trackLTMEarnings calculation
+// Instead of recalculating per-track revenue independently,
+// distribute the KNOWN total LTM proportionally by stream count weight
+
+export const calculateDollarAge = (artistData, effectiveSpotifyRate, currentDate, knownLTMRevenue = null) => {
   if (!artistData?.topTracks || artistData.topTracks.length === 0) {
-    return {
-      dollarAge: 0,
-      totalWeightedAge: 0,
-      totalLTMEarnings: 0,
-      trackBreakdown: []
-    };
+    return { dollarAge: 0, totalWeightedAge: 0, totalLTMEarnings: 0, trackBreakdown: [] };
   }
 
   const topTracks = artistData.topTracks.slice(0, 10);
+  
+  // Calculate total streams for proportional distribution
+  const totalStreams = topTracks.reduce((sum, track) => {
+    let s = 0;
+    if (track.streamCount)               s = parseInt(track.streamCount);
+    else if (track.streamCountFormatted) s = parseStreamCount(track.streamCountFormatted);
+    return sum + s;
+  }, 0);
+
   let totalWeightedAge = 0;
   let totalLTMEarnings = 0;
   const trackBreakdown = [];
 
   topTracks.forEach((track) => {
-    // Get track release date
+    // Get release date
     let releaseDate = track.releaseDate;
-    if (!releaseDate && track.releaseYear) {
-      releaseDate = `${track.releaseYear}-01-01`;
+    if (!releaseDate && track.releaseYear) releaseDate = `${track.releaseYear}-01-01`;
+    if (!releaseDate) {
+      const yearsAgo = 2 + (track.rank || 1) * 0.3;
+      const fallback = new Date();
+      fallback.setFullYear(fallback.getFullYear() - yearsAgo);
+      releaseDate = fallback.toISOString().split("T")[0];
     }
-    
-    if (!releaseDate) return; // Skip if no date available
 
-    // Calculate age in years
-    const release = new Date(releaseDate);
     const ageInMonths = getMonthsBetween(releaseDate, currentDate);
     const ageInYears = ageInMonths / 12;
 
     // Get stream count
     let trackStreams = 0;
-    if (track.streamCount) {
-      trackStreams = parseInt(track.streamCount);
-    } else if (track.streamCountFormatted) {
-      trackStreams = parseStreamCount(track.streamCountFormatted);
+    if (track.streamCount)               trackStreams = parseInt(track.streamCount);
+    else if (track.streamCountFormatted) trackStreams = parseStreamCount(track.streamCountFormatted);
+    else if (track.streams)              trackStreams = parseInt(track.streams);
+    else if (track.playCount)            trackStreams = parseInt(track.playCount);
+
+    if (trackStreams === 0) return;
+
+    // ✅ Distribute known LTM proportionally by stream share
+    // This ensures Dollar Age LTM total === main valuation LTM
+    let trackLTMEarnings;
+    if (knownLTMRevenue && totalStreams > 0) {
+      trackLTMEarnings = knownLTMRevenue * (trackStreams / totalStreams);
+    } else {
+      // Fallback to independent calculation only if no known LTM passed in
+      const ageInMonthsForDecay = getMonthsBetween(releaseDate, currentDate);
+      const trackMonthlyStreams = ageInMonthsForDecay > 0
+        ? (trackStreams / ageInMonthsForDecay) * getDecayFactor(ageInMonthsForDecay)
+        : trackStreams * 0.1;
+      const multiplier = getRevenueMultiplier(track, artistData.name);
+      trackLTMEarnings = calculateTrackRevenue(trackMonthlyStreams, effectiveSpotifyRate, multiplier) * 12;
     }
 
-    if (trackStreams === 0) return; // Skip if no streams
-
-    // Estimate monthly streams
-    const trackMonthlyStreams = ageInMonths > 0 
-      ? (trackStreams / ageInMonths) * getDecayFactor(ageInMonths)
-      : trackStreams * 0.1;
-
-    // Apply featured track logic
-    const multiplier = getRevenueMultiplier(track, artistData.name);
-
-    // Calculate LTM earnings for this track
-    const trackLTMEarnings = calculateTrackRevenue(
-      trackMonthlyStreams,
-      effectiveSpotifyRate,
-      multiplier
-    ) * 12;
-
-    // Calculate weighted age
     const weightedAge = ageInYears * trackLTMEarnings;
-
     totalWeightedAge += weightedAge;
     totalLTMEarnings += trackLTMEarnings;
 
@@ -284,21 +289,18 @@ export const calculateDollarAge = (artistData, effectiveSpotifyRate, currentDate
       name: track.title || track.name,
       ageInYears: parseFloat(ageInYears.toFixed(2)),
       ltmEarnings: trackLTMEarnings,
-      weightedAge: weightedAge,
-      releaseDate: releaseDate
+      weightedAge,
+      releaseDate: track.releaseDate || track.releaseYear ? releaseDate : null,
     });
   });
 
-  // Calculate final Dollar Age
-  const dollarAge = totalLTMEarnings > 0 
-    ? totalWeightedAge / totalLTMEarnings 
-    : 0;
+  const dollarAge = totalLTMEarnings > 0 ? totalWeightedAge / totalLTMEarnings : 0;
 
   return {
     dollarAge: parseFloat(dollarAge.toFixed(2)),
-    totalWeightedAge: totalWeightedAge,
-    totalLTMEarnings: totalLTMEarnings,
-    trackBreakdown: trackBreakdown
+    totalWeightedAge,
+    totalLTMEarnings,
+    trackBreakdown,
   };
 };
 
@@ -335,6 +337,8 @@ export const calculateMonthlyStreamsAndRevenue = (
     let totalMonthlyRevenue = 0;
 
     topTracks.forEach((track) => {
+
+       console.log("TRACK FIELDS:", JSON.stringify(track, null, 2));
       let trackStreams = 0;
       
       // Parse stream count

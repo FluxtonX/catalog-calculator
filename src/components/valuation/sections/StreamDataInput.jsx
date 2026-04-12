@@ -24,10 +24,11 @@ const StreamDataInput = ({
     <div className="p-4 sm:p-6 space-y-5">
       {/* Lifetime Streams */}
       <div className="space-y-2">
-        <label className="flex items-center text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
-          <TrendingUp size={14} className="mr-2" /> Lifetime Streams
-          <InfoTooltip content="Total cumulative streams across all tracks in the artist's catalog." />
-        </label>
+
+<label className="flex items-center text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
+  <TrendingUp size={14} className="mr-2" /> Lifetime Streams (All Songs)
+  <InfoTooltip content="Total cumulative streams across ALL songs in the artist's catalog — not just top 10. Include streams from every track, album, and single." />
+</label>
         <div className="relative">
           <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
             <TrendingUp size={16} />
@@ -46,7 +47,7 @@ const StreamDataInput = ({
       <div className="space-y-2">
         <label className="flex items-center text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">
           <Calendar size={14} className="mr-2" /> Average Dollar Date
-          <InfoTooltip content="Weighted average release date for decay calculation. Auto-calculated from your catalog." />
+          <InfoTooltip content="The average release date of the artist's catalog, used to estimate how old the music is. Auto-calculated from top tracks — adjust if you have a more accurate date." />
         </label>
         <div className="relative">
           <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none z-10">
@@ -65,13 +66,16 @@ const StreamDataInput = ({
       </div>
 
       {/* Method badge */}
-      <div className="flex items-start gap-2.5 p-3.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30 rounded-xl">
-        <Zap size={15} className="text-blue-500 mt-0.5 flex-shrink-0" />
-        <div>
-          <p className="text-xs font-bold text-blue-700 dark:text-blue-400 mb-0.5">Calculation Method</p>
-          <p className="text-xs text-blue-600 dark:text-blue-500">{methodLabel}</p>
-        </div>
-      </div>
+ <div className="flex items-start gap-2.5 p-3.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-500/30 rounded-xl">
+  <Zap size={15} className="text-blue-500 mt-0.5 flex-shrink-0" />
+  <div>
+    <p className="text-xs font-bold text-blue-700 dark:text-blue-400 mb-0.5">Calculation Method</p>
+    <p className="text-xs text-blue-600 dark:text-blue-500">{methodLabel}</p>
+    <p className="text-[10px] text-blue-500 dark:text-blue-400 mt-1">
+      ⚠️ Auto-calculated from top 10 tracks only — update Lifetime Streams above to include all songs for a more accurate valuation.
+    </p>
+  </div>
+</div>
 
       {/* Featured track notice */}
       {methodUsed === "TOP_TRACKS_FEATURED_ADJ" && featuredTrackCount > 0 && (

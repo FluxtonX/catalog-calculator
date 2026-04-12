@@ -83,26 +83,29 @@ useEffect(() => {
   const effectiveSpotifyRate = geoRateData.rate;
   const geoMethodUsed = geoRateData.method;
 
-  const dollarAgeData = useMemo(
-    () => calculateDollarAge(artistData, effectiveSpotifyRate, currentDate),
-    [artistData, effectiveSpotifyRate],
-  );
 
-  const {
-    monthlyStreamsEst,
-    monthlyRevenue,
-    methodUsed,
-    featuredTrackCount,
-    totalTrackCount,
-  } = calculateMonthlyStreamsAndRevenue(
-    artistData,
-    lifetimeStreams,
-    monthsLive,
-    effectiveSpotifyRate,
-  );
 
-  const monthlySpotifyRevenue = monthlyRevenue;
-  const ltmSpotifyRevenue = monthlyRevenue * 12;
+const {
+  monthlyStreamsEst,
+  monthlyRevenue,
+  methodUsed,
+  featuredTrackCount,
+  totalTrackCount,
+} = calculateMonthlyStreamsAndRevenue(
+  artistData,
+  lifetimeStreams,
+  monthsLive,
+  effectiveSpotifyRate,
+);
+
+const monthlySpotifyRevenue = monthlyRevenue;
+const ltmSpotifyRevenue = monthlyRevenue * 12;
+
+// ✅ Now ltmSpotifyRevenue is defined — pass it in so Dollar Age LTM matches
+const dollarAgeData = useMemo(
+  () => calculateDollarAge(artistData, effectiveSpotifyRate, currentDate, ltmSpotifyRevenue),
+  [artistData, effectiveSpotifyRate, ltmSpotifyRevenue],
+);
   const conservativeValuation = ltmSpotifyRevenue * 6;
   const marketValuation = ltmSpotifyRevenue * 8;
   const premiumValuation = ltmSpotifyRevenue * 10;

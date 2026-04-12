@@ -1,5 +1,6 @@
 // src/components/itunes/iTunesValuationTab.jsx
 import React, { useMemo, useState } from "react";
+import { useEffect } from "react";
 import {
   DollarSign,
   Music,
@@ -12,6 +13,12 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { generateITunesValuationPDF } from "../../utils/itunesValuationPdfGenerator";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useArtistStore } from "../../store/artistStore";
+import { supabase } from "../../utils/supabase";
+
+import { Download, LogIn } from "lucide-react";
 
 // ── Apple Music payout rate (avg $0.01/stream — ~2.5x Spotify) ───
 const APPLE_MUSIC_RATE = 0.01;
@@ -37,8 +44,7 @@ const formatNumber = (n) => {
 // Apple Music popularity 100 ≈ ~100M streams/month, scaled down
 const estimateMonthlyStreams = (popularityScore) => {
   if (!popularityScore) return 0;
-  // Exponential scale: 100→100M, 80→20M, 60→5M, 40→1M, 20→200K
-  return Math.round(Math.pow(popularityScore / 100, 2.5) * 100_000_000);
+  return Math.round(Math.pow(popularityScore / 100, 2.5) * 10_000_000);
 };
 
 // Metric card component
@@ -96,9 +102,105 @@ const ITunesValuationTab = ({ artistData }) => {
   const { name, image, topTracks, albums, singles, stats, popularity, genres } = artistData;
   const [showMethodology, setShowMethodology] = useState(false);
 
+  // ── ADD THESE ──────────────────────────────────────────
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [user, setUser] = useState(undefined);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSave = async () => {
+    if (!user) {
+      navigate("/auth", { state: { from: location } });
+      return;
+    }
+
+    const isProEnabled = false;
+    if (!isProEnabled) {
+      navigate("/pro-plan");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      const reportData = {
+        artist: name,
+        date: new Date().toISOString(),
+        generatedBy: {
+          email: user.email,
+          provider: user.app_metadata?.provider || "unknown",
+          userId: user.id,
+        },
+        inputs: { platform: "itunes" },
+        calculations: {
+          avgPopularity: calculations.avgPopularity,
+          monthlyStreams: calculations.monthlyStreams,
+          monthlyRevenue: calculations.monthlyRevenue,
+          ltmRevenue: calculations.ltmRevenue,
+          catalogBonus: calculations.catalogBonus,
+          dealScore: calculations.dealScore,
+          totalAlbums: calculations.totalAlbums,
+          totalSingles: calculations.totalSingles,
+        },
+        valuations: {
+          conservative: calculations.conservative,
+          market: calculations.market,
+          premium: calculations.premium,
+        },
+      };
+  generateITunesValuationPDF(reportData);
+      const { error: saveError } = await supabase
+        .from("user_reports")
+        .insert([{
+          user_id: user.id,
+          artist_name: name,
+          report_type: "itunes_valuation",
+          report_data: reportData,
+        }])
+        .select()
+        .single();
+      if (saveError) {
+        alert("PDF downloaded, but failed to save: " + saveError.message);
+        return;
+      }
+      if (window.confirm("Report saved!\n\nView saved reports?"))
+        navigate("/dashboard");
+    } catch {
+      alert("Error generating PDF. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+  // ── END ADD ─────────────────────────────────────────────
+
   // ── Core calculations ──────────────────────────────────
-  const calculations = useMemo(() => {
-    const avgPopularity = stats?.averageTrackPopularity || popularity || 50;
+const calculations = useMemo(() => {
+  // Calculate average from actual track data
+  const trackPopularities = topTracks
+    ?.map(t => t.popularity ?? t.trackPopularity)
+    .filter(p => typeof p === "number" && p > 0);
+
+  const avgPopularity =
+    trackPopularities?.length > 0
+      ? trackPopularities.reduce((a, b) => a + b, 0) / trackPopularities.length
+      : stats?.averageTrackPopularity > 0
+      ? stats.averageTrackPopularity
+      : popularity ?? 50;
+
+  // rest of calculations...
+
     const monthlyStreams = estimateMonthlyStreams(avgPopularity);
     const monthlyRevenue = monthlyStreams * APPLE_MUSIC_RATE;
     const ltmRevenue = monthlyRevenue * 12;
@@ -325,12 +427,13 @@ const ITunesValuationTab = ({ artistData }) => {
           ))}
         </div>
         <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-3">
-          Apple Music pays ~2.5x more per stream than Spotify, making catalog valuation significantly higher.
+      Apple Music pays ~$0.01/stream vs Spotify's average $0.003–$0.005/stream (2025 industry rates). Actual payouts vary by region, subscription tier, and label agreement.
         </p>
       </div>
 
       {/* ── Methodology toggle ───────────────────────────── */}
       <div className="bg-gradient-to-r from-slate-50 to-pink-50/30 dark:from-slate-900 dark:to-pink-950/20 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg">
+
         <button
           onClick={() => setShowMethodology((v) => !v)}
           className="w-full flex items-center justify-between gap-3 p-4 sm:p-5"
@@ -351,7 +454,7 @@ const ITunesValuationTab = ({ artistData }) => {
         {showMethodology && (
           <div className="border-t border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
-              <li>Monthly stream estimates are derived from Apple Music popularity scores (0–100) using an exponential model where 100 = ~100M streams/month.</li>
+        <li>Monthly stream estimates are derived from Apple Music popularity scores (0–100) using an exponential model where 100 = ~10M streams/month, 50 = ~1.8M streams/month.</li>
               <li>Apple Music payout rate used: <strong className="text-slate-900 dark:text-white">$0.01 per stream</strong> (industry average as of 2024).</li>
               <li>LTM (Last Twelve Months) Revenue = Monthly Streams × Rate × 12, adjusted for catalog depth.</li>
               <li>Catalog bonus adds up to +50% based on number of albums and singles in the artist's discography.</li>
@@ -361,6 +464,34 @@ const ITunesValuationTab = ({ artistData }) => {
             </ul>
           </div>
         )}
+      </div>
+      {/* ── Save / Download PDF ──────────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">
+        <div>
+          <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+            Download Apple Music Valuation Report
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Save a PDF copy of this full analysis
+          </p>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={isSaving}
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-600 hover:from-pink-600 hover:to-rose-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+        >
+          {isSaving ? (
+            <>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Download size={16} />
+              Download PDF Report
+            </>
+          )}
+        </button>
       </div>
     </div>
   );
