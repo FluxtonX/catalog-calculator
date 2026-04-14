@@ -68,25 +68,25 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
           />
         </>
       ) : isApify ? (
-        // Spotify stats
-        <>
-          <StatCard
-            icon={Music}
-            label="Total Streams"
-            value={stats.totalStreams}
-          />
-          <StatCard
-            icon={TrendingUp}
-            label="Avg Streams"
-            value={stats.averageStreams}
-          />
-          <StatCard
-            icon={Music}
-            label="Top Tracks"
-            value={topTracks?.length || 0}
-          />
-          <StatCard icon={Album} label="Albums" value={albums?.length || 0} />
-        </>
+  // Spotify stats — all values are from Top 10 tracks only
+  <>
+    <StatCard
+      icon={Music}
+      label="Total Streams (Top 10)"
+      value={stats.totalStreams}
+    />
+    <StatCard
+      icon={TrendingUp}
+      label="Avg Streams (Top 10)"
+      value={stats.averageStreams}
+    />
+    <StatCard
+      icon={Music}
+      label="Top 10 Tracks"
+      value={topTracks?.length || 0}
+    />
+    <StatCard icon={Album} label="Albums" value={albums?.length || 0} />
+  </>
       ) : (
         // Default stats
         <>

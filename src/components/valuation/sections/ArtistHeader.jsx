@@ -1,7 +1,7 @@
 import { DollarSign, Music, TrendingUp, Globe } from "lucide-react";
 import InfoTooltip from "../ui/InfoTooltip";
 
-const MetricCard = ({ icon: Icon, label, value, sub, accent, tooltip }) => (
+const MetricCard = ({ icon: Icon, label, value, sub, accent, tooltip, badge }) => (
   <div className={`group relative bg-white dark:bg-slate-900 rounded-2xl p-3.5 sm:p-5 border-2 ${accent.border} shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 overflow-hidden cursor-default`}>
     <div className="flex items-start justify-between mb-3">
       <div className={`p-2 rounded-xl ${accent.iconBg}`}>
@@ -12,6 +12,7 @@ const MetricCard = ({ icon: Icon, label, value, sub, accent, tooltip }) => (
     <p className={`text-xl sm:text-2xl lg:text-3xl font-black ${accent.text} leading-none mb-1.5`}>{value}</p>
     <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>
     {sub && <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{sub}</p>}
+    {badge && <p className="text-[10px] text-purple-500 dark:text-purple-400 font-semibold mt-1">✦ {badge}</p>}
   </div>
 );
 
@@ -36,18 +37,41 @@ const ArtistHeader = ({ artistName, marketValuation, monthlyStreamsEst, ltmSpoti
 
     {/* 4 metric cards */}
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-6">
-      <MetricCard icon={DollarSign} label="Market Value" value={formatCurrency(marketValuation)} sub="8× Multiple"
+      <MetricCard
+        icon={DollarSign}
+        label="Market Value"
+        value={formatCurrency(marketValuation)}
+        sub="8× Multiple"
+        badge="Top 10 Tracks"
         accent={{ border: "border-emerald-200 dark:border-emerald-500/30", iconBg: "bg-emerald-100 dark:bg-emerald-900/40", icon: "text-emerald-600 dark:text-emerald-400", text: "text-emerald-600 dark:text-emerald-400" }}
-        tooltip="Catalog value at the standard 8× revenue multiple." />
-      <MetricCard icon={Music} label="Monthly Streams" value={formatToMillions(monthlyStreamsEst)} sub={formatNumber(monthlyStreamsEst)}
+        tooltip="Catalog value at the standard 8× revenue multiple."
+      />
+      <MetricCard
+        icon={Music}
+        label="Monthly Streams"
+        value={formatToMillions(monthlyStreamsEst)}
+        sub={formatNumber(monthlyStreamsEst)}
+        badge="Top 10 Tracks"
         accent={{ border: "border-purple-200 dark:border-purple-500/30", iconBg: "bg-purple-100 dark:bg-purple-900/40", icon: "text-purple-600 dark:text-purple-400", text: "text-purple-600 dark:text-purple-400" }}
-        tooltip="Estimated monthly streams using best available data source." />
-      <MetricCard icon={TrendingUp} label="LTM Revenue" value={formatCurrency(ltmSpotifyRevenue)} sub="Last 12 months"
+        tooltip="Estimated monthly streams using best available data source."
+      />
+      <MetricCard
+        icon={TrendingUp}
+        label="LTM Revenue"
+        value={formatCurrency(ltmSpotifyRevenue)}
+        sub="Last 12 months"
+        badge="Top 10 Tracks"
         accent={{ border: "border-blue-200 dark:border-blue-500/30", iconBg: "bg-blue-100 dark:bg-blue-900/40", icon: "text-blue-600 dark:text-blue-400", text: "text-blue-600 dark:text-blue-400" }}
-        tooltip="Last Twelve Months Spotify royalty revenue." />
-      <MetricCard icon={Globe} label="Payout Rate" value={"$" + (effectiveSpotifyRate * 1000).toFixed(2)} sub="per 1,000 streams"
+        tooltip="Last Twelve Months Spotify royalty revenue."
+      />
+      <MetricCard
+        icon={Globe}
+        label="Payout Rate"
+        value={"$" + (effectiveSpotifyRate * 1000).toFixed(2)}
+        sub="per 1,000 streams"
         accent={{ border: "border-orange-200 dark:border-orange-500/30", iconBg: "bg-orange-100 dark:bg-orange-900/40", icon: "text-orange-600 dark:text-orange-400", text: "text-orange-600 dark:text-orange-400" }}
-        tooltip={geoMethodUsed === "WEIGHTED" ? "Geo-weighted rate based on listener distribution." : "Global average Spotify payout rate."} />
+        tooltip={geoMethodUsed === "WEIGHTED" ? "Geo-weighted rate based on listener distribution." : "Global average Spotify payout rate."}
+      />
     </div>
   </div>
 );

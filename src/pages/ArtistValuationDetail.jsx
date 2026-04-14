@@ -616,7 +616,7 @@ const ArtistValuationDetail = () => {
                     </div>
                   </div>
 
-                  <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-orange-500/30 hover:bg-white/15 transition-all">
+                 <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-orange-500/30 hover:bg-white/15 transition-all">
                     <div className="flex flex-col items-center gap-2">
                       <div className="p-2 bg-orange-500/20 rounded-xl">
                         <Globe size={20} className="text-orange-400" />
@@ -629,6 +629,7 @@ const ArtistValuationDetail = () => {
                           ${(effectiveSpotifyRate * 1000).toFixed(2)}
                         </h3>
                         <p className="text-xs text-white/70">per 1K</p>
+                        <p className="text-xs text-orange-400 mt-1">Top 10 Tracks</p>
                       </div>
                     </div>
                   </div>
@@ -730,11 +731,13 @@ const ArtistValuationDetail = () => {
                 />
                 <div className="text-sm text-blue-700 dark:text-blue-400">
                   <strong className="font-bold">Calculation Method:</strong>{" "}
-                  {methodUsed === "RECENT_30D" && "Recent 30-day streams"}
+{methodUsed === "RECENT_30D" && "Recent 30-day streams"}
                   {methodUsed === "RECENT_28D_NORMALIZED" &&
                     "Recent 28-day streams (normalized to 30 days)"}
                   {methodUsed === "LIFETIME_RUNRATE_ADJ" &&
                     `Lifetime Streams with Age Decay (${(getDecayFactor(monthsLive) * 100).toFixed(0)}% decay factor applied, ${monthsLive} months old)`}
+                  {methodUsed === "TOP_TRACKS_FEATURED_ADJ" &&
+                    "Based on Top 10 Tracks with Featured Adjustment"}
                 </div>
               </div>
             </div>
