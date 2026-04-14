@@ -11,9 +11,12 @@ const AnnualRevenueCard = ({ totalAnnualRevenue, formatCurrency }) => (
           <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest mb-1">
             Estimated Annual Revenue
           </p>
-          <p className="text-xs text-emerald-600 dark:text-emerald-500">
-            Total projected yearly earnings (Ad + Streaming)
-          </p>
+       <p className="text-xs text-emerald-600 dark:text-emerald-500">
+  Total projected yearly earnings (Ad + Streaming)
+</p>
+<p className="text-[10px] text-emerald-500 dark:text-emerald-600 mt-1">
+  ✦ Based on total YouTube lifetime views
+</p>
         </div>
       </div>
       <div className="text-left sm:text-right">

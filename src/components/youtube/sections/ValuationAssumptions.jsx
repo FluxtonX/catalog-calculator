@@ -94,7 +94,7 @@ const ValuationAssumptions = ({
             onValueChange={setStreamingRate}
             min={0.001} max={0.003} step={0.0001}
             format={(v) => `$${v.toFixed(4)}`}
-            tooltip="Revenue earned per individual play through Content ID and streaming platforms."
+            tooltip="Default industry estimate ($0.0020/play). Not pulled from live data — adjust manually to match your actual Content ID rate."
           />
         </div>
       </div>

@@ -48,8 +48,19 @@ const estimateMonthlyStreams = (popularityScore) => {
 };
 
 // Metric card component
-const MetricCard = ({ icon: Icon, label, value, sub, borderColor, iconBg, iconColor, valueColor }) => (
-  <div className={`bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border-2 ${borderColor} shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5`}>
+const MetricCard = ({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  borderColor,
+  iconBg,
+  iconColor,
+  valueColor,
+}) => (
+  <div
+    className={`bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border-2 ${borderColor} shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5`}
+  >
     <div className="flex flex-col items-center gap-2 text-center">
       <div className={`p-2.5 ${iconBg} rounded-xl`}>
         <Icon size={18} className={`sm:w-5 sm:h-5 ${iconColor}`} />
@@ -58,7 +69,11 @@ const MetricCard = ({ icon: Icon, label, value, sub, borderColor, iconBg, iconCo
         <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wide mb-1">
           {label}
         </p>
-        <p className={`text-base sm:text-xl lg:text-2xl font-black ${valueColor}`}>{value}</p>
+        <p
+          className={`text-base sm:text-xl lg:text-2xl font-black ${valueColor}`}
+        >
+          {value}
+        </p>
         {sub && (
           <p className="text-[9px] sm:text-xs text-slate-400 dark:text-slate-500 mt-0.5 font-medium">
             {sub}
@@ -70,36 +85,58 @@ const MetricCard = ({ icon: Icon, label, value, sub, borderColor, iconBg, iconCo
 );
 
 // Valuation scenario card
-const ScenarioCard = ({ label, multiple, value, color, gradient, icon: Icon, isHighlighted }) => (
-  <div className={`relative rounded-2xl p-4 sm:p-6 border-2 text-center transition-all duration-300 ${
-    isHighlighted
-      ? `${gradient} border-transparent shadow-2xl scale-105`
-      : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl hover:-translate-y-1"
-  }`}>
+const ScenarioCard = ({
+  label,
+  multiple,
+  value,
+  color,
+  gradient,
+  icon: Icon,
+  isHighlighted,
+}) => (
+  <div
+    className={`relative rounded-2xl p-4 sm:p-6 border-2 text-center transition-all duration-300 ${
+      isHighlighted
+        ? `${gradient} border-transparent shadow-2xl scale-105`
+        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl hover:-translate-y-1"
+    }`}
+  >
     {isHighlighted && (
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white dark:bg-slate-800 rounded-full text-[10px] font-black text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-pink-700 shadow-md">
         MARKET RATE
       </div>
     )}
-    <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg ${
-      isHighlighted ? "bg-white/20" : `bg-gradient-to-br ${color}`
-    }`}>
-      <Icon size={20} className={`sm:w-6 sm:h-6 ${isHighlighted ? "text-white" : "text-white"}`} />
+    <div
+      className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg ${
+        isHighlighted ? "bg-white/20" : `bg-gradient-to-br ${color}`
+      }`}
+    >
+      <Icon
+        size={20}
+        className={`sm:w-6 sm:h-6 ${isHighlighted ? "text-white" : "text-white"}`}
+      />
     </div>
-    <p className={`text-sm sm:text-base font-black mb-1 ${isHighlighted ? "text-white" : "text-slate-900 dark:text-white"}`}>
+    <p
+      className={`text-sm sm:text-base font-black mb-1 ${isHighlighted ? "text-white" : "text-slate-900 dark:text-white"}`}
+    >
       {label}
     </p>
-    <p className={`text-[10px] sm:text-xs mb-3 ${isHighlighted ? "text-white/80" : "text-slate-500 dark:text-slate-400"}`}>
+    <p
+      className={`text-[10px] sm:text-xs mb-3 ${isHighlighted ? "text-white/80" : "text-slate-500 dark:text-slate-400"}`}
+    >
       {multiple}x Revenue Multiple
     </p>
-    <p className={`text-xl sm:text-3xl font-black ${isHighlighted ? "text-white" : color.includes("pink") ? "text-pink-600 dark:text-pink-400" : color.includes("blue") ? "text-blue-600 dark:text-blue-400" : "text-purple-600 dark:text-purple-400"}`}>
+    <p
+      className={`text-xl sm:text-3xl font-black ${isHighlighted ? "text-white" : color.includes("pink") ? "text-pink-600 dark:text-pink-400" : color.includes("blue") ? "text-blue-600 dark:text-blue-400" : "text-purple-600 dark:text-purple-400"}`}
+    >
       {formatCurrency(value)}
     </p>
   </div>
 );
 
 const ITunesValuationTab = ({ artistData }) => {
-  const { name, image, topTracks, albums, singles, stats, popularity, genres } = artistData;
+  const { name, image, topTracks, albums, singles, stats, popularity, genres } =
+    artistData;
   const [showMethodology, setShowMethodology] = useState(false);
 
   // ── ADD THESE ──────────────────────────────────────────
@@ -114,7 +151,9 @@ const ITunesValuationTab = ({ artistData }) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
     });
@@ -160,15 +199,17 @@ const ITunesValuationTab = ({ artistData }) => {
           premium: calculations.premium,
         },
       };
-  generateITunesValuationPDF(reportData);
+      generateITunesValuationPDF(reportData);
       const { error: saveError } = await supabase
         .from("user_reports")
-        .insert([{
-          user_id: user.id,
-          artist_name: name,
-          report_type: "itunes_valuation",
-          report_data: reportData,
-        }])
+        .insert([
+          {
+            user_id: user.id,
+            artist_name: name,
+            report_type: "itunes_valuation",
+            report_data: reportData,
+          },
+        ])
         .select()
         .single();
       if (saveError) {
@@ -186,20 +227,21 @@ const ITunesValuationTab = ({ artistData }) => {
   // ── END ADD ─────────────────────────────────────────────
 
   // ── Core calculations ──────────────────────────────────
-const calculations = useMemo(() => {
-  // Calculate average from actual track data
-  const trackPopularities = topTracks
-    ?.map(t => t.popularity ?? t.trackPopularity)
-    .filter(p => typeof p === "number" && p > 0);
+  const calculations = useMemo(() => {
+    // Calculate average from actual track data
+    const trackPopularities = topTracks
+      ?.map((t) => t.popularity ?? t.trackPopularity)
+      .filter((p) => typeof p === "number" && p > 0);
 
-  const avgPopularity =
-    trackPopularities?.length > 0
-      ? trackPopularities.reduce((a, b) => a + b, 0) / trackPopularities.length
-      : stats?.averageTrackPopularity > 0
-      ? stats.averageTrackPopularity
-      : popularity ?? 50;
+    const avgPopularity =
+      trackPopularities?.length > 0
+        ? trackPopularities.reduce((a, b) => a + b, 0) /
+          trackPopularities.length
+        : stats?.averageTrackPopularity > 0
+          ? stats.averageTrackPopularity
+          : (popularity ?? 50);
 
-  // rest of calculations...
+    // rest of calculations...
 
     const monthlyStreams = estimateMonthlyStreams(avgPopularity);
     const monthlyRevenue = monthlyStreams * APPLE_MUSIC_RATE;
@@ -210,7 +252,10 @@ const calculations = useMemo(() => {
     const totalTracks = stats?.totalTopTracks || topTracks?.length || 0;
 
     // Catalog depth bonus (more releases = more passive income)
-    const catalogBonus = Math.min(totalAlbums * 0.05 + totalSingles * 0.01, 0.5);
+    const catalogBonus = Math.min(
+      totalAlbums * 0.05 + totalSingles * 0.01,
+      0.5,
+    );
     const adjustedLtm = ltmRevenue * (1 + catalogBonus);
 
     const conservative = adjustedLtm * 6;
@@ -221,11 +266,15 @@ const calculations = useMemo(() => {
     const dealScore = Math.round(
       Math.min(
         avgPopularity * 0.5 +
-        totalAlbums * 2 +
-        totalTracks * 0.5 +
-        (monthlyStreams > 10_000_000 ? 20 : monthlyStreams > 1_000_000 ? 10 : 0),
-        100
-      )
+          totalAlbums * 2 +
+          totalTracks * 0.5 +
+          (monthlyStreams > 10_000_000
+            ? 20
+            : monthlyStreams > 1_000_000
+              ? 10
+              : 0),
+        100,
+      ),
     );
 
     return {
@@ -248,15 +297,15 @@ const calculations = useMemo(() => {
     calculations.dealScore >= 70
       ? "text-emerald-600 dark:text-emerald-400"
       : calculations.dealScore >= 40
-      ? "text-yellow-600 dark:text-yellow-400"
-      : "text-slate-500 dark:text-slate-400";
+        ? "text-yellow-600 dark:text-yellow-400"
+        : "text-slate-500 dark:text-slate-400";
 
   const dealScoreLabel =
     calculations.dealScore >= 70
       ? "Strong Deal"
       : calculations.dealScore >= 40
-      ? "Moderate Interest"
-      : "Developing Artist";
+        ? "Moderate Interest"
+        : "Developing Artist";
 
   return (
     <div className="space-y-5 sm:space-y-7">
@@ -279,11 +328,16 @@ const calculations = useMemo(() => {
                 Apple Music Valuation
               </span>
             </div>
-            <h2 className="text-xl sm:text-3xl font-black text-white truncate mb-2">{name}</h2>
+            <h2 className="text-xl sm:text-3xl font-black text-white truncate mb-2">
+              {name}
+            </h2>
             {genres?.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {genres.slice(0, 3).map((g, i) => (
-                  <span key={i} className="px-2.5 py-0.5 bg-white/15 rounded-full text-white text-[10px] font-bold capitalize">
+                  <span
+                    key={i}
+                    className="px-2.5 py-0.5 bg-white/15 rounded-full text-white text-[10px] font-bold capitalize"
+                  >
                     {g}
                   </span>
                 ))}
@@ -292,22 +346,46 @@ const calculations = useMemo(() => {
           </div>
           {/* Deal score */}
           <div className="flex-shrink-0 text-center bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-4 border border-white/20">
-            <p className="text-white/70 text-[10px] font-bold uppercase tracking-wide mb-1">Deal Score</p>
-            <p className="text-3xl sm:text-4xl font-black text-white">{calculations.dealScore}</p>
-            <p className="text-white/80 text-[10px] font-bold">{dealScoreLabel}</p>
+            <p className="text-white/70 text-[10px] font-bold uppercase tracking-wide mb-1">
+              Deal Score
+            </p>
+            <p className="text-3xl sm:text-4xl font-black text-white">
+              {calculations.dealScore}
+            </p>
+            <p className="text-white/80 text-[10px] font-bold">
+              {dealScoreLabel}
+            </p>
           </div>
         </div>
 
         {/* Key metrics row inside banner */}
         <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-4 mt-5 sm:mt-6">
           {[
-            { label: "Monthly Streams (est.)", value: formatNumber(calculations.monthlyStreams) },
-            { label: "Monthly Revenue (est.)", value: formatCurrency(calculations.monthlyRevenue) },
-            { label: "LTM Revenue (est.)", value: formatCurrency(calculations.ltmRevenue) },
-          ].map(({ label, value }) => (
-            <div key={label} className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/15 text-center">
-              <p className="text-white/70 text-[9px] sm:text-xs font-bold uppercase tracking-wide mb-1">{label}</p>
-              <p className="text-white font-black text-sm sm:text-xl">{value}</p>
+            {
+              label: "Monthly Streams (est.)",
+              value: formatNumber(calculations.monthlyStreams),
+              note: "Estimated from popularity score — not real stream data",
+            },
+            {
+              label: "Monthly Revenue (est.)",
+              value: formatCurrency(calculations.monthlyRevenue),
+            },
+            {
+              label: "LTM Revenue (est.)",
+              value: formatCurrency(calculations.ltmRevenue),
+            },
+          ].map(({ label, value, note }) => (
+            <div
+              key={label}
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/15 text-center"
+            >
+              <p className="text-white/70 text-[9px] sm:text-xs font-bold uppercase tracking-wide mb-1">
+                {label}
+              </p>
+              <p className="text-white font-black text-sm sm:text-xl">
+                {value}
+              </p>
+              {note && <p className="text-white/50 text-[9px] mt-1">{note}</p>}
             </div>
           ))}
         </div>
@@ -409,13 +487,25 @@ const calculations = useMemo(() => {
         </h3>
         <div className="space-y-3">
           {[
-            { label: "Apple Music (est.)", rate: APPLE_MUSIC_RATE, color: "bg-gradient-to-r from-pink-500 to-rose-500", pct: 100 },
-            { label: "Spotify (avg.)", rate: 0.004, color: "bg-gradient-to-r from-emerald-500 to-green-500", pct: 40 },
+            {
+              label: "Apple Music (est.)",
+              rate: APPLE_MUSIC_RATE,
+              color: "bg-gradient-to-r from-pink-500 to-rose-500",
+              pct: 100,
+            },
+            {
+              label: "Spotify (avg.)",
+              rate: 0.004,
+              color: "bg-gradient-to-r from-emerald-500 to-green-500",
+              pct: 40,
+            },
           ].map(({ label, rate, color, pct }) => (
             <div key={label}>
               <div className="flex justify-between text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
                 <span>{label}</span>
-                <span className="font-black text-slate-900 dark:text-white">${rate.toFixed(4)}/stream</span>
+                <span className="font-black text-slate-900 dark:text-white">
+                  ${rate.toFixed(4)}/stream
+                </span>
               </div>
               <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                 <div
@@ -427,13 +517,14 @@ const calculations = useMemo(() => {
           ))}
         </div>
         <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-3">
-      Apple Music pays ~$0.01/stream vs Spotify's average $0.003–$0.005/stream (2025 industry rates). Actual payouts vary by region, subscription tier, and label agreement.
+          Apple Music pays ~$0.01/stream vs Spotify's average
+          $0.003–$0.005/stream (2025 industry rates). Actual payouts vary by
+          region, subscription tier, and label agreement.
         </p>
       </div>
 
       {/* ── Methodology toggle ───────────────────────────── */}
       <div className="bg-gradient-to-r from-slate-50 to-pink-50/30 dark:from-slate-900 dark:to-pink-950/20 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-
         <button
           onClick={() => setShowMethodology((v) => !v)}
           className="w-full flex items-center justify-between gap-3 p-4 sm:p-5"
@@ -446,21 +537,51 @@ const calculations = useMemo(() => {
               Methodology & Notes
             </span>
           </div>
-          {showMethodology
-            ? <ChevronUp size={18} className="text-slate-400" />
-            : <ChevronDown size={18} className="text-slate-400" />}
+          {showMethodology ? (
+            <ChevronUp size={18} className="text-slate-400" />
+          ) : (
+            <ChevronDown size={18} className="text-slate-400" />
+          )}
         </button>
 
         {showMethodology && (
           <div className="border-t border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
-        <li>Monthly stream estimates are derived from Apple Music popularity scores (0–100) using an exponential model where 100 = ~10M streams/month, 50 = ~1.8M streams/month.</li>
-              <li>Apple Music payout rate used: <strong className="text-slate-900 dark:text-white">$0.01 per stream</strong> (industry average as of 2024).</li>
-              <li>LTM (Last Twelve Months) Revenue = Monthly Streams × Rate × 12, adjusted for catalog depth.</li>
-              <li>Catalog bonus adds up to +50% based on number of albums and singles in the artist's discography.</li>
-              <li>Valuations use revenue multiples: Conservative (6×), Market (8×), Premium (10×).</li>
-              <li>Deal Score (0–100) combines popularity, catalog depth, and stream volume estimates.</li>
-              <li><strong className="text-slate-900 dark:text-white">Disclaimer:</strong> These are estimates only. Actual royalties vary by territory, subscription tier, and label agreements.</li>
+              <li>
+                Monthly stream estimates are derived from Apple Music popularity
+                scores (0–100) using an exponential model where 100 = ~10M
+                streams/month, 50 = ~1.8M streams/month.
+              </li>
+              <li>
+                Apple Music payout rate used:{" "}
+                <strong className="text-slate-900 dark:text-white">
+                  $0.01 per stream
+                </strong>{" "}
+                (industry average as of 2024).
+              </li>
+              <li>
+                LTM (Last Twelve Months) Revenue = Monthly Streams × Rate × 12,
+                adjusted for catalog depth.
+              </li>
+              <li>
+                Catalog bonus adds up to +50% based on number of albums and
+                singles in the artist's discography.
+              </li>
+              <li>
+                Valuations use revenue multiples: Conservative (6×), Market
+                (8×), Premium (10×).
+              </li>
+              <li>
+                Deal Score (0–100) combines popularity, catalog depth, and
+                stream volume estimates.
+              </li>
+              <li>
+                <strong className="text-slate-900 dark:text-white">
+                  Disclaimer:
+                </strong>{" "}
+                These are estimates only. Actual royalties vary by territory,
+                subscription tier, and label agreements.
+              </li>
             </ul>
           </div>
         )}
