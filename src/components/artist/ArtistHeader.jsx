@@ -283,7 +283,7 @@ const ArtistHeader = ({
                   title="Unique Spotify users who streamed this artist at least once in the last 28 days"
                 />
               )}
-              {popularity && !isApify && (
+             {popularity !== undefined && popularity !== null && !isApify && (
                 <StatPill
                   icon={TrendingUp}
                   value={popularity}
