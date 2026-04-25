@@ -789,27 +789,32 @@ const ValuationTool = () => {
                 </span>
               </div>
             </div>
-            <ArtistCard
-              name={selectedArtist.name}
-              image={selectedArtist.image}
-              followers={selectedArtist.followers}
-              popularity={selectedArtist.popularity}
-              genres={selectedArtist.genres}
-              topTracks={selectedArtist.topTracks}
-              relatedArtists={selectedArtist.relatedArtists}
-              albums={selectedArtist.albums}
-              singles={selectedArtist.singles}
-              popularReleases={selectedArtist.popularReleases}
-              stats={selectedArtist.stats}
-              spotifyUrl={selectedArtist.spotifyUrl}
-              youtubeUrl={selectedArtist.youtubeUrl}
-              appleUrl={selectedArtist.appleUrl}
-              platform={selectedArtist.platform}
-              monthlyListeners={selectedArtist.monthlyListeners}
-              biography={selectedArtist.biography}
-              topCities={selectedArtist.topCities}
-              externalLinks={selectedArtist.externalLinks}
-            />
+        
+<ArtistCard
+  name={selectedArtist.name}
+  image={selectedArtist.image}
+  followers={selectedArtist.followers}
+  popularity={selectedArtist.popularity}
+  genres={selectedArtist.genres}
+  topTracks={selectedArtist.topTracks}
+  relatedArtists={selectedArtist.relatedArtists}
+  albums={selectedArtist.albums}
+  singles={selectedArtist.singles}
+  popularReleases={selectedArtist.popularReleases}
+  stats={{
+    ...selectedArtist.stats,
+    scoring: selectedArtist.scoring,
+    catalogScore: selectedArtist.scoring?.catalogScore,
+  }}
+  spotifyUrl={selectedArtist.spotifyUrl}
+  youtubeUrl={selectedArtist.youtubeUrl}
+  appleUrl={selectedArtist.appleUrl}
+  platform={selectedArtist.platform}
+  monthlyListeners={selectedArtist.monthlyListeners}
+  biography={selectedArtist.biography}
+  topCities={selectedArtist.topCities}
+  externalLinks={selectedArtist.externalLinks}
+/>
           </div>
         )}
 

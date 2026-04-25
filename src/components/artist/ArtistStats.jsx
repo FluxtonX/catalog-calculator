@@ -35,38 +35,45 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
           />
           <StatCard icon={Music} label="Videos" value={stats.totalVideos} />
         </>
-      ) : isItunes ? (
-        // iTunes/Apple Music stats
-        <>
-          <StatCard
-            icon={Music}
-            label="Top Tracks"
-            value={stats.totalTopTracks}
-            iconBg="bg-pink-500/20"
-            iconColor="text-pink-600 dark:text-pink-400"
-          />
-          <StatCard
-            icon={Album}
-            label="Albums"
-            value={stats.totalAlbums}
-            iconBg="bg-rose-500/20"
-            iconColor="text-rose-600 dark:text-rose-400"
-          />
-          <StatCard
-            icon={TrendingUp}
-            label="Popularity"
-            value={`${Math.round(stats.averageTrackPopularity)}/100`}
-            iconBg="bg-red-500/20"
-            iconColor="text-red-600 dark:text-red-400"
-          />
-          <StatCard
-            icon={Disc}
-            label="Singles"
-            value={singles?.length || 0}
-            iconBg="bg-purple-500/20"
-            iconColor="text-purple-600 dark:text-purple-400"
-          />
-        </>
+    
+) : isItunes ? (
+  // iTunes/Apple Music stats
+  <>
+    <StatCard
+      icon={Music}
+      label="Top Tracks"
+      value={stats.totalTopTracks ?? topTracks?.length ?? 0}
+      iconBg="bg-pink-500/20"
+      iconColor="text-pink-600 dark:text-pink-400"
+    />
+   <StatCard
+  icon={Album}
+  label="Albums"
+  value={albums?.filter(a => !singles?.some(s => s.id === a.id))?.length ?? stats.totalAlbums ?? 0}
+  iconBg="bg-rose-500/20"
+  iconColor="text-rose-600 dark:text-rose-400"
+/>
+    <StatCard
+      icon={TrendingUp}
+      label="Popularity"
+      value={
+        stats.scoring?.finalScore != null
+          ? `${stats.scoring.finalScore}/100`
+          : stats.catalogScore != null
+          ? `${stats.catalogScore}/100`
+          : "N/A"
+      }
+      iconBg="bg-red-500/20"
+      iconColor="text-red-600 dark:text-red-400"
+    />
+    <StatCard
+      icon={Disc}
+      label="Singles"
+      value={singles?.length ?? stats.totalSingles ?? 0}
+      iconBg="bg-purple-500/20"
+      iconColor="text-purple-600 dark:text-purple-400"
+    />
+  </>
       ) : isApify ? (
   // Spotify stats — all values are from Top 10 tracks only
   <>
@@ -98,7 +105,7 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
           <StatCard
             icon={Album}
             label="Total Albums"
-            value={stats.totalAlbums}
+           value={albums?.length || 0}
           />
           <StatCard
             icon={Music}

@@ -46,7 +46,12 @@ const buildTabs = ({
 }) => {
   const tabs = [
     { id: "tracks", label: "Tracks", icon: ListMusic, always: true },
-     { id: "albums", label: "Albums", icon: Disc3, always: platform !== "youtube" },
+    {
+      id: "albums",
+      label: "Albums",
+      icon: Disc3,
+      always: platform !== "youtube",
+    },
     { id: "singles", label: "Singles", icon: Disc, show: hasSingles },
     { id: "popular", label: "Popular", icon: Star, show: hasPopularReleases },
     { id: "related", label: "Related", icon: Heart, show: hasRelated },
@@ -75,9 +80,10 @@ const TabTrigger = ({ id, label, Icon, platform }) => {
         data-[state=inactive]:text-slate-500 dark:data-[state=inactive]:text-slate-400
         data-[state=inactive]:hover:text-slate-700 dark:data-[state=inactive]:hover:text-slate-200
         data-[state=inactive]:hover:bg-slate-200/60 dark:data-[state=inactive]:hover:bg-slate-700/50
-        ${isItunes
-          ? "data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
-          : "data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
+        ${
+          isItunes
+            ? "data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
+            : "data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
         }
       `}
     >
@@ -171,7 +177,18 @@ const ArtistCard = ({
         },
       },
     });
-  }, [navigate, name, image, followers, popularity, genres, topTracks, stats, monthlyListeners, platform]);
+  }, [
+    navigate,
+    name,
+    image,
+    followers,
+    popularity,
+    genres,
+    topTracks,
+    stats,
+    monthlyListeners,
+    platform,
+  ]);
 
   // ── Album image enhancement (skip for iTunes — images already good) ──
   useEffect(() => {
@@ -198,7 +215,10 @@ const ArtistCard = ({
       // Only fetch Spotify images for non-iTunes platforms
       if (!isItunes) {
         try {
-          const spotifyImages = await getSpotifyAlbumImages(name, sortedReleases);
+          const spotifyImages = await getSpotifyAlbumImages(
+            name,
+            sortedReleases,
+          );
           if (!isMounted) return;
           setEnhancedAlbums(
             sortedReleases.map((album) => {
@@ -212,7 +232,9 @@ const ArtistCard = ({
       }
     };
     if (activeTab === "albums") enhanceAlbums();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [albums, singles, popularReleases, name, activeTab, platform, isItunes]);
 
   useEffect(() => {
@@ -238,26 +260,26 @@ const ArtistCard = ({
   const valuationBtnActive = isItunes
     ? "bg-gradient-to-r from-slate-900 to-zinc-800 text-white shadow-lg shadow-slate-900/30 group-hover:shadow-slate-900/50 group-hover:scale-105"
     : isYouTube
-    ? "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 group-hover:shadow-red-500/50 group-hover:scale-105"
-    : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-105";
+      ? "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 group-hover:shadow-red-500/50 group-hover:scale-105"
+      : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-105";
 
   const valuationBorderColor = isItunes
     ? "border-slate-300 dark:border-slate-700"
     : isYouTube
-    ? "border-red-200 dark:border-red-800/60"
-    : "border-emerald-200 dark:border-emerald-800/60";
+      ? "border-red-200 dark:border-red-800/60"
+      : "border-emerald-200 dark:border-emerald-800/60";
 
   const valuationBgColor = isItunes
     ? "from-slate-100 to-zinc-100 dark:from-slate-900/60 dark:to-zinc-900/40"
     : isYouTube
-    ? "from-red-50 to-rose-50 dark:from-red-950/40 dark:to-rose-950/40"
-    : "from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40";
+      ? "from-red-50 to-rose-50 dark:from-red-950/40 dark:to-rose-950/40"
+      : "from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40";
 
   const valuationIconBg = isItunes
     ? "from-slate-900 to-zinc-800"
     : isYouTube
-    ? "from-red-500 to-rose-600"
-    : "from-emerald-500 to-teal-600";
+      ? "from-red-500 to-rose-600"
+      : "from-emerald-500 to-teal-600";
 
   // ── Render valuation content ───────────────────────────
   const renderValuation = () => {
@@ -310,7 +332,6 @@ const ArtistCard = ({
 
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
-
       {/* ── Artist Info Card ─────────────────────────────── */}
       <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
         <ArtistHeader
@@ -330,13 +351,14 @@ const ArtistCard = ({
           onCalculateRoyalties={() => setShowValuation(true)}
         />
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
-          <ArtistStats
-            stats={stats}
-            platform={platform}
-            topTracks={topTracks}
-            albums={albums}
-            singles={singles}  
-          />
+    
+         <ArtistStats
+  stats={stats}
+  platform={platform}
+  topTracks={topTracks}
+  albums={albums}
+  singles={singles}
+/>
         </div>
       </div>
 
@@ -349,7 +371,9 @@ const ArtistCard = ({
           className="w-full flex items-center justify-between gap-4 px-5 sm:px-8 py-5 sm:py-6 group"
         >
           <div className="flex items-center gap-4">
-            <div className={`p-3 bg-gradient-to-br ${valuationIconBg} rounded-2xl shadow-lg`}>
+            <div
+              className={`p-3 bg-gradient-to-br ${valuationIconBg} rounded-2xl shadow-lg`}
+            >
               <BarChart3 size={22} className="text-white" />
             </div>
             <div className="text-left">
@@ -360,8 +384,8 @@ const ArtistCard = ({
                 {isItunes
                   ? "Apple Music revenue estimate & catalog analysis"
                   : isYouTube
-                  ? " Youtube Revenue Estimates and Catalog Valuuation"
-                  : "Revenue estimate, deal score & market breakdown"}
+                    ? " Youtube Revenue Estimates and Catalog Valuuation"
+                    : "Revenue estimate, deal score & market breakdown"}
               </p>
             </div>
           </div>
@@ -414,7 +438,6 @@ const ArtistCard = ({
       {/* ── Radix Tabs Card ──────────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
         <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
-
           {/* Tab List */}
           <div className="bg-slate-50 dark:bg-slate-800/70 border-b-2 border-slate-200 dark:border-slate-700">
             <ScrollArea.Root className="w-full">
@@ -450,7 +473,6 @@ const ArtistCard = ({
 
           {/* Tab Content */}
           <div className="p-4 sm:p-6 lg:p-8 min-h-[380px] sm:min-h-[480px]">
-
             {/* Tracks */}
             <Tabs.Content
               value="tracks"
@@ -526,7 +548,10 @@ const ArtistCard = ({
                   ))}
                 </MediaGrid>
               ) : (
-                <EmptyState icon={Star} message="No popular releases available" />
+                <EmptyState
+                  icon={Star}
+                  message="No popular releases available"
+                />
               )}
             </Tabs.Content>
 
@@ -538,11 +563,7 @@ const ArtistCard = ({
               {relatedArtists?.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {relatedArtists.map((a, i) => (
-                    <RelatedArtistCard
-                      key={a.id || i}
-                      artist={a}
-                      index={i}
-                    />
+                    <RelatedArtistCard key={a.id || i} artist={a} index={i} />
                   ))}
                 </div>
               ) : (
@@ -561,11 +582,9 @@ const ArtistCard = ({
                 <EmptyState icon={MapPin} message="No city data available" />
               )}
             </Tabs.Content>
-
           </div>
         </Tabs.Root>
       </div>
-
     </div>
   );
 };
