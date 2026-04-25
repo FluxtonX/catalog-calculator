@@ -43,11 +43,11 @@ const SocialLink = ({ href, label, Icon }) => (
       </Tooltip.Trigger>
       <Tooltip.Portal>
         <Tooltip.Content
-          className="px-2.5 py-1.5 text-xs bg-slate-900 text-white rounded-lg shadow-xl z-50"
+        className="px-2.5 py-1.5 text-xs bg-white text-slate-900 border border-slate-200 rounded-lg shadow-xl z-50"
           sideOffset={6}
         >
           Open {label}
-          <Tooltip.Arrow className="fill-slate-900" />
+       <Tooltip.Arrow className="fill-white" />
         </Tooltip.Content>
       </Tooltip.Portal>
     </Tooltip.Root>
@@ -77,11 +77,11 @@ const StatPill = ({ icon: Icon, value, label, gradient, title }) => (
       {title && (
         <Tooltip.Portal>
           <Tooltip.Content
-            className="px-3 py-2 text-xs bg-slate-900 text-white rounded-lg shadow-xl z-50 max-w-[200px] text-center leading-relaxed"
+           className="px-3 py-2 text-xs bg-white text-slate-900 border border-slate-200 rounded-lg shadow-xl z-50 max-w-[200px] text-center leading-relaxed"
             sideOffset={6}
           >
             {title}
-            <Tooltip.Arrow className="fill-slate-900" />
+           <Tooltip.Arrow className="fill-white" />
           </Tooltip.Content>
         </Tooltip.Portal>
       )}
@@ -283,7 +283,7 @@ const ArtistHeader = ({
                   title="Unique Spotify users who streamed this artist at least once in the last 28 days"
                 />
               )}
-              {popularity && !isApify && (
+             {popularity !== undefined && popularity !== null && !isApify && (
                 <StatPill
                   icon={TrendingUp}
                   value={popularity}
