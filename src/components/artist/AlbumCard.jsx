@@ -71,7 +71,7 @@ const AlbumCard = ({ album, index, platform }) => {
         {album.totalTracks > 0 && (
           <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mb-2 sm:mb-3 flex items-center gap-0.5 sm:gap-1">
             <Music size={10} className="sm:w-3 sm:h-3" />
-            {album.totalTracks} track{album.totalTracks !== 1 ? "s" : ""}
+      {album.totalTracks} song{album.totalTracks !== 1 ? "s" : ""} in album
           </p>
         )}
 

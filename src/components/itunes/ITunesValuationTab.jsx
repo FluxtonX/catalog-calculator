@@ -1,6 +1,6 @@
-// src/components/itunes/iTunesValuationTab.jsx
-import React, { useMemo, useState } from "react";
-import { useEffect } from "react";
+
+
+import React, { useMemo, useState, useEffect } from "react";
 import {
   DollarSign,
   Music,
@@ -12,42 +12,105 @@ import {
   Globe,
   ChevronDown,
   ChevronUp,
+  Download,
+  AlertTriangle,
 } from "lucide-react";
 import { generateITunesValuationPDF } from "../../utils/itunesValuationPdfGenerator";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useArtistStore } from "../../store/artistStore";
 import { supabase } from "../../utils/supabase";
 
-import { Download, LogIn } from "lucide-react";
+// ── Apple Music average payout (USD per stream, 2024 industry average) ──────
+const APPLE_MUSIC_RATE_PER_STREAM = 0.01;
 
-// ── Apple Music payout rate (avg $0.01/stream — ~2.5x Spotify) ───
-const APPLE_MUSIC_RATE = 0.01;
+// ── Revenue multiples for acquisition/licensing scenarios ───────────────────
+const MULTIPLES = { conservative: 6, market: 8, premium: 10 };
 
-// ── Helpers ───────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Formatters
+// ─────────────────────────────────────────────────────────────────────────────
+
 const formatCurrency = (n) => {
   if (!n || isNaN(n)) return "$0";
   if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
+  if (n >= 1_000_000)     return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000)         return `$${(n / 1_000).toFixed(1)}K`;
   return `$${n.toFixed(0)}`;
 };
 
 const formatNumber = (n) => {
   if (!n || isNaN(n)) return "0";
   if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  if (n >= 1_000_000)     return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000)         return `${(n / 1_000).toFixed(1)}K`;
   return `${Math.round(n)}`;
 };
 
-// Estimate monthly streams from popularity score (0-100)
-// Apple Music popularity 100 ≈ ~100M streams/month, scaled down
-const estimateMonthlyStreams = (popularityScore) => {
-  if (!popularityScore) return 0;
-  return Math.round(Math.pow(popularityScore / 100, 2.5) * 10_000_000);
+// ─────────────────────────────────────────────────────────────────────────────
+// Core valuation model
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Derive a 0–100 catalog score from countable API metadata.
+ * Weights are intentionally conservative — albums matter most because
+ * they represent the deepest passive-income catalog.
+ *
+ *   albums  × 5  → max ~40 pts for a 8-album catalog
+ *   singles × 2  → meaningful but not inflated
+ *   tracks  × 1  → volume bonus
+ *
+ * Clamped at 100 so the score stays meaningful.
+ */
+const buildCatalogScore = ({ totalAlbums, totalSingles, totalTracks }) => {
+  const raw = totalAlbums * 5 + totalSingles * 2 + totalTracks * 1;
+  return Math.min(raw, 100);
 };
 
-// Metric card component
+/**
+ * Tier-based monthly stream range.
+ *
+ * Because Apple Music does not expose real stream counts, we bucket
+ * artists by catalog score into three tiers and return a {low, mid, high}
+ * range.  The UI shows the range, not a fake precise number.
+ *
+ *   Score < 30  → developing  → 100K – 1M   streams/month
+ *   Score 30–70 → mid-level   → 1M   – 10M  streams/month
+ *   Score > 70  → established → 10M  – 100M streams/month
+ */
+const estimateStreamRange = (catalogScore) => {
+  if (catalogScore < 30) {
+    return { low: 100_000, mid: 550_000, high: 1_000_000, tier: "Developing" };
+  }
+  if (catalogScore <= 70) {
+    return { low: 1_000_000, mid: 5_500_000, high: 10_000_000, tier: "Mid-Level" };
+  }
+  return { low: 10_000_000, mid: 55_000_000, high: 100_000_000, tier: "Established" };
+};
+
+/**
+ * Catalog depth bonus applied to LTM revenue.
+ * More releases = more passive income potential.
+ * Capped at +50% so it doesn't distort results wildly.
+ */
+const buildCatalogBonus = ({ totalAlbums, totalSingles }) =>
+  Math.min(totalAlbums * 0.05 + totalSingles * 0.01, 0.5);
+
+/**
+ * Deal score: 0–100.
+ * Uses catalog score (60%) + album depth (30%) + track volume (10%).
+ */
+const buildDealScore = ({ catalogScore, totalAlbums, totalTracks }) => {
+  const raw =
+    catalogScore * 0.6 +
+    totalAlbums  * 1.5 +
+    totalTracks  * 0.2;
+  return Math.min(Math.round(raw), 100);
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sub-components
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Generic stat card */
 const MetricCard = ({
   icon: Icon,
   label,
@@ -69,9 +132,7 @@ const MetricCard = ({
         <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wide mb-1">
           {label}
         </p>
-        <p
-          className={`text-base sm:text-xl lg:text-2xl font-black ${valueColor}`}
-        >
+        <p className={`text-base sm:text-xl lg:text-2xl font-black ${valueColor}`}>
           {value}
         </p>
         {sub && (
@@ -84,7 +145,7 @@ const MetricCard = ({
   </div>
 );
 
-// Valuation scenario card
+/** Valuation scenario card (conservative / market / premium) */
 const ScenarioCard = ({
   label,
   multiple,
@@ -111,61 +172,167 @@ const ScenarioCard = ({
         isHighlighted ? "bg-white/20" : `bg-gradient-to-br ${color}`
       }`}
     >
-      <Icon
-        size={20}
-        className={`sm:w-6 sm:h-6 ${isHighlighted ? "text-white" : "text-white"}`}
-      />
+      <Icon size={20} className="sm:w-6 sm:h-6 text-white" />
     </div>
     <p
-      className={`text-sm sm:text-base font-black mb-1 ${isHighlighted ? "text-white" : "text-slate-900 dark:text-white"}`}
+      className={`text-sm sm:text-base font-black mb-1 ${
+        isHighlighted ? "text-white" : "text-slate-900 dark:text-white"
+      }`}
     >
       {label}
     </p>
     <p
-      className={`text-[10px] sm:text-xs mb-3 ${isHighlighted ? "text-white/80" : "text-slate-500 dark:text-slate-400"}`}
+      className={`text-[10px] sm:text-xs mb-3 ${
+        isHighlighted ? "text-white/80" : "text-slate-500 dark:text-slate-400"
+      }`}
     >
-      {multiple}x Revenue Multiple
+      {multiple}× Revenue Multiple
     </p>
     <p
-      className={`text-xl sm:text-3xl font-black ${isHighlighted ? "text-white" : color.includes("pink") ? "text-pink-600 dark:text-pink-400" : color.includes("blue") ? "text-blue-600 dark:text-blue-400" : "text-purple-600 dark:text-purple-400"}`}
+      className={`text-xl sm:text-3xl font-black ${
+        isHighlighted
+          ? "text-white"
+          : color.includes("pink")
+          ? "text-pink-600 dark:text-pink-400"
+          : color.includes("blue")
+          ? "text-blue-600 dark:text-blue-400"
+          : "text-purple-600 dark:text-purple-400"
+      }`}
     >
       {formatCurrency(value)}
     </p>
   </div>
 );
 
-const ITunesValuationTab = ({ artistData }) => {
-  const { name, image, topTracks, albums, singles, stats, popularity, genres } =
-    artistData;
-  const [showMethodology, setShowMethodology] = useState(false);
+/** Prominent data-limitation disclaimer banner */
+const DataLimitationBanner = () => (
+  <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 sm:p-5">
+    <div className="flex-shrink-0 mt-0.5 p-2 bg-amber-100 dark:bg-amber-900/40 rounded-xl">
+      <AlertTriangle size={16} className="text-amber-600 dark:text-amber-400" />
+    </div>
+    <div>
+      <p className="text-xs sm:text-sm font-black text-amber-800 dark:text-amber-300 mb-1">
+        Apple Music does not provide public stream counts
+      </p>
+      <p className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+        All values below are estimated using{" "}
+        <strong>catalog-based modeling</strong> (album count, singles, tracks).
+        Real streaming data is only accessible to rights holders via Apple Music
+        Analytics. These figures are for illustrative purposes only and should
+        not be used as the sole basis for financial decisions.
+      </p>
+    </div>
+  </div>
+);
 
-  // ── ADD THESE ──────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Main component
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ITunesValuationTab = ({ artistData }) => {
+  const { name, image, topTracks, albums, singles, stats, genres } = artistData;
+
+  const [showMethodology, setShowMethodology] = useState(false);
+  const [user, setUser]                       = useState(undefined);
+  const [authLoading, setAuthLoading]         = useState(true);
+  const [isSaving, setIsSaving]               = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(undefined);
-  const [authLoading, setAuthLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
 
+
+  // ── Auth state ────────────────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
     });
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        setAuthLoading(false);
+      }
+    );
     return () => subscription.unsubscribe();
   }, []);
 
+  // ── Calculations (memoised) ───────────────────────────────────────────────
+  const calculations = useMemo(() => {
+    // ── 1. Catalog counts (sourced from real API metadata fields) ──────────
+    const totalAlbums  = stats?.totalAlbums  ?? albums?.length  ?? 0;
+    const totalSingles = singles?.length     ?? 0;
+    const totalTracks  = stats?.totalTopTracks ?? topTracks?.length ?? 0;
+
+    // ── 2. Catalog score: 0–100, purely from countable metadata ───────────
+    const catalogScore = buildCatalogScore({ totalAlbums, totalSingles, totalTracks });
+
+    // ── 3. Stream range: tier-based, NOT a fake precise number ─────────────
+    const streamRange = estimateStreamRange(catalogScore);
+
+    // ── 4. Revenue — use midpoint of stream range as working estimate ──────
+    const estimatedMonthlyStreams  = streamRange.mid;
+    const monthlyRevenue           = estimatedMonthlyStreams * APPLE_MUSIC_RATE_PER_STREAM;
+    const annualRevenue            = monthlyRevenue * 12;
+
+    // ── 5. Catalog depth bonus (+0–50% on annual revenue) ──────────────────
+    const catalogBonusPct          = buildCatalogBonus({ totalAlbums, totalSingles });
+    const ltmRevenue               = annualRevenue * (1 + catalogBonusPct);
+
+    // ── 6. Valuations at 3 multiples ───────────────────────────────────────
+    const conservative = ltmRevenue * MULTIPLES.conservative;
+    const market       = ltmRevenue * MULTIPLES.market;
+    const premium      = ltmRevenue * MULTIPLES.premium;
+
+    // ── 7. Deal score ───────────────────────────────────────────────────────
+    const dealScore = buildDealScore({ catalogScore, totalAlbums, totalTracks });
+
+    return {
+      // catalog data
+      totalAlbums,
+      totalSingles,
+      totalTracks,
+      catalogScore,
+      // stream range (shown as a range in the UI, not a single number)
+      streamRangeLow:   streamRange.low,
+      streamRangeMid:   streamRange.mid,
+      streamRangeHigh:  streamRange.high,
+      streamTier:       streamRange.tier,
+      // revenue
+      monthlyRevenue,
+      ltmRevenue,
+      catalogBonusPct: catalogBonusPct * 100,
+      // valuations
+      conservative,
+      market,
+      premium,
+      // deal score
+      dealScore,
+    };
+  }, [stats, albums, singles, topTracks]);
+
+  // ── Deal score label & colour ─────────────────────────────────────────────
+  const dealScoreColor =
+    calculations.dealScore >= 70
+      ? "text-emerald-600 dark:text-emerald-400"
+      : calculations.dealScore >= 40
+      ? "text-yellow-600 dark:text-yellow-400"
+      : "text-slate-500 dark:text-slate-400";
+
+  const dealScoreLabel =
+    calculations.dealScore >= 70
+      ? "Strong Deal"
+      : calculations.dealScore >= 40
+      ? "Moderate Interest"
+      : "Developing Artist";
+
+  // ── PDF save handler ──────────────────────────────────────────────────────
   const handleSave = async () => {
     if (!user) {
       navigate("/auth", { state: { from: location } });
       return;
     }
 
+    // Guard: Pro plan required
     const isProEnabled = false;
     if (!isProEnabled) {
       navigate("/pro-plan");
@@ -174,37 +341,44 @@ const ITunesValuationTab = ({ artistData }) => {
 
     try {
       setIsSaving(true);
+
       const reportData = {
         artist: name,
-        date: new Date().toISOString(),
+        date:   new Date().toISOString(),
         generatedBy: {
-          email: user.email,
+          email:    user.email,
           provider: user.app_metadata?.provider || "unknown",
-          userId: user.id,
+          userId:   user.id,
         },
         inputs: { platform: "itunes" },
         calculations: {
-          avgPopularity: calculations.avgPopularity,
-          monthlyStreams: calculations.monthlyStreams,
-          monthlyRevenue: calculations.monthlyRevenue,
-          ltmRevenue: calculations.ltmRevenue,
-          catalogBonus: calculations.catalogBonus,
-          dealScore: calculations.dealScore,
-          totalAlbums: calculations.totalAlbums,
-          totalSingles: calculations.totalSingles,
+          catalogScore:     calculations.catalogScore,
+          streamTier:       calculations.streamTier,
+          streamRangeLow:   calculations.streamRangeLow,
+          streamRangeMid:   calculations.streamRangeMid,
+          streamRangeHigh:  calculations.streamRangeHigh,
+          monthlyRevenue:   calculations.monthlyRevenue,
+          ltmRevenue:       calculations.ltmRevenue,
+          catalogBonusPct:  calculations.catalogBonusPct,
+          dealScore:        calculations.dealScore,
+          totalAlbums:      calculations.totalAlbums,
+          totalSingles:     calculations.totalSingles,
+          totalTracks:      calculations.totalTracks,
         },
         valuations: {
           conservative: calculations.conservative,
-          market: calculations.market,
-          premium: calculations.premium,
+          market:       calculations.market,
+          premium:      calculations.premium,
         },
       };
+
       generateITunesValuationPDF(reportData);
+
       const { error: saveError } = await supabase
         .from("user_reports")
         .insert([
           {
-            user_id: user.id,
+            user_id:     user.id,
             artist_name: name,
             report_type: "itunes_valuation",
             report_data: reportData,
@@ -212,12 +386,15 @@ const ITunesValuationTab = ({ artistData }) => {
         ])
         .select()
         .single();
+
       if (saveError) {
         alert("PDF downloaded, but failed to save: " + saveError.message);
         return;
       }
-      if (window.confirm("Report saved!\n\nView saved reports?"))
+
+      if (window.confirm("Report saved!\n\nView saved reports?")) {
         navigate("/dashboard");
+      }
     } catch {
       alert("Error generating PDF. Please try again.");
     } finally {
@@ -227,68 +404,72 @@ const ITunesValuationTab = ({ artistData }) => {
   // ── END ADD ─────────────────────────────────────────────
 
   // ── Core calculations ──────────────────────────────────
-const calculations = useMemo(() => {
-  const totalAlbums  = stats?.totalAlbums ?? albums?.length ?? 0;
-  const totalSingles = singles?.length ?? 0;
-  const totalTracks  = stats?.totalTopTracks ?? topTracks?.length ?? 0;
+  const calculations = useMemo(() => {
+    // Calculate average from actual track data
+    const trackPopularities = topTracks
+      ?.map((t) => t.popularity ?? t.trackPopularity)
+      .filter((p) => typeof p === "number" && p > 0);
 
-  // ── Top 10 tracks with rank-based popularity fallback ─
-  const top10 = (topTracks ?? []).slice(0, 10);
-  const top10Popularities = top10.map((t, i) => {
-    const real = t.popularity ?? t.trackPopularity ?? 0;
-    // iTunes has no popularity field — use rank position as proxy
-    // Rank 1 = 85, Rank 2 = 79, Rank 3 = 73... descending by 6
-    return real > 0 ? real : Math.round(85 - (i * 6));
-  });
+    const avgPopularity =
+      trackPopularities?.length > 0
+        ? trackPopularities.reduce((a, b) => a + b, 0) /
+          trackPopularities.length
+        : stats?.averageTrackPopularity > 0
+          ? stats.averageTrackPopularity
+          : (popularity ?? 50);
 
-  const avgTop10Popularity =
-    top10Popularities.length > 0
-      ? top10Popularities.reduce((a, b) => a + b, 0) / top10Popularities.length
-      : popularity ?? 50;
+    // rest of calculations...
 
-  // ── Streams & revenue from top 10 avg popularity ──────
-  const estimatedMonthlyStreams = estimateMonthlyStreams(avgTop10Popularity);
-  const monthlyRevenue          = estimatedMonthlyStreams * APPLE_MUSIC_RATE;
-  const annualRevenue           = monthlyRevenue * 12;
+    const monthlyStreams = estimateMonthlyStreams(avgPopularity);
+    const monthlyRevenue = monthlyStreams * APPLE_MUSIC_RATE;
+    const ltmRevenue = monthlyRevenue * 12;
 
-  // ── Catalog bonus ──────────────────────────────────────
-  const catalogBonus = Math.min(totalAlbums * 0.05 + totalSingles * 0.01, 0.5);
-  const ltmRevenue   = annualRevenue * (1 + catalogBonus);
+    const totalAlbums = stats?.totalAlbums || albums?.length || 0;
+    const totalSingles = singles?.length || 0;
+    const totalTracks = stats?.totalTopTracks || topTracks?.length || 0;
 
-  // ── Valuations based on top 10 tracks ─────────────────
-  const conservative = ltmRevenue * 6;
-  const market       = ltmRevenue * 8;
-  const premium      = ltmRevenue * 10;
+    // Catalog depth bonus (more releases = more passive income)
+    const catalogBonus = Math.min(
+      totalAlbums * 0.05 + totalSingles * 0.01,
+      0.5,
+    );
+    const adjustedLtm = ltmRevenue * (1 + catalogBonus);
 
-  // ── Deal score ─────────────────────────────────────────
-  const dealScore = Math.round(
-    Math.min(
-      avgTop10Popularity * 0.5 +
-        totalAlbums * 2 +
-        totalTracks * 0.5 +
-        (estimatedMonthlyStreams > 10_000_000 ? 20
-          : estimatedMonthlyStreams > 1_000_000 ? 10 : 0),
-      100,
-    ),
-  );
+    const conservative = adjustedLtm * 6;
+    const market = adjustedLtm * 8;
+    const premium = adjustedLtm * 10;
 
-  return {
-    totalAlbums,
-    totalSingles,
-    totalTracks,
-    avgTop10Popularity,
-    top10Popularities,       // ← per-track scores for the table
-    tracksUsed: top10.length,
-    estimatedMonthlyStreams,
-    monthlyRevenue,
-    ltmRevenue,
-    conservative,
-    market,
-    premium,
-    dealScore,
-    catalogBonus: catalogBonus * 100,
-  };
-}, [stats, popularity, albums, singles, topTracks]);
+    // Deal score: 0-100 based on catalog depth + popularity
+    const dealScore = Math.round(
+      Math.min(
+        avgPopularity * 0.5 +
+          totalAlbums * 2 +
+          totalTracks * 0.5 +
+          (monthlyStreams > 10_000_000
+            ? 20
+            : monthlyStreams > 1_000_000
+              ? 10
+              : 0),
+        100,
+      ),
+    );
+
+    return {
+      avgPopularity,
+      monthlyStreams,
+      monthlyRevenue,
+      ltmRevenue: adjustedLtm,
+      conservative,
+      market,
+      premium,
+      dealScore,
+      totalAlbums,
+      totalSingles,
+      totalTracks,
+      catalogBonus: catalogBonus * 100,
+    };
+  }, [stats, popularity, albums, singles, topTracks]);
+
   const dealScoreColor =
     calculations.dealScore >= 70
       ? "text-emerald-600 dark:text-emerald-400"
@@ -306,160 +487,99 @@ const calculations = useMemo(() => {
   return (
     <div className="space-y-5 sm:space-y-7">
       {/* ── Header banner ────────────────────────────────── */}
-  <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-pink-600 via-rose-600 to-red-600 p-5 sm:p-8 shadow-2xl">
-  <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-  <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-pink-600 via-rose-600 to-red-600 p-5 sm:p-8 shadow-2xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none" />
 
-  <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-    {image && (
-      <img
-        src={image}
-        alt={name}
-        className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl object-cover shadow-xl ring-2 ring-white/30 flex-shrink-0"
-      />
-    )}
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="text-white/70 text-xs font-bold uppercase tracking-widest">
-          Apple Music Valuation
-        </span>
-      </div>
-      <h2 className="text-xl sm:text-3xl font-black text-white truncate mb-2">
-        {name}
-      </h2>
-      {genres?.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {genres.slice(0, 3).map((g, i) => (
-            <span
-              key={i}
-              className="px-2.5 py-0.5 bg-white/15 rounded-full text-white text-[10px] font-bold capitalize"
+        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          {image && (
+            <img
+              src={image}
+              alt={name}
+              className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl object-cover shadow-xl ring-2 ring-white/30 flex-shrink-0"
+            />
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-white/70 text-xs font-bold uppercase tracking-widest">
+                Apple Music Valuation
+              </span>
+            </div>
+            <h2 className="text-xl sm:text-3xl font-black text-white truncate mb-2">
+              {name}
+            </h2>
+            {genres?.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {genres.slice(0, 3).map((g, i) => (
+                  <span
+                    key={i}
+                    className="px-2.5 py-0.5 bg-white/15 rounded-full text-white text-[10px] font-bold capitalize"
+                  >
+                    {g}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* Deal score */}
+          <div className="flex-shrink-0 text-center bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-4 border border-white/20">
+            <p className="text-white/70 text-[10px] font-bold uppercase tracking-wide mb-1">
+              Deal Score
+            </p>
+            <p className="text-3xl sm:text-4xl font-black text-white">
+              {calculations.dealScore}
+            </p>
+            <p className="text-white/80 text-[10px] font-bold">
+              {dealScoreLabel}
+            </p>
+          </div>
+        </div>
+
+        {/* Key metrics row inside banner */}
+        <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-4 mt-5 sm:mt-6">
+          {[
+            {
+              label: "Monthly Streams (est.)",
+              value: formatNumber(calculations.monthlyStreams),
+              note: "Estimated from popularity score — not real stream data",
+            },
+            {
+              label: "Monthly Revenue (est.)",
+              value: formatCurrency(calculations.monthlyRevenue),
+            },
+            {
+              label: "LTM Revenue (est.)",
+              value: formatCurrency(calculations.ltmRevenue),
+            },
+          ].map(({ label, value, note }) => (
+            <div
+              key={label}
+              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/15 text-center"
             >
-              {g}
-            </span>
+              <p className="text-white/70 text-[9px] sm:text-xs font-bold uppercase tracking-wide mb-1">
+                {label}
+              </p>
+              <p className="text-white font-black text-sm sm:text-xl">
+                {value}
+              </p>
+              {note && <p className="text-white/50 text-[9px] mt-1">{note}</p>}
+            </div>
           ))}
         </div>
-      )}
-    </div>
-
-    {/* Deal score with tooltip */}
-    <div className="relative group flex-shrink-0">
-      <div className="text-center bg-white/15 backdrop-blur-sm rounded-2xl px-5 py-4 border border-white/20 cursor-default">
-        <div className="flex items-center justify-center gap-1 mb-1">
-          <p className="text-white/70 text-[10px] font-bold uppercase tracking-wide">
-            Deal Score
-          </p>
-          <Info size={11} className="text-white/50" />
-        </div>
-        <p className="text-3xl sm:text-4xl font-black text-white">
-          {calculations.dealScore}
-        </p>
-        <p className="text-white/80 text-[10px] font-bold">
-          {dealScoreLabel}
-        </p>
       </div>
-      {/* Tooltip */}
-<div className="absolute z-50 top-0 right-full mr-2 w-64 p-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl
-  opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-        <p className="font-bold mb-1 text-slate-900 dark:text-white">About Deal Score</p>
-        <p className="text-slate-600 dark:text-slate-400">
-          Score from 0–100 combining avg track popularity (50%), catalog album depth (30%), and stream volume (20%).
-          <br /><br />
-          <strong className="text-slate-800 dark:text-slate-200">70+</strong> = Strong Deal &nbsp;·&nbsp;
-          <strong className="text-slate-800 dark:text-slate-200">40–69</strong> = Moderate &nbsp;·&nbsp;
-          <strong className="text-slate-800 dark:text-slate-200">&lt;40</strong> = Developing
-        </p>
-      </div>
-    </div>
-  </div>
 
-  {/* Key metrics row inside banner */}
-<div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-4 mt-5 sm:mt-6 overflow-visible">
-    {[
-      {
-        label: "Monthly Streams (est.)",
-        value: formatNumber(calculations.estimatedMonthlyStreams),
-        note: `Based on avg popularity of top ${calculations.tracksUsed} tracks`,
-        tooltip: {
-          title: "Monthly Streams (Est.)",
-          body: `Estimated from the average rank-based popularity score of the top ${calculations.tracksUsed} tracks. Formula: (popularity/100)^2.5 × 10M. Since Apple Music doesn't expose real stream counts, this is a modeled estimate.`,
-        },
-      },
-      {
-        label: "Monthly Revenue (est.)",
-        value: formatCurrency(calculations.monthlyRevenue),
-        note: "$0.01 per stream × est. streams",
-        tooltip: {
-          title: "Monthly Revenue (Est.)",
-          body: "Estimated monthly streams × $0.01 Apple Music avg payout rate. Actual payouts vary by country, subscription tier, and label agreement.",
-        },
-      },
-      {
-        label: "LTM Revenue (est.)",
-        value: formatCurrency(calculations.ltmRevenue),
-        note: `Incl. +${calculations.catalogBonus.toFixed(0)}% catalog bonus`,
-        tooltip: {
-          title: "LTM Revenue (Est.)",
-          body: `Last Twelve Months revenue = Monthly Revenue × 12, then adjusted upward by a catalog depth bonus of +${calculations.catalogBonus.toFixed(0)}% based on total albums and singles in the discography (max +50%).`,
-        },
-      },
-    ].map(({ label, value, note, tooltip }) => (
-      <div key={label} className="relative group">
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-white/15 text-center cursor-default">
-          <div className="flex items-center justify-center gap-1 mb-1">
-            <p className="text-white/70 text-[9px] sm:text-xs font-bold uppercase tracking-wide">
-              {label}
-            </p>
-            <Info size={10} className="text-white/40 flex-shrink-0" />
-          </div>
-          <p className="text-white font-black text-sm sm:text-xl">
-            {value}
-          </p>
-          {note && (
-            <p className="text-white/50 text-[9px] mt-1">{note}</p>
-          )}
-        </div>
-
-        {/* Tooltip */}
-   <div className="absolute z-50 bottom-full mb-2 left-1/2 -translate-x-1/2 w-64 p-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl
-  opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-          <p className="font-bold mb-1 text-slate-900 dark:text-white">
-            {tooltip.title}
-          </p>
-          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-            {tooltip.body}
-          </p>
-        </div>
-      </div>
-    ))}
-  </div>
-</div>
       {/* ── Detailed metrics ─────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <div className="relative group">
-  <MetricCard
-    icon={Music}
-    label="Avg Track Popularity"
-    value={`${Math.round(calculations.avgTop10Popularity)}/100`}
-    sub={`Top ${calculations.tracksUsed} tracks avg`}
-    borderColor="border-pink-200 dark:border-pink-800/40"
-    iconBg="bg-pink-500/15"
-    iconColor="text-pink-600 dark:text-pink-400"
-    valueColor="text-pink-600 dark:text-pink-400"
-  />
-  {/* hover tooltip */}
-  <div className="absolute top-2 right-2 p-1 rounded-full bg-white/80 dark:bg-slate-800 cursor-default">
-    <Info size={14} className="text-slate-500" />
-  </div>
-  <div className="absolute z-20 top-10 right-0 w-64 p-3 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl
-    opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-    <p className="font-bold mb-1 text-slate-900 dark:text-white">About Avg Track Popularity</p>
-    <p className="text-slate-600 dark:text-slate-400">
-      Average popularity score (0–100) across the artist's top{" "}
-      {calculations.tracksUsed} tracks on Apple Music. Higher score =
-      more streams = higher estimated revenue.
-    </p>
-  </div>
-</div>
+        <MetricCard
+          icon={Music}
+          label="Avg Popularity"
+          value={`${Math.round(calculations.avgPopularity)}/100`}
+          sub="Apple Music score"
+          borderColor="border-pink-200 dark:border-pink-800/40"
+          iconBg="bg-pink-500/15"
+          iconColor="text-pink-600 dark:text-pink-400"
+          valueColor="text-pink-600 dark:text-pink-400"
+        />
         <MetricCard
           icon={Globe}
           label="Payout Rate"
@@ -492,143 +612,6 @@ const calculations = useMemo(() => {
         />
       </div>
 
-{/* ── Top 10 Tracks Breakdown ─────────────────────────── */}
-{topTracks?.length > 0 && (
-  <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-    <div className="flex items-center gap-3 p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800">
-      <div className="p-2.5 bg-pink-500/15 rounded-xl">
-        <Music size={18} className="text-pink-600 dark:text-pink-400" />
-      </div>
-      <div>
-        <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
-          Top {calculations.tracksUsed} Tracks — Valuation Basis
-        </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Rank-based popularity score drives stream & revenue estimate
-        </p>
-      </div>
-    </div>
-
-    <div className="divide-y divide-slate-100 dark:divide-slate-800">
-      {(topTracks ?? []).slice(0, 10).map((track, i) => {
-        const real = track.popularity ?? track.trackPopularity ?? 0;
-        const pop  = real > 0 ? real : Math.round(85 - (i * 6));
-        const streams = estimateMonthlyStreams(pop);
-        const revenue = streams * APPLE_MUSIC_RATE * 12;
-const trackName =
-  track.trackName ??
-  track.name ??
-  track.title ??
-  track.trackCensoredName ??
-  track.collectionName ??
-  "Unknown Track";
-
-const rawImage =
-  track.artworkUrl100 ??
-  track.artworkUrl60 ??
-  track.image ??
-  track.thumbnail ??
-  track.artwork ??
-  null;
-
-// iTunes returns 100x100 — upgrade to 300x300 for better quality
-const trackImage = rawImage
-  ? rawImage.replace("100x100", "300x300").replace("60x60", "300x300")
-  : null;
-        const barColor =
-          pop >= 70 ? "bg-emerald-500" :
-          pop >= 40 ? "bg-yellow-500" :
-                      "bg-pink-400";
-
-        return (
-          <div
-            key={i}
-            className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-          >
-            {/* Rank */}
-            <span className="text-xs font-black text-slate-400 w-5 flex-shrink-0 text-center">
-              {i + 1}
-            </span>
-
-            {/* Track image */}
-            {trackImage ? (
-              <img
-                src={trackImage}
-                alt={trackName}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0 ring-1 ring-slate-200 dark:ring-slate-700"
-              />
-            ) : (
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center flex-shrink-0">
-                <Music size={14} className="text-white" />
-              </div>
-            )}
-
-            {/* Track name + popularity bar */}
-            <div className="flex-1 min-w-0">
-              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
-                {trackName}
-              </p>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${barColor} rounded-full transition-all duration-500`}
-                    style={{ width: `${pop}%` }}
-                  />
-                </div>
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 flex-shrink-0">
-                  {pop}/100
-                  {(track.popularity ?? track.trackPopularity ?? 0) === 0 && (
-                    <span className="text-slate-400 dark:text-slate-500 ml-1">(est.)</span>
-                  )}
-                </span>
-              </div>
-            </div>
-
-            {/* Est. streams */}
-            <div className="hidden sm:block text-right flex-shrink-0 w-20">
-              <p className="text-[10px] text-slate-400 font-medium">Streams/mo</p>
-              <p className="text-xs font-black text-slate-700 dark:text-slate-300">
-                {formatNumber(streams)}
-              </p>
-            </div>
-
-            {/* Est. annual revenue */}
-            <div className="text-right flex-shrink-0 w-20">
-              <p className="text-[10px] text-slate-400 font-medium">Annual Rev.</p>
-              <p className="text-xs font-black text-pink-600 dark:text-pink-400">
-                {formatCurrency(revenue)}
-              </p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-
-    {/* Footer summary */}
-    <div className="flex items-center justify-between px-4 sm:px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800">
-      <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-        Avg Popularity:{" "}
-        <span className="text-slate-900 dark:text-white">
-          {Math.round(calculations.avgTop10Popularity)}/100
-        </span>
-      </span>
-      <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-        Total Est. Annual:{" "}
-        <span className="text-pink-600 dark:text-pink-400">
-          {formatCurrency(
-            (topTracks ?? []).slice(0, 10).reduce((sum, t, i) => {
-              const real = t.popularity ?? t.trackPopularity ?? 0;
-              const pop  = real > 0 ? real : Math.round(85 - (i * 6));
-              return sum + estimateMonthlyStreams(pop) * APPLE_MUSIC_RATE * 12;
-            }, 0)
-          )}
-        </span>
-      </span>
-    </div>
-  </div>
-)}
-      
-
       {/* ── Valuation scenarios ───────────────────────────── */}
       <div>
         <div className="flex items-center gap-3 mb-4 sm:mb-5">
@@ -640,7 +623,7 @@ const trackImage = rawImage
               Valuation Scenarios
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Based on Apple Music payout rates & catalog analysis
+              Based on catalog-estimated revenue & standard M&A multiples
             </p>
           </div>
         </div>
@@ -648,7 +631,7 @@ const trackImage = rawImage
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
           <ScenarioCard
             label="Conservative"
-            multiple={6}
+            multiple={MULTIPLES.conservative}
             value={calculations.conservative}
             color="from-blue-400 to-blue-600"
             icon={TrendingUp}
@@ -656,7 +639,7 @@ const trackImage = rawImage
           />
           <ScenarioCard
             label="Market"
-            multiple={8}
+            multiple={MULTIPLES.market}
             value={calculations.market}
             color="from-pink-400 to-rose-600"
             gradient="bg-gradient-to-br from-pink-500 via-rose-500 to-red-500"
@@ -665,7 +648,7 @@ const trackImage = rawImage
           />
           <ScenarioCard
             label="Premium"
-            multiple={10}
+            multiple={MULTIPLES.premium}
             value={calculations.premium}
             color="from-purple-400 to-purple-600"
             icon={Star}
@@ -674,16 +657,16 @@ const trackImage = rawImage
         </div>
       </div>
 
-      {/* ── Revenue breakdown bar ────────────────────────── */}
+      {/* ── Revenue comparison bar ──────────────────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">
         <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white mb-4">
-          Revenue Comparison vs. Spotify
+          Platform Payout Comparison
         </h3>
         <div className="space-y-3">
           {[
             {
-              label: "Apple Music (est.)",
-              rate: APPLE_MUSIC_RATE,
+              label: "Apple Music (avg.)",
+              rate: APPLE_MUSIC_RATE_PER_STREAM,
               color: "bg-gradient-to-r from-pink-500 to-rose-500",
               pct: 100,
             },
@@ -711,13 +694,13 @@ const trackImage = rawImage
           ))}
         </div>
         <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-3">
-          Apple Music pays ~$0.01/stream vs Spotify's average
-          $0.003–$0.005/stream (2025 industry rates). Actual payouts vary by
-          region, subscription tier, and label agreement.
+          Apple Music pays ~$0.01/stream vs Spotify's average $0.003–$0.005/stream
+          (2024 industry rates). Actual payouts vary by region, subscription tier,
+          and label agreement.
         </p>
       </div>
 
-      {/* ── Methodology toggle ───────────────────────────── */}
+      {/* ── Methodology ────────────────────────────────────────────────── */}
       <div className="bg-gradient-to-r from-slate-50 to-pink-50/30 dark:from-slate-900 dark:to-pink-950/20 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg">
         <button
           onClick={() => setShowMethodology((v) => !v)}
@@ -728,7 +711,7 @@ const trackImage = rawImage
               <Info size={16} className="text-blue-600 dark:text-blue-400" />
             </div>
             <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              Methodology & Notes
+              Methodology & Limitations
             </span>
           </div>
           {showMethodology ? (
@@ -742,52 +725,81 @@ const trackImage = rawImage
           <div className="border-t border-slate-200 dark:border-slate-800 p-4 sm:p-5">
             <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
               <li>
-                Monthly stream estimates are derived from Apple Music popularity
-                scores (0–100) using an exponential model where 100 = ~10M
-                streams/month, 50 = ~1.8M streams/month.
-              </li>
-              <li>
-                Apple Music payout rate used:{" "}
                 <strong className="text-slate-900 dark:text-white">
-                  $0.01 per stream
+                  No real stream data:
                 </strong>{" "}
-                (industry average as of 2024).
-              </li>
-              <li>
-                LTM (Last Twelve Months) Revenue = Monthly Streams × Rate × 12,
-                adjusted for catalog depth.
-              </li>
-              <li>
-                Catalog bonus adds up to +50% based on number of albums and
-                singles in the artist's discography.
-              </li>
-              <li>
-                Valuations use revenue multiples: Conservative (6×), Market
-                (8×), Premium (10×).
-              </li>
-              <li>
-                Deal Score (0–100) combines popularity, catalog depth, and
-                stream volume estimates.
+                Apple Music API does not expose stream counts or popularity
+                scores in public catalog endpoints. Apple Music Analytics (which
+                does) is restricted to verified rights holders.
               </li>
               <li>
                 <strong className="text-slate-900 dark:text-white">
+                  Catalog Score (0–100):
+                </strong>{" "}
+                Computed from countable metadata —{" "}
+                <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">
+                  (albums × 5) + (singles × 2) + (tracks × 1)
+                </code>
+                , clamped to 100.
+              </li>
+              <li>
+                <strong className="text-slate-900 dark:text-white">
+                  Stream range (tier model):
+                </strong>{" "}
+                Score &lt; 30 → 100K–1M/mo; 30–70 → 1M–10M/mo; &gt; 70 →
+                10M–100M/mo. Revenue uses the midpoint of each range.
+              </li>
+              <li>
+                <strong className="text-slate-900 dark:text-white">
+                  Payout rate:
+                </strong>{" "}
+                $0.01 per stream (Apple Music 2024 industry average).
+              </li>
+              <li>
+                <strong className="text-slate-900 dark:text-white">
+                  Catalog bonus:
+                </strong>{" "}
+                Up to +50% applied to LTM revenue based on release depth
+                (albums × 5%, singles × 1%).
+              </li>
+              <li>
+                <strong className="text-slate-900 dark:text-white">
+                  Valuation multiples:
+                </strong>{" "}
+                Conservative 6×, Market 8×, Premium 10× of LTM revenue — 
+                standard music-catalog M&A range (2023–2024).
+              </li>
+              <li>
+                <strong className="text-slate-900 dark:text-white">
+                  Deal Score:
+                </strong>{" "}
+                <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">
+                  (catalogScore × 0.6) + (albums × 1.5) + (tracks × 0.2)
+                </code>
+                , clamped to 100.
+              </li>
+              <li>
+                <strong className="text-red-600 dark:text-red-400">
                   Disclaimer:
                 </strong>{" "}
-                These are estimates only. Actual royalties vary by territory,
-                subscription tier, and label agreements.
+                All figures are illustrative estimates. Actual royalties vary by
+                territory, subscription tier, label agreement, and time period.
+                Do not use these numbers as the sole basis for financial
+                decisions.
               </li>
             </ul>
           </div>
         )}
       </div>
-      {/* ── Save / Download PDF ──────────────────────────── */}
+
+      {/* ── Download PDF ────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">
         <div>
           <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
             Download Apple Music Valuation Report
           </p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-            Save a PDF copy of this full analysis
+            Save a PDF copy of this full catalog-based analysis
           </p>
         </div>
         <button
@@ -808,6 +820,7 @@ const trackImage = rawImage
           )}
         </button>
       </div>
+
     </div>
   );
 };
