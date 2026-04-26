@@ -60,12 +60,12 @@ const Sidebar = ({ isOpen, onClose }) => {
       icon: FileText,
       description: "View saved reports",
     },
-    {
-      path: "/admin",
-      label: "Admin Panel",
-      icon: Users,
-      description: "Manage users",
-    },
+    // {
+    //   path: "/admin",
+    //   label: "Admin Panel",
+    //   icon: Users,
+    //   description: "Manage users",
+    // },
   ];
 
   return (
