@@ -16,6 +16,7 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
   const isItunes = platform === "itunes";
 
   if (!stats) return null;
+  console.log('Albums count:', albums?.length, 'Stats totalAlbums:', stats?.totalAlbums);
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
@@ -28,11 +29,7 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
             value={stats.totalSubscribers}
           />
           <StatCard icon={Eye} label="Total Views" value={stats.totalViews} />
-          <StatCard
-            icon={TrendingUp}
-            label="Popularity"
-            value={`${stats.averageTrackPopularity}/100`}
-          />
+         
           <StatCard icon={Music} label="Videos" value={stats.totalVideos} />
         </>
     
@@ -80,7 +77,7 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
       label="Top 10 Tracks"
       value={topTracks?.length || 0}
     />
-    <StatCard icon={Album} label="Albums" value={albums?.length || 0} />
+    <StatCard icon={Album} label="Albums" value={stats.totalAlbums || albums?.length || 0} />
   </>
       ) : (
         // Default stats

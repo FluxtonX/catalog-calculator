@@ -215,23 +215,25 @@ const ArtistCard = ({
       // Only fetch Spotify images for non-iTunes platforms
       if (!isItunes) {
         try {
-          const spotifyImages = await getSpotifyAlbumImages(
-            name,
-            sortedReleases,
-          );
-          if (!isMounted) return;
-          setEnhancedAlbums(
-            sortedReleases.map((album) => {
-              const spotifyData = spotifyImages.find((s) => s.id === album.id);
-              return { ...album, image: spotifyData?.image || album.image };
-            }),
-          );
+       const spotifyImages = await getSpotifyAlbumImages(
+  name,
+  sortedReleases,
+);
+if (!isMounted) return;
+setEnhancedAlbums(
+  sortedReleases.map((album) => {
+    const spotifyData = spotifyImages.find(
+      (s) => s.albumName === album.name  // ✅ match by name not id
+    );
+    return { ...album, image: spotifyData?.image || album.image };
+  }),
+);
         } catch {
           if (isMounted) setEnhancedAlbums(sortedReleases);
         }
       }
     };
-    if (activeTab === "albums") enhanceAlbums();
+  if (activeTab === "albums" || activeTab === "singles" || activeTab === "popular") enhanceAlbums();
     return () => {
       isMounted = false;
     };
@@ -511,25 +513,20 @@ const ArtistCard = ({
             </Tabs.Content>
 
             {/* Singles */}
-            <Tabs.Content
-              value="singles"
-              className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0"
-            >
-              {singles?.length > 0 ? (
-                <MediaGrid>
-                  {singles.map((s, i) => (
-                    <SingleCard
-                      key={s.id || i}
-                      single={s}
-                      index={i}
-                      platform={platform}
-                    />
-                  ))}
-                </MediaGrid>
-              ) : (
-                <EmptyState icon={Disc} message="No singles available" />
-              )}
-            </Tabs.Content>
+  {/* Singles */}
+<Tabs.Content value="singles" className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0">
+  {singles?.length > 0 ? (
+    <MediaGrid>
+      {enhancedAlbums
+        .filter((a) => a.type === "single")
+        .map((s, i) => (
+          <SingleCard key={s.id || i} single={s} index={i} platform={platform} />
+        ))}
+    </MediaGrid>
+  ) : (
+    <EmptyState icon={Disc} message="No singles available" />
+  )}
+</Tabs.Content>
 
             {/* Popular */}
             <Tabs.Content
@@ -538,14 +535,9 @@ const ArtistCard = ({
             >
               {popularReleases?.length > 0 ? (
                 <MediaGrid>
-                  {popularReleases.map((r, i) => (
-                    <PopularReleaseCard
-                      key={r.id || i}
-                      release={r}
-                      index={i}
-                      platform={platform}
-                    />
-                  ))}
+                {enhancedAlbums.map((r, i) => (
+  <PopularReleaseCard key={r.id || i} release={r} index={i} platform={platform} />
+))}
                 </MediaGrid>
               ) : (
                 <EmptyState

@@ -33,11 +33,11 @@ const YouTubeValuationTab = ({ artistData }) => {
     const [authLoading, setAuthLoading] = useState(true);  // ADD THIS
 
   // Slider state — default values unchanged from original
-  const [annualViewPercentage, setAnnualViewPercentage] = useState(25);
-  const [monetizationRate, setMonetizationRate] = useState(50);
-  const [avgCpm, setAvgCpm] = useState(2.0);
-  const [creatorCut, setCreatorCut] = useState(55);
- const [streamingRate, setStreamingRate] = useState(0.0054);
+ const [annualViewPercentage, setAnnualViewPercentage] = useState(15); // ~15% of lifetime views per year is realistic
+const [monetizationRate, setMonetizationRate] = useState(40);         // ~40% of views are monetized
+const [avgCpm, setAvgCpm] = useState(1.5);                            // Music CPM avg is $1.5 not $2
+const [creatorCut, setCreatorCut] = useState(55);                     // Keep 55% — correct
+const [streamingRate, setStreamingRate] = useState(0.0003);           // YouTube Content ID ~$0.0003/view
 
  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {

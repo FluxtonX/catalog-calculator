@@ -35,20 +35,20 @@ const ValuationAssumptions = ({
               Ad Revenue
             </h4>
           </div>
-          <InputSlider
-            label="Annual Views % of Total"
-            value={annualViewPercentage}
-            onValueChange={setAnnualViewPercentage}
-            min={0} max={100} step={1} unit="%"
-            tooltip="Percentage of lifetime views that occur within a given year."
-          />
-          <InputSlider
-            label="Monetization Rate"
-            value={monetizationRate}
-            onValueChange={setMonetizationRate}
-            min={0} max={100} step={1} unit="%"
-            tooltip="Percentage of views that are monetized with ads."
-          />
+         <InputSlider
+  label="Annual Views % of Total"
+  value={annualViewPercentage}
+  onValueChange={setAnnualViewPercentage}
+  min={1} max={50} step={1} unit="%"
+  tooltip="Percentage of lifetime views that occur in a year. Industry average is 10–20% for established artists."
+/>
+<InputSlider
+  label="Monetization Rate"
+  value={monetizationRate}
+  onValueChange={setMonetizationRate}
+  min={0} max={100} step={1} unit="%"
+  tooltip="Percentage of views monetized with ads. Music channels average 35–50%."
+/>
         </div>
 
         {/* Financial Inputs */}
@@ -61,14 +61,14 @@ const ValuationAssumptions = ({
               Financial
             </h4>
           </div>
-          <InputSlider
-            label="Average Music CPM"
-            value={avgCpm}
-            onValueChange={setAvgCpm}
-            min={0.5} max={5} step={0.1}
-            format={(v) => `$${v.toFixed(2)}`}
-            tooltip="Cost per thousand impressions for music content."
-          />
+         <InputSlider
+  label="Average Music CPM"
+  value={avgCpm}
+  onValueChange={setAvgCpm}
+  min={0.5} max={5} step={0.1}
+  format={(v) => `$${v.toFixed(2)}`}
+  tooltip="Music content CPM averages $1.00–$2.50. Higher in US/UK, lower in LATAM/Asia."
+/>
           <InputSlider
             label="Creator Cut"
             value={creatorCut}
@@ -88,13 +88,13 @@ const ValuationAssumptions = ({
               Streaming
             </h4>
           </div>
-         <InputSlider
+<InputSlider
   label="Streaming Rate / Play"
   value={streamingRate}
   onValueChange={setStreamingRate}
-  min={0.001} max={0.010} step={0.0001}
-  format={(v) => `$${v.toFixed(4)}`}
-  tooltip="Industry average is ~$0.0054/play for YouTube Content ID. Ranges from $0.001 (low) to $0.010 (premium). Adjust to match your actual Content ID rate."
+  min={0.0001} max={0.001} step={0.00001}
+  format={(v) => `$${v.toFixed(5)}`}
+  tooltip="YouTube Content ID pays ~$0.0002–$0.0005 per view on average. Default $0.0003 is industry estimate."
 />
         </div>
       </div>

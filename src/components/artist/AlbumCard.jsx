@@ -29,7 +29,7 @@ const AlbumCard = ({ album, index, platform }) => {
   const hoverBorder = isItunes
     ? "hover:border-pink-500/50 dark:hover:border-pink-500/50"
     : "hover:border-emerald-500/50 dark:hover:border-emerald-500/50";
-
+console.log('Album image URL:', album.name, album.image);
   return (
     <div className={`group bg-slate-50 dark:bg-slate-800/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-slate-200 dark:border-slate-700 ${hoverBorder}`}>
       {album.image ? (

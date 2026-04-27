@@ -15,9 +15,8 @@ const AnnualRevenueCard = ({ totalAnnualRevenue, annualViewPercentage, streaming
   Total projected yearly earnings (Ad + Streaming)
 </p>
 <p className="text-[10px] text-emerald-500 dark:text-emerald-600 mt-1">
-  ✦ Based on {annualViewPercentage}% of lifetime views × $0.0054 Content ID rate
-</p>
-        </div>
+  ✦ Based on {annualViewPercentage}% of lifetime views × ${streamingRate.toFixed(4)} Content ID rate
+</p> </div>
       </div>
       <div className="text-left sm:text-right">
         <p className="text-4xl sm:text-5xl font-black text-emerald-600 dark:text-emerald-400 leading-none">

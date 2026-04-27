@@ -234,12 +234,19 @@ const calculations = useMemo(() => {
 
   // ── Top 10 tracks with rank-based popularity fallback ─
   const top10 = (topTracks ?? []).slice(0, 10);
-  const top10Popularities = top10.map((t, i) => {
-    const real = t.popularity ?? t.trackPopularity ?? 0;
-    // iTunes has no popularity field — use rank position as proxy
-    // Rank 1 = 85, Rank 2 = 79, Rank 3 = 73... descending by 6
-    return real > 0 ? real : Math.round(85 - (i * 6));
-  });
+const top10Popularities = top10.map((t, i) => {
+  const real = t.popularity ?? t.trackPopularity ?? 0;
+  if (real > 0) return real;
+
+  // Use catalog size to scale the base score
+  // Bigger catalog = higher assumed popularity
+  const catalogSize = totalAlbums * 3 + totalSingles + totalTracks;
+  const catalogMultiplier = Math.min(catalogSize / 30, 1.5); // scale up to 1.5x
+
+  // Base rank score scaled by catalog size
+  const baseScore = Math.round(85 - (i * 6));
+  return Math.min(Math.round(baseScore * catalogMultiplier), 100);
+});
 
   const avgTop10Popularity =
     top10Popularities.length > 0

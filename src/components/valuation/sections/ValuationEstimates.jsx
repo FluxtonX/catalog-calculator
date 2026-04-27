@@ -21,7 +21,7 @@ const ValuationCard = ({ icon: Icon, title, multiple, value, accent, featured })
 
 const ValuationEstimates = ({ conservativeValuation, marketValuation, premiumValuation, formatCurrency }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
-    <SectionHeader icon={BarChart3} title="Catalog Valuation Estimates" subtitle="Based on LTM revenue × multiple" gradient="from-emerald-500 to-teal-600" />
+<SectionHeader icon={BarChart3} title="Catalog Valuation Estimates" subtitle="Based on LTM revenue × multiple • Top 10 Spotify Tracks" gradient="from-emerald-500 to-teal-600" />
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <ValuationCard icon={Shield} title="Conservative" multiple="6×" value={formatCurrency(conservativeValuation)}
         accent={{ border: "border-blue-300 dark:border-blue-500/30", bg: "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/10", iconBg: "bg-gradient-to-br from-blue-500 to-blue-700", text: "text-blue-600 dark:text-blue-400", sep: "bg-blue-300 dark:bg-blue-500/50", ring: "", badge: "" }}
