@@ -283,23 +283,7 @@ const ArtistHeader = ({
                   title="Unique Spotify users who streamed this artist at least once in the last 28 days"
                 />
               )}
-             {popularity !== undefined && popularity !== null && !isApify && (
-                <StatPill
-                  icon={TrendingUp}
-                  value={popularity}
-                  label="Popularity"
-                  gradient={
-                    isItunes
-                      ? "from-zinc-600 to-slate-700"
-                      : "from-purple-500 to-purple-700"
-                  }
-                  title={
-                    isYoutube
-                      ? "Engagement score based on views, likes, and watch time relative to similar channels"
-                      : "Apple Music score (0–100) based on recent stream counts and saves across all markets"
-                  }
-                />
-              )}
+          
             </div>
 
             {/* Genres */}

@@ -37,7 +37,7 @@ const YouTubeValuationTab = ({ artistData }) => {
   const [monetizationRate, setMonetizationRate] = useState(50);
   const [avgCpm, setAvgCpm] = useState(2.0);
   const [creatorCut, setCreatorCut] = useState(55);
-  const [streamingRate, setStreamingRate] = useState(0.002);
+ const [streamingRate, setStreamingRate] = useState(0.0054);
 
  useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -187,10 +187,12 @@ const YouTubeValuationTab = ({ artistData }) => {
         setStreamingRate={setStreamingRate}
       />
 
-      <AnnualRevenueCard
-        totalAnnualRevenue={metrics.totalAnnualRevenue}
-        formatCurrency={formatCurrency}
-      />
+     <AnnualRevenueCard
+  totalAnnualRevenue={metrics.totalAnnualRevenue}
+  annualViewPercentage={annualViewPercentage}
+  streamingRate={streamingRate}
+  formatCurrency={formatCurrency}
+/>
 
       <RevenueAnalysis
         {...metrics}

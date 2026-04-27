@@ -41,6 +41,19 @@ const SpotifyIcon = ({ size = 24, className = "" }) => (
   </svg>
 );
 
+const YouTubeIcon = ({ size = 24, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+  </svg>
+);
+
 const PLATFORM_CONFIG = {
   spotify: {
     label: "Spotify",
@@ -61,7 +74,7 @@ const PLATFORM_CONFIG = {
   },
   youtube: {
     label: "YouTube",
-    icon: Youtube,
+      icon: YouTubeIcon,
     placeholder: "Search channel or artist on YouTube...",
     color: "from-red-500 via-rose-500 to-pink-600",
     bgPattern:
@@ -248,8 +261,6 @@ const FeaturePill = ({ label }) => (
   </span>
 );
 
-
-
 const ValuationTool = () => {
   const {
     searchQuery,
@@ -260,13 +271,14 @@ const ValuationTool = () => {
     setPlatform,
   } = useArtistStore();
 
-  const cfg = PLATFORM_CONFIG[platform];        // ← define cfg FIRST
+  const cfg = PLATFORM_CONFIG[platform]; // ← define cfg FIRST
   const SelectedIcon = cfg.icon;
   const features = PLATFORM_FEATURES[platform];
 
-  usePageTitle(                                  // ← THEN use it here
+  usePageTitle(
+    // ← THEN use it here
     `${cfg.label} Artist Catalog Valuation Tool`,
-    `Analyze ${cfg.label} artist metrics with real-time data`
+    `Analyze ${cfg.label} artist metrics with real-time data`,
   );
 
   const isInitialMount = useRef(true);
@@ -296,8 +308,6 @@ const ValuationTool = () => {
     localStorage.setItem("recentSearches", JSON.stringify(updated));
   };
   const inputRef = useRef(null);
-
-
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -515,9 +525,8 @@ const ValuationTool = () => {
 
           <div className="relative z-10 p-5 sm:p-7 lg:p-10">
             <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
-             
-                <SelectedIcon size={24} className="sm:w-7 sm:h-7 text-white" />
-          
+              <SelectedIcon size={24} className="sm:w-7 sm:h-7 text-white" />
+
               <div className="flex-1 min-w-0">
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight">
                   Search Artist
@@ -789,98 +798,113 @@ const ValuationTool = () => {
                 </span>
               </div>
             </div>
-        
-<ArtistCard
-  name={selectedArtist.name}
-  image={selectedArtist.image}
-  followers={selectedArtist.followers}
-  popularity={selectedArtist.popularity}
-  genres={selectedArtist.genres}
-  topTracks={selectedArtist.topTracks}
-  relatedArtists={selectedArtist.relatedArtists}
-  albums={selectedArtist.albums}
-  singles={selectedArtist.singles}
-  popularReleases={selectedArtist.popularReleases}
-  stats={{
-    ...selectedArtist.stats,
-    scoring: selectedArtist.scoring,
-    catalogScore: selectedArtist.scoring?.catalogScore,
-  }}
-  spotifyUrl={selectedArtist.spotifyUrl}
-  youtubeUrl={selectedArtist.youtubeUrl}
-  appleUrl={selectedArtist.appleUrl}
-  platform={selectedArtist.platform}
-  monthlyListeners={selectedArtist.monthlyListeners}
-  biography={selectedArtist.biography}
-  topCities={selectedArtist.topCities}
-  externalLinks={selectedArtist.externalLinks}
-/>
+
+            <ArtistCard
+              name={selectedArtist.name}
+              image={selectedArtist.image}
+              followers={selectedArtist.followers}
+              popularity={selectedArtist.popularity}
+              genres={selectedArtist.genres}
+              topTracks={selectedArtist.topTracks}
+              relatedArtists={selectedArtist.relatedArtists}
+              albums={selectedArtist.albums}
+              singles={selectedArtist.singles}
+              popularReleases={selectedArtist.popularReleases}
+              stats={{
+                ...selectedArtist.stats,
+                scoring: selectedArtist.scoring,
+                catalogScore: selectedArtist.scoring?.catalogScore,
+              }}
+              spotifyUrl={selectedArtist.spotifyUrl}
+              youtubeUrl={selectedArtist.youtubeUrl}
+              appleUrl={selectedArtist.appleUrl}
+              platform={selectedArtist.platform}
+              monthlyListeners={selectedArtist.monthlyListeners}
+              biography={selectedArtist.biography}
+              topCities={selectedArtist.topCities}
+              externalLinks={selectedArtist.externalLinks}
+            />
           </div>
         )}
 
         {/* Empty State */}
-        {!isLoading && !selectedArtist && !error && (
-          <div className="text-center py-14 sm:py-20 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl">
-            <div className="flex flex-col items-center gap-5 sm:gap-6 max-w-lg mx-auto px-4">
-              <div className="relative">
-                <div
-                  className={`absolute inset-0 bg-gradient-to-br ${cfg.color} rounded-full blur-2xl opacity-20 animate-pulse`}
-                />
-                <div
-                  className={`relative p-5 sm:p-6 bg-gradient-to-br ${cfg.color} rounded-full`}
-                >
-                  <SelectedIcon
-                    size={44}
-                    className="sm:w-14 sm:h-14 text-white"
+       {/* Empty State */}
+{!isLoading && !selectedArtist && !error && (
+  <div className={`text-center py-14 sm:py-20 bg-gradient-to-br ${cfg.color} rounded-3xl shadow-xl overflow-hidden relative`}>
+    
+    {/* Background decorative blobs */}
+    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+    <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+
+    <div className="relative z-10 flex flex-col items-center gap-5 sm:gap-6 max-w-lg mx-auto px-4">
+      
+      {/* Platform icon — white circle so logo is always visible */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl animate-pulse" />
+        <div className="relative p-5 sm:p-6 bg-white rounded-full shadow-2xl ring-4 ring-white/30">
+          <SelectedIcon
+            size={44}
+            className={`sm:w-14 sm:h-14 ${cfg.iconColor}`}
+          />
+        </div>
+      </div>
+
+      {/* Text */}
+      <div>
+        <h3 className="text-xl sm:text-3xl font-black text-white mb-2 sm:mb-3">
+          Ready to Discover?
+        </h3>
+        <p className="text-sm sm:text-base text-white/80 mb-5 sm:mb-6">
+          Search any artist on{" "}
+          <strong className="text-white">{cfg.label}</strong> to see
+          their Royalty Revenue
+        </p>
+
+        {/* Platform selector buttons */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+          {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
+            const PIcon = config.icon;
+            const isActive = platform === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setPlatform(key)}
+                className={`flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl border-2 transition-all duration-200 ${
+                  isActive
+                    ? "bg-white border-white shadow-lg scale-105"
+                    : "bg-white/15 border-white/30 hover:bg-white/25 hover:border-white/50 hover:scale-105"
+                }`}
+              >
+                {/* Colored icon circle */}
+                <div className={`p-2 rounded-full ${
+                  isActive
+                    ? `bg-gradient-to-br ${config.color}`
+                    : "bg-white/20"
+                } shadow-md transition-all duration-200`}>
+                  <PIcon
+                    size={18}
+                    className={isActive ? "text-white" : "text-white"}
                   />
                 </div>
-              </div>
-              <div>
-                <h3 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-white mb-2 sm:mb-3">
-                  Ready to Discover?
-                </h3>
-                <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mb-5 sm:mb-6">
-                  Search any artist on{" "}
-                  <strong className="text-slate-700 dark:text-slate-200">
-                    {cfg.label}
-                  </strong>{" "}
-                  to see their Royalty Revenue
-                </p>
-                <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-                  {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
-                    const PIcon = config.icon;
-                    const isActive = platform === key;
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => setPlatform(key)}
-                        className={`flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-2xl border-2 transition-all duration-200 ${
-                          isActive
-                            ? `bg-gradient-to-br ${config.color} border-transparent text-white shadow-lg`
-                            : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600"
-                        }`}
-                      >
-                        <PIcon
-                          size={20}
-                          className={isActive ? "text-white" : ""}
-                        />
-                        <span className="text-xs font-bold">
-                          {config.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <div className="space-y-2 text-sm text-slate-400 dark:text-slate-500">
-                  <p className="flex items-center justify-center gap-2">
-                    <TrendingUp size={14} />
-                    Click a suggested artist above for instant results
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+                <span className={`text-xs font-bold ${
+                  isActive ? config.iconColor : "text-white"
+                }`}>
+                  {config.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bottom hint */}
+        <p className="flex items-center justify-center gap-2 text-sm text-white/60">
+          <TrendingUp size={14} />
+          Click a suggested artist above for instant results
+        </p>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );

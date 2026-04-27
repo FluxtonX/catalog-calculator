@@ -49,7 +49,7 @@ const RevenueAnalysis = ({
             2. Content ID &amp; Streaming
           </h4>
           {[
-            { label: "Est. Total Platform Plays", value: formatNumber(estimatedTotalPlays) },
+           { label: "Est. Annual Platform Plays", value: formatNumber(estimatedTotalPlays) },
             { label: "Streaming Rate", value: `$${streamingRate.toFixed(4)}/play` },
           ].map((row) => (
             <div key={row.label} className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">

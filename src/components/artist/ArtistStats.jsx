@@ -18,7 +18,7 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
   if (!stats) return null;
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
       {isYouTube ? (
         // YouTube stats
         <>
@@ -53,19 +53,7 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
   iconBg="bg-rose-500/20"
   iconColor="text-rose-600 dark:text-rose-400"
 />
-    <StatCard
-      icon={TrendingUp}
-      label="Popularity"
-      value={
-        stats.scoring?.finalScore != null
-          ? `${stats.scoring.finalScore}/100`
-          : stats.catalogScore != null
-          ? `${stats.catalogScore}/100`
-          : "N/A"
-      }
-      iconBg="bg-red-500/20"
-      iconColor="text-red-600 dark:text-red-400"
-    />
+  
     <StatCard
       icon={Disc}
       label="Singles"

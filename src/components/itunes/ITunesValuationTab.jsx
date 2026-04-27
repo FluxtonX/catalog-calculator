@@ -21,7 +21,7 @@ import { supabase } from "../../utils/supabase";
 import { Download, LogIn } from "lucide-react";
 
 // ── Apple Music payout rate (avg $0.01/stream — ~2.5x Spotify) ───
-const APPLE_MUSIC_RATE = 0.01;
+const APPLE_MUSIC_RATE = 0.008;
 
 // ── Helpers ───────────────────────────────────────────────────────
 const formatCurrency = (n) => {
@@ -252,7 +252,13 @@ const calculations = useMemo(() => {
   const annualRevenue           = monthlyRevenue * 12;
 
   // ── Catalog bonus ──────────────────────────────────────
-  const catalogBonus = Math.min(totalAlbums * 0.05 + totalSingles * 0.01, 0.5);
+ // Albums matter more (deeper catalog = more passive income)
+// Singles matter less (shorter shelf life)
+const catalogBonus = Math.min(
+  totalAlbums * 0.08 +    // each album = 8% (max ~40% for 5 albums)
+  totalSingles * 0.005,   // each single = 0.5% (need 20 singles to add 10%)
+  0.5
+);
   const ltmRevenue   = annualRevenue * (1 + catalogBonus);
 
   // ── Valuations based on top 10 tracks ─────────────────
@@ -387,10 +393,10 @@ const calculations = useMemo(() => {
       {
         label: "Monthly Revenue (est.)",
         value: formatCurrency(calculations.monthlyRevenue),
-        note: "$0.01 per stream × est. streams",
+        note: "$0.0080 per stream × est. streams",
         tooltip: {
           title: "Monthly Revenue (Est.)",
-          body: "Estimated monthly streams × $0.01 Apple Music avg payout rate. Actual payouts vary by country, subscription tier, and label agreement.",
+          body: "Estimated monthly streams × $0.008 Apple Music avg payout rate."
         },
       },
       {
@@ -463,7 +469,7 @@ const calculations = useMemo(() => {
         <MetricCard
           icon={Globe}
           label="Payout Rate"
-          value="$0.0100"
+          value="$0.0080"
           sub="per stream"
           borderColor="border-rose-200 dark:border-rose-800/40"
           iconBg="bg-rose-500/15"
@@ -688,10 +694,10 @@ const trackImage = rawImage
               pct: 100,
             },
             {
-              label: "Spotify (avg.)",
-              rate: 0.004,
-              color: "bg-gradient-to-r from-emerald-500 to-green-500",
-              pct: 40,
+             label: "Spotify (avg.)",
+  rate: 0.004,
+  pct: Math.round((0.004 / APPLE_MUSIC_RATE) * 100), // dynamic — always correct
+  color: "bg-gradient-to-r from-emerald-500 to-green-500",
             },
           ].map(({ label, rate, color, pct }) => (
             <div key={label}>
@@ -711,8 +717,8 @@ const trackImage = rawImage
           ))}
         </div>
         <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-3">
-          Apple Music pays ~$0.01/stream vs Spotify's average
-          $0.003–$0.005/stream (2025 industry rates). Actual payouts vary by
+          "Apple Music pays ~$0.008/stream" vs Spotify's average
+          $0.003–$0.005/stream (2024 industry rates). Actual payouts vary by
           region, subscription tier, and label agreement.
         </p>
       </div>
@@ -749,7 +755,7 @@ const trackImage = rawImage
               <li>
                 Apple Music payout rate used:{" "}
                 <strong className="text-slate-900 dark:text-white">
-                  $0.01 per stream
+                  $0.0080 per stream
                 </strong>{" "}
                 (industry average as of 2024).
               </li>

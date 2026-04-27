@@ -88,14 +88,14 @@ const ValuationAssumptions = ({
               Streaming
             </h4>
           </div>
-          <InputSlider
-            label="Streaming Rate / Play"
-            value={streamingRate}
-            onValueChange={setStreamingRate}
-            min={0.001} max={0.003} step={0.0001}
-            format={(v) => `$${v.toFixed(4)}`}
-            tooltip="Default industry estimate ($0.0020/play). Not pulled from live data — adjust manually to match your actual Content ID rate."
-          />
+         <InputSlider
+  label="Streaming Rate / Play"
+  value={streamingRate}
+  onValueChange={setStreamingRate}
+  min={0.001} max={0.010} step={0.0001}
+  format={(v) => `$${v.toFixed(4)}`}
+  tooltip="Industry average is ~$0.0054/play for YouTube Content ID. Ranges from $0.001 (low) to $0.010 (premium). Adjust to match your actual Content ID rate."
+/>
         </div>
       </div>
     </div>

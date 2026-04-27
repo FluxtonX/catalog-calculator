@@ -1,6 +1,6 @@
 // All YouTube calculation logic — zero changes to original logic
 
-export const CONTENT_ID_MULTIPLIER = 3;
+export const CONTENT_ID_MULTIPLIER = 1;
 
 export const parseViewCount = (viewString) => {
   if (!viewString) return 0;
@@ -34,8 +34,8 @@ export const calculateYouTubeMetrics = ({
 
   const advanceCalculation = totalAnnualRevenue * 0.15;
   const caccAdjustedValuation = totalAnnualRevenue * 8 * 1.3;
-  const totalAdvancePackage =
-    advanceCalculation + advanceCalculation * 0.6 + advanceCalculation * 0.4;
+// CORRECT — total equals the base advance calculation
+const totalAdvancePackage = advanceCalculation;
 
   return {
     estimatedAnnualViews, monetizedViews, grossAdRevenue,
