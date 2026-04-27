@@ -233,11 +233,11 @@ setEnhancedAlbums(
         }
       }
     };
-  if (activeTab === "albums" || activeTab === "singles" || activeTab === "popular") enhanceAlbums();
+ enhanceAlbums(); // ✅ always run on mount and when data changes
     return () => {
       isMounted = false;
     };
-  }, [albums, singles, popularReleases, name, activeTab, platform, isItunes]);
+}, [albums, singles, popularReleases, name, platform, isItunes]);
 
   useEffect(() => {
     const savedScrollPos = sessionStorage.getItem("artistCardScrollPos");
@@ -358,8 +358,12 @@ setEnhancedAlbums(
   stats={stats}
   platform={platform}
   topTracks={topTracks}
-  albums={albums}
-  singles={singles}
+  albums={enhancedAlbums.filter(a => a.type === "album").length > 0 
+    ? enhancedAlbums.filter(a => a.type === "album") 
+    : albums}
+  singles={enhancedAlbums.filter(a => a.type === "single").length > 0 
+    ? enhancedAlbums.filter(a => a.type === "single") 
+    : singles}
 />
         </div>
       </div>
@@ -498,14 +502,11 @@ setEnhancedAlbums(
             >
               {enhancedAlbums?.length > 0 ? (
                 <MediaGrid>
-                  {enhancedAlbums.map((album, i) => (
-                    <AlbumCard
-                      key={album.id || i}
-                      album={album}
-                      index={i}
-                      platform={platform}
-                    />
-                  ))}
+                 {enhancedAlbums
+  .filter((a) => a.type === "album")
+  .map((album, i) => (
+    <AlbumCard key={album.id || i} album={album} index={i} platform={platform} />
+  ))}
                 </MediaGrid>
               ) : (
                 <EmptyState icon={Album} message="No albums available" />
