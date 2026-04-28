@@ -87,7 +87,11 @@ useEffect(() => {
 
 const {
   monthlyStreamsEst,
+  minMonthlyStreams,
+  maxMonthlyStreams,
   monthlyRevenue,
+  minMonthlyRevenue,
+  maxMonthlyRevenue,
   methodUsed,
   featuredTrackCount,
   totalTrackCount,
@@ -100,15 +104,26 @@ const {
 
 const monthlySpotifyRevenue = monthlyRevenue;
 const ltmSpotifyRevenue = monthlyRevenue * 12;
+const minLtmRevenue = minMonthlyRevenue * 12;
+const maxLtmRevenue = maxMonthlyRevenue * 12;
 
 // ✅ Now ltmSpotifyRevenue is defined — pass it in so Dollar Age LTM matches
 const dollarAgeData = useMemo(
   () => calculateDollarAge(artistData, effectiveSpotifyRate, currentDate, ltmSpotifyRevenue),
-  [artistData, effectiveSpotifyRate, ltmSpotifyRevenue],
+  [artistData, effectiveSpotifyRate, currentDate, ltmSpotifyRevenue],
 );
-  const conservativeValuation = ltmSpotifyRevenue * 6;
-  const marketValuation = ltmSpotifyRevenue * 8;
-  const premiumValuation = ltmSpotifyRevenue * 10;
+
+const conservativeValuation = ltmSpotifyRevenue * 6;
+const minConservativeValuation = minLtmRevenue * 6;
+const maxConservativeValuation = maxLtmRevenue * 6;
+
+const marketValuation = ltmSpotifyRevenue * 8;
+const minMarketValuation = minLtmRevenue * 8;
+const maxMarketValuation = maxLtmRevenue * 8;
+
+const premiumValuation = ltmSpotifyRevenue * 10;
+const minPremiumValuation = minLtmRevenue * 10;
+const maxPremiumValuation = maxLtmRevenue * 10;
   const hasValidData = lifetimeStreams > 0;
 
   const methodLabel =
@@ -250,8 +265,14 @@ const dollarAgeData = useMemo(
         <ArtistHeader
           artistName={artistData.name}
           marketValuation={marketValuation}
+          minMarketValuation={minMarketValuation}
+          maxMarketValuation={maxMarketValuation}
           monthlyStreamsEst={monthlyStreamsEst}
+          minMonthlyStreams={minMonthlyStreams}
+          maxMonthlyStreams={maxMonthlyStreams}
           ltmSpotifyRevenue={ltmSpotifyRevenue}
+          minLtmRevenue={minLtmRevenue}
+          maxLtmRevenue={maxLtmRevenue}
           effectiveSpotifyRate={effectiveSpotifyRate}
           geoMethodUsed={geoMethodUsed}
           {...fmt}
@@ -280,10 +301,16 @@ const dollarAgeData = useMemo(
         {/* Revenue Calculation */}
         <RevenueCalculation
           monthlyStreamsEst={monthlyStreamsEst}
+          minMonthlyStreams={minMonthlyStreams}
+          maxMonthlyStreams={maxMonthlyStreams}
           effectiveSpotifyRate={effectiveSpotifyRate}
           geoMethodUsed={geoMethodUsed}
           monthlySpotifyRevenue={monthlySpotifyRevenue}
+          minMonthlyRevenue={minMonthlyRevenue}
+          maxMonthlyRevenue={maxMonthlyRevenue}
           ltmSpotifyRevenue={ltmSpotifyRevenue}
+          minLtmRevenue={minLtmRevenue}
+          maxLtmRevenue={maxLtmRevenue}
           methodUsed={methodUsed}
           featuredTrackCount={featuredTrackCount}
           totalTrackCount={totalTrackCount}
@@ -299,8 +326,14 @@ const dollarAgeData = useMemo(
         {/* Valuation Tiers */}
         <ValuationEstimates
           conservativeValuation={conservativeValuation}
+          minConservativeValuation={minConservativeValuation}
+          maxConservativeValuation={maxConservativeValuation}
           marketValuation={marketValuation}
+          minMarketValuation={minMarketValuation}
+          maxMarketValuation={maxMarketValuation}
           premiumValuation={premiumValuation}
+          minPremiumValuation={minPremiumValuation}
+          maxPremiumValuation={maxPremiumValuation}
           formatCurrency={formatCurrency}
         />
 

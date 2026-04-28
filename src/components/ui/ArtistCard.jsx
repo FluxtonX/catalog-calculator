@@ -203,11 +203,15 @@ const ArtistCard = ({
         setEnhancedAlbums([]);
         return;
       }
-      const uniqueReleases = allReleases.reduce((acc, current) => {
-        if (!acc.find((item) => item.id === current.id)) acc.push(current);
-        return acc;
-      }, []);
-      const sortedReleases = uniqueReleases.sort(
+      const reclassifiedReleases = uniqueReleases.map(release => {
+        // If it's labeled as an album but has only 1 track, it's technically a single
+        if (release.type === "album" && release.totalTracks === 1) {
+          return { ...release, type: "single" };
+        }
+        return release;
+      });
+
+      const sortedReleases = reclassifiedReleases.sort(
         (a, b) => new Date(b.releaseDate || 0) - new Date(a.releaseDate || 0),
       );
       setEnhancedAlbums(sortedReleases);

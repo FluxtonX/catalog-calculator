@@ -337,8 +337,6 @@ export const calculateMonthlyStreamsAndRevenue = (
     let totalMonthlyRevenue = 0;
 
     topTracks.forEach((track) => {
-
-       console.log("TRACK FIELDS:", JSON.stringify(track, null, 2));
       let trackStreams = 0;
       
       // Parse stream count
@@ -384,17 +382,27 @@ export const calculateMonthlyStreamsAndRevenue = (
     methodUsed = "LIFETIME_RUNRATE_ADJ";
   }
 
+  // Calculate ranges based on 15% variance to address client feedback about "solid" numbers
+  const variance = 0.15;
+  const minMonthlyStreams = Math.round(monthlyStreamsEst * (1 - variance));
+  const maxMonthlyStreams = Math.round(monthlyStreamsEst * (1 + variance));
+  const minMonthlyRevenue = monthlyRevenue * (1 - variance);
+  const maxMonthlyRevenue = monthlyRevenue * (1 + variance);
+
   return {
     monthlyStreamsEst,
+    minMonthlyStreams,
+    maxMonthlyStreams,
     monthlyRevenue,
+    minMonthlyRevenue,
+    maxMonthlyRevenue,
     methodUsed,
     featuredTrackCount,
     totalTrackCount,
   };
 };
 
-// Update calculateValuations to use the new function:
-
+// Update calculateValuations to use the new range data:
 export const calculateValuations = (
   artistData,
   lifetimeStreams,
@@ -409,7 +417,11 @@ export const calculateValuations = (
 
   const {
     monthlyStreamsEst,
+    minMonthlyStreams,
+    maxMonthlyStreams,
     monthlyRevenue,
+    minMonthlyRevenue,
+    maxMonthlyRevenue,
     methodUsed,
     featuredTrackCount,
     totalTrackCount,
@@ -421,22 +433,44 @@ export const calculateValuations = (
   );
 
   const ltmSpotifyRevenue = monthlyRevenue * 12;
+  const minLtmRevenue = minMonthlyRevenue * 12;
+  const maxLtmRevenue = maxMonthlyRevenue * 12;
 
   const conservativeValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.CONSERVATIVE;
+  const minConservativeValuation = minLtmRevenue * VALUATION_MULTIPLES.CONSERVATIVE;
+  const maxConservativeValuation = maxLtmRevenue * VALUATION_MULTIPLES.CONSERVATIVE;
+
   const marketValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.MARKET;
+  const minMarketValuation = minLtmRevenue * VALUATION_MULTIPLES.MARKET;
+  const maxMarketValuation = maxLtmRevenue * VALUATION_MULTIPLES.MARKET;
+
   const premiumValuation = ltmSpotifyRevenue * VALUATION_MULTIPLES.PREMIUM;
+  const minPremiumValuation = minLtmRevenue * VALUATION_MULTIPLES.PREMIUM;
+  const maxPremiumValuation = maxLtmRevenue * VALUATION_MULTIPLES.PREMIUM;
 
   return {
     monthsLive,
     monthlyStreamsEst,
+    minMonthlyStreams,
+    maxMonthlyStreams,
     monthlyRevenue,
+    minMonthlyRevenue,
+    maxMonthlyRevenue,
     methodUsed,
     effectiveSpotifyRate,
     geoRateData,
     ltmSpotifyRevenue,
+    minLtmRevenue,
+    maxLtmRevenue,
     conservativeValuation,
+    minConservativeValuation,
+    maxConservativeValuation,
     marketValuation,
+    minMarketValuation,
+    maxMarketValuation,
     premiumValuation,
+    minPremiumValuation,
+    maxPremiumValuation,
     featuredTrackCount,
     totalTrackCount,
   };

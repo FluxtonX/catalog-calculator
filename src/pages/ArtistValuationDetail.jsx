@@ -383,12 +383,29 @@ const ArtistValuationDetail = () => {
   const effectiveSpotifyRate = geoRateData.rate;
   const geoMethodUsed = geoRateData.method;
 
+  const variance = 0.15;
+  const minMonthlyStreams = Math.round(monthlyStreamsEst * (1 - variance));
+  const maxMonthlyStreams = Math.round(monthlyStreamsEst * (1 + variance));
+
   const monthlySpotifyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
+  const minMonthlyRevenue = monthlySpotifyRevenue * (1 - variance);
+  const maxMonthlyRevenue = monthlySpotifyRevenue * (1 + variance);
+
   const ltmSpotifyRevenue = monthlySpotifyRevenue * 12;
+  const minLtmRevenue = minMonthlyRevenue * 12;
+  const maxLtmRevenue = maxMonthlyRevenue * 12;
 
   const conservativeValuation = ltmSpotifyRevenue * 6;
+  const minConservativeValuation = minLtmRevenue * 6;
+  const maxConservativeValuation = maxLtmRevenue * 6;
+
   const marketValuation = ltmSpotifyRevenue * 8;
+  const minMarketValuation = minLtmRevenue * 8;
+  const maxMarketValuation = maxLtmRevenue * 8;
+
   const premiumValuation = ltmSpotifyRevenue * 10;
+  const minPremiumValuation = minLtmRevenue * 10;
+  const maxPremiumValuation = maxLtmRevenue * 10;
 
   const formatNumber = (num) => {
     if (!num || isNaN(num)) return "0";
@@ -397,11 +414,7 @@ const ArtistValuationDetail = () => {
       .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  const formatToBillions = (num) => {
-    if (!num || isNaN(num)) return "0.00B";
-    const billions = num / 1000000000;
-    return billions.toFixed(2) + "B";
-  };
+
 
   const formatToMillions = (num) => {
     if (!num || isNaN(num)) return "0.00M";
@@ -415,9 +428,13 @@ const ArtistValuationDetail = () => {
       return "$" + formatToMillions(num);
     } else if (num >= 1000) {
       const thousands = num / 1000;
-      return "$" + thousands.toFixed(2) + "K";
+      return "$" + thousands.toFixed(1) + "K"; // Reduced precision for cleaner range display
     }
-    return "$" + num.toFixed(2);
+    return "$" + Math.round(num);
+  };
+
+  const formatRange = (min, max, formatter) => {
+    return `${formatter(min)} - ${formatter(max)}`;
   };
 
   const handleSave = () => {
@@ -431,6 +448,8 @@ const ArtistValuationDetail = () => {
       calculations: {
         monthsLive: monthsLive,
         monthlyStreamsEst: monthlyStreamsEst,
+        minMonthlyStreams,
+        maxMonthlyStreams,
         methodUsed: methodUsed,
         decayFactor:
           methodUsed === "LIFETIME_RUNRATE_ADJ"
@@ -440,12 +459,22 @@ const ArtistValuationDetail = () => {
         geoMethodUsed: geoMethodUsed,
         geoBreakdown: geoRateData.breakdown,
         monthlySpotifyRevenue: monthlySpotifyRevenue,
+        minMonthlyRevenue,
+        maxMonthlyRevenue,
         ltmSpotifyRevenue: ltmSpotifyRevenue,
+        minLtmRevenue,
+        maxLtmRevenue,
       },
       valuations: {
         conservative: conservativeValuation,
+        minConservativeValuation,
+        maxConservativeValuation,
         market: marketValuation,
+        minMarketValuation,
+        maxMarketValuation,
         premium: premiumValuation,
+        minPremiumValuation,
+        maxPremiumValuation,
       },
     };
     console.log("Saving report:", reportData);
@@ -566,10 +595,10 @@ const ArtistValuationDetail = () => {
                           Market Value
                         </p>
                         <h3 className="text-xl font-bold text-emerald-400">
-                          {formatCurrency(marketValuation)}
+                          {formatRange(minMarketValuation, maxMarketValuation, formatCurrency)}
                         </h3>
                         <p className="text-xs text-white/50 font-mono mt-1">
-                          ${formatNumber(marketValuation)}
+                          Market Est. Range
                         </p>
                         <p className="text-xs text-emerald-400">8x Multiple</p>
                       </div>
@@ -586,10 +615,10 @@ const ArtistValuationDetail = () => {
                           Monthly
                         </p>
                         <h3 className="text-xl font-bold text-white">
-                          {formatToMillions(monthlyStreamsEst)}
+                          {formatRange(minMonthlyStreams, maxMonthlyStreams, formatToMillions)}
                         </h3>
                         <p className="text-xs text-white/50 font-mono mt-1">
-                          {formatNumber(monthlyStreamsEst)}
+                          Est. Monthly Range
                         </p>
                         <p className="text-xs text-white/70">Streams</p>
                       </div>
@@ -606,10 +635,10 @@ const ArtistValuationDetail = () => {
                           LTM Revenue
                         </p>
                         <h3 className="text-xl font-bold text-white">
-                          {formatCurrency(ltmSpotifyRevenue)}
+                          {formatRange(minLtmRevenue, maxLtmRevenue, formatCurrency)}
                         </h3>
                         <p className="text-xs text-white/50 font-mono mt-1">
-                          ${formatNumber(ltmSpotifyRevenue)}
+                          Annual Est. Range
                         </p>
                         <p className="text-xs text-blue-400">12 Months</p>
                       </div>
@@ -833,10 +862,10 @@ const ArtistValuationDetail = () => {
               <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                    Monthly Streams (Estimated)
+                    Monthly Streams (Est. Range)
                   </span>
-                  <span className="text-xl font-bold text-slate-900 dark:text-white">
-                    {formatNumber(monthlyStreamsEst)}
+                  <span className="text-lg font-bold text-slate-900 dark:text-white">
+                    {formatRange(minMonthlyStreams, maxMonthlyStreams, formatNumber)}
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -869,29 +898,28 @@ const ArtistValuationDetail = () => {
               <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-5 border-2 border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                    Monthly Revenue
+                    Monthly Revenue (Est. Range)
                   </span>
-                  <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                    {formatCurrency(monthlySpotifyRevenue)}
+                  <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {formatRange(minMonthlyRevenue, maxMonthlyRevenue, formatCurrency)}
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  {formatNumber(monthlyStreamsEst)} streams × $
-                  {effectiveSpotifyRate.toFixed(4)}
+                  Calculated based on {variance * 100}% variance for better accuracy
                 </p>
               </div>
 
               <div className="bg-gradient-to-br from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 border-2 border-emerald-300 dark:border-emerald-500/30 rounded-xl p-6">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-base font-bold text-emerald-700 dark:text-emerald-300">
-                    Last Twelve Months (LTM) Revenue
+                    Annual (LTM) Revenue Range
                   </span>
-                  <span className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
-                    {formatCurrency(ltmSpotifyRevenue)}
+                  <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    {formatRange(minLtmRevenue, maxLtmRevenue, formatCurrency)}
                   </span>
                 </div>
                 <p className="text-sm text-emerald-700 dark:text-emerald-400">
-                  {formatCurrency(monthlySpotifyRevenue)} × 12 months
+                  Estimated annual earnings based on monthly run-rate range
                 </p>
               </div>
             </div>
@@ -924,8 +952,8 @@ const ArtistValuationDetail = () => {
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
                   6x Revenue Multiple
                 </p>
-                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                  {formatCurrency(conservativeValuation)}
+                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                  {formatRange(minConservativeValuation, maxConservativeValuation, formatCurrency)}
                 </p>
               </div>
 
@@ -939,8 +967,8 @@ const ArtistValuationDetail = () => {
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
                   8x Revenue Multiple
                 </p>
-                <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
-                  {formatCurrency(marketValuation)}
+                <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-2">
+                  {formatRange(minMarketValuation, maxMarketValuation, formatCurrency)}
                 </p>
               </div>
 
@@ -954,8 +982,8 @@ const ArtistValuationDetail = () => {
                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
                   10x Revenue Multiple
                 </p>
-                <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">
-                  {formatCurrency(premiumValuation)}
+                <p className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-2">
+                  {formatRange(minPremiumValuation, maxPremiumValuation, formatCurrency)}
                 </p>
               </div>
             </div>

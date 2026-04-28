@@ -18,7 +18,7 @@ const MainLayout = () => {
     <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950">
       <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
       
-      <main className="flex-1 lg:ml-64 w-full">
+      <main className="flex-1 lg:ml-72 w-full">
         <Header onMenuClick={toggleSidebar} />
         
         <div className="p-4 sm:p-6 lg:p-8">
