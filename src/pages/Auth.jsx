@@ -6,7 +6,7 @@ import { Music, Loader2, AlertCircle } from 'lucide-react';
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState({ google: false, spotify: false, apple: false });
+  const [loading, setLoading] = useState({ google: false, youtube: false, spotify: false, apple: false });
   const [error, setError] = useState(null);
 
   const from = location.state?.from?.pathname || '/valuation';
@@ -33,19 +33,38 @@ export default function Auth() {
     try {
       setLoading(prev => ({ ...prev, google: true }));
       setError(null);
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/valuation`,
         },
       });
-
       if (error) throw error;
     } catch (error) {
-      console.error('Google sign in error:', error);
       setError(error.message || 'Failed to sign in with Google');
       setLoading(prev => ({ ...prev, google: false }));
+    }
+  };
+
+  const handleYouTubeSignIn = async () => {
+    try {
+      setLoading(prev => ({ ...prev, youtube: true }));
+      setError(null);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/valuation`,
+          scopes: 'email profile https://www.googleapis.com/auth/youtube.readonly',
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      setError(error.message || 'Failed to sign in with YouTube');
+      setLoading(prev => ({ ...prev, youtube: false }));
     }
   };
 
@@ -53,7 +72,6 @@ export default function Auth() {
     try {
       setLoading(prev => ({ ...prev, spotify: true }));
       setError(null);
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'spotify',
         options: {
@@ -61,10 +79,8 @@ export default function Auth() {
           scopes: 'user-read-email user-read-private',
         },
       });
-
       if (error) throw error;
     } catch (error) {
-      console.error('Spotify sign in error:', error);
       setError(error.message || 'Failed to sign in with Spotify');
       setLoading(prev => ({ ...prev, spotify: false }));
     }
@@ -74,23 +90,20 @@ export default function Auth() {
     try {
       setLoading(prev => ({ ...prev, apple: true }));
       setError(null);
-
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: {
           redirectTo: `${window.location.origin}/valuation`,
         },
       });
-
       if (error) throw error;
     } catch (error) {
-      console.error('Apple sign in error:', error);
       setError(error.message || 'Failed to sign in with Apple');
       setLoading(prev => ({ ...prev, apple: false }));
     }
   };
 
-  const isAnyLoading = loading.google || loading.spotify || loading.apple;
+  const isAnyLoading = Object.values(loading).some(Boolean);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center px-4 py-8">
@@ -119,9 +132,7 @@ export default function Auth() {
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-500/30 rounded-xl flex items-start gap-3">
               <AlertCircle size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-600 dark:text-red-400 font-semibold">
-                {error}
-              </p>
+              <p className="text-sm text-red-600 dark:text-red-400 font-semibold">{error}</p>
             </div>
           )}
 
@@ -146,6 +157,34 @@ export default function Auth() {
               )}
               <span>Continue with Google</span>
             </button>
+
+            {/* YouTube */}
+            <button
+              onClick={handleYouTubeSignIn}
+              disabled={isAnyLoading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-red-500 dark:hover:border-red-500 rounded-xl font-semibold text-slate-900 dark:text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading.youtube ? (
+                <Loader2 size={20} className="animate-spin text-red-500" />
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#FF0000">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg>
+              )}
+              <span>Continue with YouTube</span>
+            </button>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-200 dark:border-slate-700"></div>
+              </div>
+              <div className="relative flex justify-center text-xs">
+                <span className="px-3 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 font-medium">
+                  or continue with
+                </span>
+              </div>
+            </div>
 
             {/* Spotify */}
             <button
@@ -185,7 +224,8 @@ export default function Auth() {
           <div className="mt-8 pt-6 border-t border-slate-200 dark:border-slate-700">
             <p className="text-xs text-center text-slate-600 dark:text-slate-400">
               By signing in, you agree to our Terms of Service and Privacy Policy.
-              We only access your basic profile information.
+              <br />
+              YouTube sign-in also requests read-only access to your channel.
             </p>
           </div>
 
