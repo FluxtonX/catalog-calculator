@@ -1,5 +1,7 @@
-import { Calculator, TrendingUp, BarChart, DollarSign } from "lucide-react";
-import * as Separator from "@radix-ui/react-separator"; // reuse existing install
+// AFTER
+import { Calculator, TrendingUp, DollarSign, Info } from "lucide-react";
+
+import * as Separator from "@radix-ui/react-separator";
 
 const ScenarioCard = ({ icon: Icon, title, subtitle, value, color, featured }) => (
   <div className={`relative flex flex-col items-center text-center rounded-2xl p-4 sm:p-6 border-2 ${color.border} ${color.bg} shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${featured ? `ring-4 ${color.ring} ring-offset-2 ring-offset-white dark:ring-offset-slate-950` : ""}`}>
@@ -20,8 +22,7 @@ const ScenarioCard = ({ icon: Icon, title, subtitle, value, color, featured }) =
 
 const ValuationScenarios = ({
   conservativeValuation, marketValuation, premiumValuation,
-  totalAnnualRevenue, advanceCalculation, totalAdvancePackage,
-  caccAdjustedValuation, formatCurrency,
+  totalAnnualRevenue, caccAdjustedValuation, formatCurrency,
 }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
     <div className="flex items-center gap-3 px-5 sm:px-7 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
@@ -53,47 +54,32 @@ const ValuationScenarios = ({
         />
       </div>
 
-      {/* Advance Potential + Growth Adjusted */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart size={16} className="text-amber-500" />
-            <h4 className="font-bold text-slate-900 dark:text-white text-sm">Advance Potential</h4>
-          </div>
-          {[
-            { label: "Recording Advance", value: formatCurrency(advanceCalculation) },
-            { label: "Tour Support", value: formatCurrency(advanceCalculation * 0.6) },
-            { label: "Marketing Budget", value: formatCurrency(advanceCalculation * 0.4) },
-          ].map((row) => (
-            <div key={row.label} className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
-              <span className="text-slate-500 dark:text-slate-400">{row.label}</span>
-              <span className="font-bold text-slate-900 dark:text-white">{row.value}</span>
-            </div>
-          ))}
-          <div className="flex justify-between items-center py-2 mt-1 text-xs sm:text-sm">
-            <span className="font-bold text-slate-900 dark:text-white">Total Package</span>
-            <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(totalAdvancePackage)}</span>
-          </div>
+      {/* Growth-Adjusted Valuation — full width */}
+      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700">
+        <div className="flex items-center gap-2 mb-4">
+          <TrendingUp size={16} className="text-emerald-500" />
+          <h4 className="font-bold text-slate-900 dark:text-white text-sm">Growth-Adjusted Valuation</h4>
         </div>
-
-        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700">
-          <div className="flex items-center gap-2 mb-4">
-            <TrendingUp size={16} className="text-emerald-500" />
-            <h4 className="font-bold text-slate-900 dark:text-white text-sm">Growth-Adjusted Valuation</h4>
-          </div>
-          {[
-            { label: "Base 8× Valuation", value: formatCurrency(totalAnnualRevenue * 8) },
-            { label: "CACC Growth (+30%)", value: `+${formatCurrency(totalAnnualRevenue * 8 * 0.3)}`, color: "text-emerald-600 dark:text-emerald-400" },
-          ].map((row) => (
-            <div key={row.label} className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
-              <span className="text-slate-500 dark:text-slate-400">{row.label}</span>
-              <span className={`font-bold ${row.color || "text-slate-900 dark:text-white"}`}>{row.value}</span>
-            </div>
-          ))}
-          <div className="flex justify-between items-center py-2 mt-1 text-xs sm:text-sm">
-            <span className="font-bold text-slate-900 dark:text-white">Adjusted Valuation</span>
-            <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(caccAdjustedValuation)}</span>
-          </div>
+       <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
+  <span className="text-slate-500 dark:text-slate-400">Base 8× Valuation</span>
+  <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(totalAnnualRevenue * 8)}</span>
+</div>
+<div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
+  <div className="flex items-center gap-1.5">
+    <span className="text-slate-500 dark:text-slate-400">CACC Growth (+30%)</span>
+    <div className="group relative flex items-center">
+      <Info size={13} className="text-blue-400 cursor-pointer flex-shrink-0" />
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-xl px-3 py-2.5 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 leading-relaxed">
+        <span className="font-bold text-blue-300">CACC (Catalog Asset & Content Claims)</span> represents unclaimed revenue we have identified and located within this catalog. This recovered revenue is applied as a 30% uplift to reflect the catalog's true earning potential.
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700" />
+      </div>
+    </div>
+  </div>
+  <span className="font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(totalAnnualRevenue * 8 * 0.3)}</span>
+</div>
+        <div className="flex justify-between items-center py-2 mt-1 text-xs sm:text-sm">
+          <span className="font-bold text-slate-900 dark:text-white">Adjusted Valuation</span>
+          <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(caccAdjustedValuation)}</span>
         </div>
       </div>
     </div>

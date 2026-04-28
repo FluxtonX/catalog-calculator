@@ -6,52 +6,35 @@ import { Music, Loader2, AlertCircle } from 'lucide-react';
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState({ google: false, spotify: false });
+  const [loading, setLoading] = useState({ google: false, spotify: false, apple: false });
   const [error, setError] = useState(null);
 
   const from = location.state?.from?.pathname || '/valuation';
 
   useEffect(() => {
-    console.log('🔍 Auth Component Mounted');
-    console.log('📍 Current Location:', window.location.href);
-    console.log('📍 Origin:', window.location.origin);
-    console.log('📍 Pathname:', window.location.pathname);
-    
-    // Listen for auth changes
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('🔔 Auth State Changed:', event);
-      console.log('👤 Session:', session);
-      
       if (session) {
-        console.log('✅ Session Found - Navigating to /valuation');
-        console.log('👤 User:', session.user);
         navigate('/valuation', { replace: true });
-      } else {
-        console.log('❌ No Session Found');
       }
     });
 
-    // Check session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('🔍 Initial Session Check:', session);
       if (session) {
-        console.log('✅ Existing Session - Navigating to /valuation');
         navigate('/valuation', { replace: true });
       }
     });
 
     return () => {
-      console.log('🧹 Cleaning up auth listener');
       listener.subscription.unsubscribe();
     };
   }, [navigate]);
 
   const handleGoogleSignIn = async () => {
     try {
-      setLoading({ ...loading, google: true });
+      setLoading(prev => ({ ...prev, google: true }));
       setError(null);
 
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/valuation`,
@@ -62,88 +45,58 @@ export default function Auth() {
     } catch (error) {
       console.error('Google sign in error:', error);
       setError(error.message || 'Failed to sign in with Google');
-      setLoading({ ...loading, google: false });
+      setLoading(prev => ({ ...prev, google: false }));
     }
   };
 
   const handleSpotifySignIn = async () => {
     try {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('🎵 SPOTIFY SIGN IN - START');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
-      setLoading({ ...loading, spotify: true });
+      setLoading(prev => ({ ...prev, spotify: true }));
       setError(null);
 
-      // Log environment details
-      console.log('📍 Current URL:', window.location.href);
-      console.log('📍 Origin:', window.location.origin);
-      console.log('📍 Protocol:', window.location.protocol);
-      console.log('📍 Hostname:', window.location.hostname);
-      console.log('📍 Port:', window.location.port);
-      
-      const redirectUrl = `${window.location.origin}/valuation`;
-      console.log('🔗 Redirect URL:', redirectUrl);
-      
-      // Check current session before OAuth
-      const { data: sessionData } = await supabase.auth.getSession();
-      console.log('👤 Current Session Before OAuth:', sessionData.session);
-
-      console.log('🚀 Calling Supabase OAuth...');
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'spotify',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: `${window.location.origin}/valuation`,
           scopes: 'user-read-email user-read-private',
         },
       });
 
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('📦 OAUTH RESPONSE:');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('✅ Data:', JSON.stringify(data, null, 2));
-      console.log('❌ Error:', JSON.stringify(error, null, 2));
-      
-      if (data?.url) {
-        console.log('🔗 OAuth URL Generated:', data.url);
-        console.log('🚀 Browser will redirect to Spotify...');
-      }
-      
-      if (data?.provider) {
-        console.log('🔑 Provider:', data.provider);
-      }
-
-      if (error) {
-        console.error('❌ OAuth Error Details:', {
-          message: error.message,
-          status: error.status,
-          code: error.code,
-          details: error
-        });
-        throw error;
-      }
-
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+      if (error) throw error;
     } catch (error) {
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.error('💥 SPOTIFY SIGN IN ERROR');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.error('Error Type:', typeof error);
-      console.error('Error Message:', error.message);
-      console.error('Error Stack:', error.stack);
-      console.error('Full Error:', error);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      
+      console.error('Spotify sign in error:', error);
       setError(error.message || 'Failed to sign in with Spotify');
-      setLoading({ ...loading, spotify: false });
+      setLoading(prev => ({ ...prev, spotify: false }));
     }
   };
+
+  const handleAppleSignIn = async () => {
+    try {
+      setLoading(prev => ({ ...prev, apple: true }));
+      setError(null);
+
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/valuation`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Apple sign in error:', error);
+      setError(error.message || 'Failed to sign in with Apple');
+      setLoading(prev => ({ ...prev, apple: false }));
+    }
+  };
+
+  const isAnyLoading = loading.google || loading.spotify || loading.apple;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl">
         <div className="p-8">
+
           {/* Logo & Title */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">
@@ -174,42 +127,31 @@ export default function Auth() {
 
           {/* Sign In Buttons */}
           <div className="space-y-4">
-            {/* Google Sign In */}
+
+            {/* Google */}
             <button
               onClick={handleGoogleSignIn}
-              disabled={loading.google || loading.spotify}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-xl font-semibold text-slate-900 dark:text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed group"
+              disabled={isAnyLoading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-emerald-500 dark:hover:border-emerald-500 rounded-xl font-semibold text-slate-900 dark:text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading.google ? (
                 <Loader2 size={20} className="animate-spin" />
               ) : (
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                 </svg>
               )}
               <span>Continue with Google</span>
             </button>
 
-            {/* Spotify Sign In */}
+            {/* Spotify */}
             <button
               onClick={handleSpotifySignIn}
-              disabled={loading.google || loading.spotify}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#1DB954] hover:bg-[#1ed760] border-2 border-[#1DB954] hover:border-[#1ed760] rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed group"
+              disabled={isAnyLoading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#1DB954] hover:bg-[#1ed760] border-2 border-[#1DB954] hover:border-[#1ed760] rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading.spotify ? (
                 <Loader2 size={20} className="animate-spin" />
@@ -220,6 +162,23 @@ export default function Auth() {
               )}
               <span>Continue with Spotify</span>
             </button>
+
+            {/* Apple */}
+            <button
+              onClick={handleAppleSignIn}
+              disabled={isAnyLoading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-black hover:bg-slate-800 border-2 border-black hover:border-slate-700 rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading.apple ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
+                </svg>
+              )}
+              <span>Continue with Apple</span>
+            </button>
+
           </div>
 
           {/* Privacy Notice */}
@@ -229,6 +188,7 @@ export default function Auth() {
               We only access your basic profile information.
             </p>
           </div>
+
         </div>
       </div>
     </div>

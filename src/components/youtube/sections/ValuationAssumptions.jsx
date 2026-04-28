@@ -35,12 +35,12 @@ const ValuationAssumptions = ({
               Ad Revenue
             </h4>
           </div>
-         <InputSlider
-  label="Annual Views % of Total"
+        <InputSlider
+  label="Annual View Growth Rate"
   value={annualViewPercentage}
   onValueChange={setAnnualViewPercentage}
   min={1} max={50} step={1} unit="%"
-  tooltip="Percentage of lifetime views that occur in a year. Industry average is 10–20% for established artists."
+  tooltip="How fast the channel accumulates views each year. 10% = slow/legacy catalog. 20–30% = active/growing channel. 40%+ = viral/trending."
 />
 <InputSlider
   label="Monetization Rate"
