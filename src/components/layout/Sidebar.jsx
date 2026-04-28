@@ -15,10 +15,47 @@ import {
 } from "lucide-react";
 import { supabase } from "../../utils/supabase";
 import ThemeToggle from "../ui/ThemeToggle";
+import { useArtistStore } from "../../store/artistStore";
 
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const { platform } = useArtistStore();
+
+  const platformTheme = {
+    spotify: {
+      logoGradient: "from-emerald-500 via-emerald-600 to-teal-600",
+      logoBlur: "from-emerald-500 to-teal-600",
+      navActive: "from-emerald-500 to-teal-600",
+      activeShadow: "shadow-emerald-500/30",
+      dot: "bg-emerald-500",
+      userHoverBorder: "hover:border-emerald-500/30 dark:hover:border-emerald-500/30",
+      userHoverGlow: "from-emerald-500/5 to-teal-600/5",
+      userAvatar: "from-emerald-500 to-teal-600",
+    },
+    youtube: {
+      logoGradient: "from-red-500 via-rose-500 to-pink-600",
+      logoBlur: "from-red-500 to-pink-600",
+      navActive: "from-red-500 to-rose-600",
+      activeShadow: "shadow-red-500/30",
+      dot: "bg-red-500",
+      userHoverBorder: "hover:border-red-500/30 dark:hover:border-red-500/30",
+      userHoverGlow: "from-red-500/5 to-rose-600/5",
+      userAvatar: "from-red-500 to-rose-600",
+    },
+    itunes: {
+      logoGradient: "from-slate-700 via-slate-800 to-slate-900",
+      logoBlur: "from-slate-600 to-slate-900",
+      navActive: "from-slate-700 to-slate-900",
+      activeShadow: "shadow-slate-500/30",
+      dot: "bg-slate-700 dark:bg-slate-200",
+      userHoverBorder: "hover:border-slate-500/30 dark:hover:border-slate-400/30",
+      userHoverGlow: "from-slate-500/5 to-slate-700/5",
+      userAvatar: "from-slate-700 to-slate-900",
+    },
+  };
+
+  const theme = platformTheme[platform] || platformTheme.spotify;
 
   useEffect(() => {
     // Get current user
@@ -68,6 +105,10 @@ const Sidebar = ({ isOpen, onClose }) => {
     // },
   ];
 
+  const handleNavClick = () => {
+    if (window.innerWidth < 1024) onClose();
+  };
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -86,8 +127,8 @@ const Sidebar = ({ isOpen, onClose }) => {
         border-r border-gray-200/80 dark:border-slate-800/80
         text-gray-900 dark:text-white 
         flex flex-col z-50 shadow-2xl
-        transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        transition-transform duration-300 ease-in-out will-change-transform
+        ${isOpen ? "translate-x-0" : "-translate-x-full"}
       `}
       >
         {/* Logo Section */}
@@ -95,8 +136,12 @@ const Sidebar = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl blur-md opacity-50"></div>
-                <div className="relative w-14 h-14 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${theme.logoBlur} rounded-2xl blur-md opacity-50`}
+                ></div>
+                <div
+                  className={`relative w-14 h-14 bg-gradient-to-br ${theme.logoGradient} rounded-2xl flex items-center justify-center shadow-xl`}
+                >
                   <Music size={28} className="text-white" strokeWidth={2.5} />
                 </div>
               </div>
@@ -127,18 +172,18 @@ const Sidebar = ({ isOpen, onClose }) => {
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
           <div className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-5 px-4 flex items-center gap-2">
-            <div className="w-1 h-1 rounded-full bg-emerald-500"></div>
+            <div className={`w-1 h-1 rounded-full ${theme.dot}`}></div>
             Analytics Tools
           </div>
           {navItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}
-              onClick={onClose}
+              onClick={handleNavClick}
               className={({ isActive }) =>
                 `group relative flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300 overflow-hidden ${
                   isActive
-                    ? "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 scale-[1.02]"
+                    ? `bg-gradient-to-r ${theme.navActive} text-white shadow-lg ${theme.activeShadow} scale-[1.02]`
                     : "text-gray-700 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-slate-800/80 hover:shadow-md hover:scale-[1.01]"
                 }`
               }
@@ -188,7 +233,7 @@ const Sidebar = ({ isOpen, onClose }) => {
           {/* Theme Toggle */}
           <div className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-gray-100/50 dark:bg-slate-800/50 hover:bg-gray-100 dark:hover:bg-slate-800 transition-all duration-200">
             <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+              <div className={`w-1.5 h-1.5 rounded-full ${theme.dot}`}></div>
               Appearance
             </span>
             <ThemeToggle />
@@ -196,9 +241,13 @@ const Sidebar = ({ isOpen, onClose }) => {
 
           {/* User Profile Card */}
           {user && (
-            <div className="group relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 dark:from-slate-800 dark:to-slate-800/80 border border-gray-200/80 dark:border-slate-700/80 hover:border-emerald-500/30 dark:hover:border-emerald-500/30 hover:shadow-lg transition-all duration-300 cursor-pointer">
+            <div
+              className={`group relative overflow-hidden flex items-center gap-3 p-3.5 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 dark:from-slate-800 dark:to-slate-800/80 border border-gray-200/80 dark:border-slate-700/80 ${theme.userHoverBorder} hover:shadow-lg transition-all duration-300 cursor-pointer`}
+            >
               {/* Hover effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-600/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div
+                className={`absolute inset-0 bg-gradient-to-br ${theme.userHoverGlow} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
+              ></div>
 
               <div className="relative">
                 {user.user_metadata?.avatar_url ? (
@@ -209,8 +258,12 @@ const Sidebar = ({ isOpen, onClose }) => {
                   />
                 ) : (
                   <>
-                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl blur-sm opacity-50"></div>
-                    <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${theme.userAvatar} rounded-xl blur-sm opacity-50`}
+                    ></div>
+                    <div
+                      className={`relative w-11 h-11 rounded-xl bg-gradient-to-br ${theme.userAvatar} flex items-center justify-center shadow-lg`}
+                    >
                       <User
                         size={20}
                         className="text-white"

@@ -15,124 +15,18 @@ import {
 } from "lucide-react";
 import { generateITunesValuationPDF } from "../../utils/itunesValuationPdfGenerator";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useArtistStore } from "../../store/artistStore";
 import { supabase } from "../../utils/supabase";
+import ITunesMetricCard from "./ITunesMetricCard";
+import ITunesScenarioCard from "./ITunesScenarioCard";
+import {
+  APPLE_MUSIC_RATE,
+  formatCurrency,
+  formatNumber,
+  estimateMonthlyStreams,
+  formatRange,
+} from "./valuationHelpers";
 
-import { Download, LogIn } from "lucide-react";
-
-// ── Apple Music payout rate (avg $0.01/stream — ~2.5x Spotify) ───
-const APPLE_MUSIC_RATE = 0.008;
-
-// ── Helpers ───────────────────────────────────────────────────────
-const formatCurrency = (n) => {
-  if (!n || isNaN(n)) return "$0";
-  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(0)}`;
-};
-
-const formatNumber = (n) => {
-  if (!n || isNaN(n)) return "0";
-  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return `${Math.round(n)}`;
-};
-
-// Estimate monthly streams from popularity score (0-100)
-// Apple Music popularity 100 ≈ ~100M streams/month, scaled down
-const estimateMonthlyStreams = (popularityScore) => {
-  if (!popularityScore) return 0;
-  return Math.round(Math.pow(popularityScore / 100, 2.5) * 10_000_000);
-};
-
-// Metric card component
-const MetricCard = ({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  borderColor,
-  iconBg,
-  iconColor,
-  valueColor,
-}) => (
-  <div
-    className={`bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border-2 ${borderColor} shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5`}
-  >
-    <div className="flex flex-col items-center gap-2 text-center">
-      <div className={`p-2.5 ${iconBg} rounded-xl`}>
-        <Icon size={18} className={`sm:w-5 sm:h-5 ${iconColor}`} />
-      </div>
-      <div>
-        <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wide mb-1">
-          {label}
-        </p>
-        <p
-          className={`text-base sm:text-xl lg:text-2xl font-black ${valueColor}`}
-        >
-          {value}
-        </p>
-        {sub && (
-          <p className="text-[9px] sm:text-xs text-slate-400 dark:text-slate-500 mt-0.5 font-medium">
-            {sub}
-          </p>
-        )}
-      </div>
-    </div>
-  </div>
-);
-
-// Valuation scenario card
-const ScenarioCard = ({
-  label,
-  multiple,
-  value,
-  color,
-  gradient,
-  icon: Icon,
-  isHighlighted,
-}) => (
-  <div
-    className={`relative rounded-2xl p-4 sm:p-6 border-2 text-center transition-all duration-300 ${
-      isHighlighted
-        ? `${gradient} border-transparent shadow-2xl scale-105`
-        : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl hover:-translate-y-1"
-    }`}
-  >
-    {isHighlighted && (
-      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white dark:bg-slate-800 rounded-full text-[10px] font-black text-pink-600 dark:text-pink-400 border border-pink-200 dark:border-pink-700 shadow-md">
-        MARKET RATE
-      </div>
-    )}
-    <div
-      className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg ${
-        isHighlighted ? "bg-white/20" : `bg-gradient-to-br ${color}`
-      }`}
-    >
-      <Icon
-        size={20}
-        className={`sm:w-6 sm:h-6 ${isHighlighted ? "text-white" : "text-white"}`}
-      />
-    </div>
-    <p
-      className={`text-sm sm:text-base font-black mb-1 ${isHighlighted ? "text-white" : "text-slate-900 dark:text-white"}`}
-    >
-      {label}
-    </p>
-    <p
-      className={`text-[10px] sm:text-xs mb-3 ${isHighlighted ? "text-white/80" : "text-slate-500 dark:text-slate-400"}`}
-    >
-      {multiple}x Revenue Multiple
-    </p>
-    <p
-      className={`text-xl sm:text-3xl font-black ${isHighlighted ? "text-white" : color.includes("pink") ? "text-pink-600 dark:text-pink-400" : color.includes("blue") ? "text-blue-600 dark:text-blue-400" : "text-purple-600 dark:text-purple-400"}`}
-    >
-      {formatCurrency(value)}
-    </p>
-  </div>
-);
+import { Download } from "lucide-react";
 
 const ITunesValuationTab = ({ artistData }) => {
   const { name, image, topTracks, albums, singles, stats, popularity, genres } =
@@ -186,8 +80,20 @@ const ITunesValuationTab = ({ artistData }) => {
         calculations: {
           avgPopularity: calculations.avgPopularity,
           monthlyStreams: calculations.monthlyStreams,
+          monthlyStreamsRange: {
+            min: calculations.monthlyStreamsLow,
+            max: calculations.monthlyStreamsHigh,
+          },
           monthlyRevenue: calculations.monthlyRevenue,
+          monthlyRevenueRange: {
+            min: calculations.monthlyRevenueLow,
+            max: calculations.monthlyRevenueHigh,
+          },
           ltmRevenue: calculations.ltmRevenue,
+          ltmRevenueRange: {
+            min: calculations.ltmRevenueLow,
+            max: calculations.ltmRevenueHigh,
+          },
           catalogBonus: calculations.catalogBonus,
           dealScore: calculations.dealScore,
           totalAlbums: calculations.totalAlbums,
@@ -255,8 +161,36 @@ const top10Popularities = top10.map((t, i) => {
 
   // ── Streams & revenue from top 10 avg popularity ──────
   const estimatedMonthlyStreams = estimateMonthlyStreams(avgTop10Popularity);
-  const monthlyRevenue          = estimatedMonthlyStreams * APPLE_MUSIC_RATE;
-  const annualRevenue           = monthlyRevenue * 12;
+  const top10StreamEstimates = top10Popularities.map((score) =>
+    estimateMonthlyStreams(score),
+  );
+  const variance =
+    top10StreamEstimates.length > 1
+      ? top10StreamEstimates.reduce((sum, value) => {
+          const delta = value - estimatedMonthlyStreams;
+          return sum + delta * delta;
+        }, 0) / top10StreamEstimates.length
+      : 0;
+  const stdDev = Math.sqrt(variance);
+  const volatilityFactor =
+    estimatedMonthlyStreams > 0
+      ? Math.min(Math.max(stdDev / estimatedMonthlyStreams, 0.15), 0.45)
+      : 0.2;
+
+  const monthlyStreamsLow = Math.max(
+    0,
+    Math.round(estimatedMonthlyStreams * (1 - volatilityFactor)),
+  );
+  const monthlyStreamsHigh = Math.round(
+    estimatedMonthlyStreams * (1 + volatilityFactor),
+  );
+
+  const monthlyRevenue = estimatedMonthlyStreams * APPLE_MUSIC_RATE;
+  const monthlyRevenueLow = monthlyStreamsLow * APPLE_MUSIC_RATE;
+  const monthlyRevenueHigh = monthlyStreamsHigh * APPLE_MUSIC_RATE;
+  const annualRevenue = monthlyRevenue * 12;
+  const annualRevenueLow = monthlyRevenueLow * 12;
+  const annualRevenueHigh = monthlyRevenueHigh * 12;
 
   // ── Catalog bonus ──────────────────────────────────────
  // Albums matter more (deeper catalog = more passive income)
@@ -266,7 +200,9 @@ const catalogBonus = Math.min(
   totalSingles * 0.005,   // each single = 0.5% (need 20 singles to add 10%)
   0.5
 );
-  const ltmRevenue   = annualRevenue * (1 + catalogBonus);
+  const ltmRevenue = annualRevenue * (1 + catalogBonus);
+  const ltmRevenueLow = annualRevenueLow * (1 + catalogBonus);
+  const ltmRevenueHigh = annualRevenueHigh * (1 + catalogBonus);
 
   // ── Valuations based on top 10 tracks ─────────────────
   const conservative = ltmRevenue * 6;
@@ -289,12 +225,21 @@ const catalogBonus = Math.min(
     totalAlbums,
     totalSingles,
     totalTracks,
+    avgPopularity: avgTop10Popularity,
     avgTop10Popularity,
     top10Popularities,       // ← per-track scores for the table
     tracksUsed: top10.length,
+    monthlyStreams: estimatedMonthlyStreams,
     estimatedMonthlyStreams,
+    monthlyStreamsLow,
+    monthlyStreamsHigh,
+    volatilityFactor,
     monthlyRevenue,
+    monthlyRevenueLow,
+    monthlyRevenueHigh,
     ltmRevenue,
+    ltmRevenueLow,
+    ltmRevenueHigh,
     conservative,
     market,
     premium,
@@ -390,29 +335,41 @@ const catalogBonus = Math.min(
     {[
       {
         label: "Monthly Streams (est.)",
-        value: formatNumber(calculations.estimatedMonthlyStreams),
-        note: `Based on avg popularity of top ${calculations.tracksUsed} tracks`,
+        value: formatRange(
+          calculations.monthlyStreamsLow,
+          calculations.monthlyStreamsHigh,
+          formatNumber,
+        ),
+        note: `Range modeled from top ${calculations.tracksUsed} track volatility`,
         tooltip: {
           title: "Monthly Streams (Est.)",
-          body: `Estimated from the average rank-based popularity score of the top ${calculations.tracksUsed} tracks. Formula: (popularity/100)^2.5 × 10M. Since Apple Music doesn't expose real stream counts, this is a modeled estimate.`,
+          body: `Estimated from the average popularity of the top ${calculations.tracksUsed} tracks using (popularity/100)^2.5 × 10M, then expanded into a low/high band using observed track-to-track volatility.`,
         },
       },
       {
         label: "Monthly Revenue (est.)",
-        value: formatCurrency(calculations.monthlyRevenue),
-        note: "$0.0080 per stream × est. streams",
+        value: formatRange(
+          calculations.monthlyRevenueLow,
+          calculations.monthlyRevenueHigh,
+          formatCurrency,
+        ),
+        note: "$0.0080 per stream × stream range",
         tooltip: {
           title: "Monthly Revenue (Est.)",
-          body: "Estimated monthly streams × $0.008 Apple Music avg payout rate."
+          body: "Revenue is shown as a range: low/high monthly streams × $0.008 Apple Music average payout rate.",
         },
       },
       {
         label: "LTM Revenue (est.)",
-        value: formatCurrency(calculations.ltmRevenue),
+        value: formatRange(
+          calculations.ltmRevenueLow,
+          calculations.ltmRevenueHigh,
+          formatCurrency,
+        ),
         note: `Incl. +${calculations.catalogBonus.toFixed(0)}% catalog bonus`,
         tooltip: {
           title: "LTM Revenue (Est.)",
-          body: `Last Twelve Months revenue = Monthly Revenue × 12, then adjusted upward by a catalog depth bonus of +${calculations.catalogBonus.toFixed(0)}% based on total albums and singles in the discography (max +50%).`,
+          body: `LTM revenue is shown as a range: monthly revenue range × 12, then adjusted upward by a catalog depth bonus of +${calculations.catalogBonus.toFixed(0)}% based on total albums and singles (max +50%).`,
         },
       },
     ].map(({ label, value, note, tooltip }) => (
@@ -449,7 +406,7 @@ const catalogBonus = Math.min(
       {/* ── Detailed metrics ─────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <div className="relative group">
-  <MetricCard
+  <ITunesMetricCard
     icon={Music}
     label="Avg Track Popularity"
     value={`${Math.round(calculations.avgTop10Popularity)}/100`}
@@ -473,7 +430,7 @@ const catalogBonus = Math.min(
     </p>
   </div>
 </div>
-        <MetricCard
+        <ITunesMetricCard
           icon={Globe}
           label="Payout Rate"
           value="$0.0080"
@@ -483,7 +440,7 @@ const catalogBonus = Math.min(
           iconColor="text-rose-600 dark:text-rose-400"
           valueColor="text-rose-600 dark:text-rose-400"
         />
-        <MetricCard
+        <ITunesMetricCard
           icon={Disc3}
           label="Catalog Depth"
           value={`${calculations.totalAlbums}A / ${calculations.totalSingles}S`}
@@ -493,7 +450,7 @@ const catalogBonus = Math.min(
           iconColor="text-red-600 dark:text-red-400"
           valueColor="text-red-600 dark:text-red-400"
         />
-        <MetricCard
+        <ITunesMetricCard
           icon={Star}
           label="Catalog Bonus"
           value={`+${calculations.catalogBonus.toFixed(0)}%`}
@@ -659,7 +616,7 @@ const trackImage = rawImage
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-          <ScenarioCard
+          <ITunesScenarioCard
             label="Conservative"
             multiple={6}
             value={calculations.conservative}
@@ -667,7 +624,7 @@ const trackImage = rawImage
             icon={TrendingUp}
             isHighlighted={false}
           />
-          <ScenarioCard
+          <ITunesScenarioCard
             label="Market"
             multiple={8}
             value={calculations.market}
@@ -676,7 +633,7 @@ const trackImage = rawImage
             icon={DollarSign}
             isHighlighted={true}
           />
-          <ScenarioCard
+          <ITunesScenarioCard
             label="Premium"
             multiple={10}
             value={calculations.premium}
@@ -767,8 +724,9 @@ const trackImage = rawImage
                 (industry average as of 2024).
               </li>
               <li>
-                LTM (Last Twelve Months) Revenue = Monthly Streams × Rate × 12,
-                adjusted for catalog depth.
+                LTM (Last Twelve Months) Revenue is shown as a low/high range:
+                Monthly Streams range × Rate × 12, then adjusted for catalog
+                depth.
               </li>
               <li>
                 Catalog bonus adds up to +50% based on number of albums and

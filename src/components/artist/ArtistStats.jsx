@@ -14,12 +14,12 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
   const isApify = platform === "apify";
   const isYouTube = platform === "youtube";
   const isItunes = platform === "itunes";
+  const gridColsClass = isApify ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-2 lg:grid-cols-3";
 
   if (!stats) return null;
-  console.log('Albums count:', albums?.length, 'Stats totalAlbums:', stats?.totalAlbums);
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
+    <div className={`grid ${gridColsClass} gap-2 sm:gap-4`}>
       {isYouTube ? (
         // YouTube stats
         <>
@@ -46,7 +46,7 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
    <StatCard
   icon={Album}
   label="Albums"
-  value={albums?.filter(a => !singles?.some(s => s.id === a.id))?.length ?? stats.totalAlbums ?? 0}
+  value={albums?.length ?? stats.totalAlbums ?? 0}
   iconBg="bg-rose-500/20"
   iconColor="text-rose-600 dark:text-rose-400"
 />
@@ -77,7 +77,7 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
       label="Top 10 Tracks"
       value={topTracks?.length || 0}
     />
-    <StatCard icon={Album} label="Albums" value={stats.totalAlbums || albums?.length || 0} />
+    <StatCard icon={Album} label="Albums" value={albums?.length || stats.totalAlbums || 0} />
   </>
       ) : (
         // Default stats

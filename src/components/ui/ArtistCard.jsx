@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import * as Tabs from "@radix-ui/react-tabs";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
@@ -12,12 +12,7 @@ import {
   Users,
   MapPin,
   Star,
-  Disc,
   BarChart3,
-  Map,
-  Disc3,
-  ListMusic,
-  Heart,
   Album,
 } from "lucide-react";
 import { getSpotifyAlbumImages } from "../../utils/api";
@@ -35,82 +30,11 @@ import PopularReleaseCard from "../artist/PopularReleaseCard";
 import SingleCard from "../artist/SingleCard";
 import YouTubeValuationTab from "../youtube/YouTubeValuationTab";
 import ITunesValuationTab from "../itunes/ITunesValuationTab";
-
-// ── Tab config ────────────────────────────────────────────
-const buildTabs = ({
-  platform,
-  hasRelated,
-  hasCities,
-  hasPopularReleases,
-  hasSingles,
-}) => {
-  const tabs = [
-    { id: "tracks", label: "Tracks", icon: ListMusic, always: true },
-    {
-      id: "albums",
-      label: "Albums",
-      icon: Disc3,
-      always: platform !== "youtube",
-    },
-    { id: "singles", label: "Singles", icon: Disc, show: hasSingles },
-    { id: "popular", label: "Popular", icon: Star, show: hasPopularReleases },
-    { id: "related", label: "Related", icon: Heart, show: hasRelated },
-    {
-      id: "cities",
-      label: "Cities",
-      icon: Map,
-      show: hasCities && platform === "apify",
-    },
-  ];
-  return tabs.filter((t) => t.always || t.show);
-};
-
-// ── Tab trigger with active indicator ────────────────────
-const TabTrigger = ({ id, label, Icon, platform }) => {
-  const isItunes = platform === "itunes";
-  return (
-    <Tabs.Trigger
-      value={id}
-      className={`
-        group relative flex items-center gap-1.5 sm:gap-2
-        px-3 sm:px-4 py-2.5 sm:py-3
-        text-[11px] sm:text-sm font-semibold rounded-t-xl
-        whitespace-nowrap outline-none select-none
-        transition-all duration-200
-        data-[state=inactive]:text-slate-500 dark:data-[state=inactive]:text-slate-400
-        data-[state=inactive]:hover:text-slate-700 dark:data-[state=inactive]:hover:text-slate-200
-        data-[state=inactive]:hover:bg-slate-200/60 dark:data-[state=inactive]:hover:bg-slate-700/50
-        ${
-          isItunes
-            ? "data-[state=active]:text-slate-900 dark:data-[state=active]:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
-            : "data-[state=active]:text-emerald-600 dark:data-[state=active]:text-emerald-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900"
-        }
-      `}
-    >
-      <Icon
-        size={13}
-        className="sm:w-4 sm:h-4 flex-shrink-0 transition-transform group-hover:scale-110 group-data-[state=active]:scale-110"
-      />
-      <span>{label}</span>
-      {/* Active underline — black for iTunes, emerald for others */}
-      <span
-        className={`
-          absolute bottom-0 left-0 right-0 h-0.5 rounded-full
-          ${isItunes ? "bg-slate-900 dark:bg-white" : "bg-emerald-500"}
-          scale-x-0 data-[state=active]:scale-x-100
-          transition-transform duration-200
-        `}
-      />
-    </Tabs.Trigger>
-  );
-};
-
-// ── Grid wrapper for media cards ─────────────────────────
-const MediaGrid = ({ children }) => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
-    {children}
-  </div>
-);
+import {
+  ArtistTabTrigger,
+  MediaGrid,
+  buildArtistTabs,
+} from "./artistCardTabs";
 
 const ArtistCard = ({
   name,
@@ -138,6 +62,7 @@ const ArtistCard = ({
   const [activeTab, setActiveTab] = useState("tracks");
   const [enhancedAlbums, setEnhancedAlbums] = useState([]);
   const [showValuation, setShowValuation] = useState(false);
+  const valuationSectionRef = useRef(null);
 
   const isItunes = platform === "itunes";
   const isYouTube = platform === "youtube";
@@ -249,13 +174,27 @@ setEnhancedAlbums(
     }
   }, []);
 
-  const tabs = buildTabs({
+  useEffect(() => {
+    if (showValuation && valuationSectionRef.current) {
+      valuationSectionRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [showValuation]);
+
+  const tabs = buildArtistTabs({
     platform,
     hasRelated: relatedArtists?.length > 0,
     hasCities: topCities?.length > 0,
     hasPopularReleases: popularReleases?.length > 0,
     hasSingles: singles?.length > 0,
   });
+
+  const displayedAlbums = enhancedAlbums.filter((release) => release.type === "album");
+  const displayedSingles = enhancedAlbums.filter((release) => release.type === "single");
+  const albumsForDisplay = displayedAlbums.length > 0 ? displayedAlbums : albums || [];
+  const singlesForDisplay = displayedSingles.length > 0 ? displayedSingles : singles || [];
 
   // ── Valuation styles per platform ─────────────────────
   // Apple-black for iTunes
@@ -358,18 +297,15 @@ setEnhancedAlbums(
   stats={stats}
   platform={platform}
   topTracks={topTracks}
-  albums={enhancedAlbums.filter(a => a.type === "album").length > 0 
-    ? enhancedAlbums.filter(a => a.type === "album") 
-    : albums}
-  singles={enhancedAlbums.filter(a => a.type === "single").length > 0 
-    ? enhancedAlbums.filter(a => a.type === "single") 
-    : singles}
+  albums={albumsForDisplay}
+  singles={singlesForDisplay}
 />
         </div>
       </div>
 
       {/* ── Valuation Toggle ─────────────────────────────── */}
       <div
+        ref={valuationSectionRef}
         className={`rounded-3xl overflow-hidden border-2 ${valuationBorderColor} shadow-xl bg-gradient-to-br ${valuationBgColor}`}
       >
         <button
@@ -453,7 +389,7 @@ setEnhancedAlbums(
                   aria-label="Artist content"
                 >
                   {tabs.map(({ id, label, icon }) => (
-                    <TabTrigger
+                    <ArtistTabTrigger
                       key={id}
                       id={id}
                       label={label}
@@ -500,11 +436,9 @@ setEnhancedAlbums(
               value="albums"
               className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0"
             >
-              {enhancedAlbums?.length > 0 ? (
+              {albumsForDisplay?.length > 0 ? (
                 <MediaGrid>
-                 {enhancedAlbums
-  .filter((a) => a.type === "album")
-  .map((album, i) => (
+                 {albumsForDisplay.map((album, i) => (
     <AlbumCard key={album.id || i} album={album} index={i} platform={platform} />
   ))}
                 </MediaGrid>
@@ -516,11 +450,9 @@ setEnhancedAlbums(
             {/* Singles */}
   {/* Singles */}
 <Tabs.Content value="singles" className="outline-none data-[state=active]:animate-in data-[state=active]:fade-in-0">
-  {singles?.length > 0 ? (
+  {singlesForDisplay?.length > 0 ? (
     <MediaGrid>
-      {enhancedAlbums
-        .filter((a) => a.type === "single")
-        .map((s, i) => (
+      {singlesForDisplay.map((s, i) => (
           <SingleCard key={s.id || i} single={s} index={i} platform={platform} />
         ))}
     </MediaGrid>

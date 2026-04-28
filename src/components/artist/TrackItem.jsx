@@ -120,11 +120,10 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
 
       {/* HTML5 Audio Player */}
       {track.previewUrl && platform !== "apify" && (
-        <div className="mt-2 flex items-center gap-3">
+        <div className="mt-2 w-full">
           <audio
             controls
             className="w-full h-10 rounded-lg"
-            style={{ maxWidth: "400px" }}
             preload="none"
             onError={(e) => {
               e.currentTarget.style.display = "none";
