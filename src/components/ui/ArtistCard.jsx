@@ -14,6 +14,8 @@ import {
   Star,
   BarChart3,
   Album,
+
+  Disc, 
 } from "lucide-react";
 import { getSpotifyAlbumImages } from "../../utils/api";
 import SectionHeader from "../common/SectionHeader";

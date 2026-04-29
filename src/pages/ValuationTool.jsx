@@ -708,7 +708,7 @@ const ValuationTool = () => {
                 <p className="text-xs font-bold text-white/60 uppercase tracking-widest">
                   {recentSearches.length > 0
                     ? "🕐 Recent Searches:"
-                    : "🔥 Most Popular Searches:"}
+                    : " Most Popular Searches:"}
                 </p>
                 {recentSearches.length > 0 && (
                   <button

@@ -200,7 +200,7 @@ const dollarAgeData = useMemo(
   const fmt = { formatNumber, formatToMillions, formatCurrency };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-6 sm:py-8 lg:py-10 px-3 sm:px-5 lg:px-8">
+  <div className="py-2">
       <div className="max-w-6xl mx-auto space-y-5 sm:space-y-6">
         {/* Alert Banners */}
         {!hasValidData && (
