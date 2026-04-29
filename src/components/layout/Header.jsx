@@ -45,8 +45,8 @@ const PLATFORM_META = {
   },
 };
 
-const Header = ({ onMenuClick }) => {
-  const location = useLocation();
+const Header = ({ onMenuClick, isSidebarOpen }) => {
+  const location  = useLocation();
   const { platform } = useArtistStore();
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -56,16 +56,14 @@ const Header = ({ onMenuClick }) => {
   }, []);
 
   const getPageInfo = () => {
-    // On valuation page — use platform-aware info
     if (location.pathname === "/valuation") {
       return PLATFORM_META[platform] ?? PLATFORM_META.spotify;
     }
-
     switch (location.pathname) {
       case "/dashboard":
         return {
-          title: "Dashboard",
-          subtitle: "Your business analytics overview",
+          title: "My Reports",
+          subtitle: "Your saved valuations & reports",
           icon: LayoutDashboard,
           gradient: "from-blue-500 to-cyan-500",
         };
@@ -93,7 +91,7 @@ const Header = ({ onMenuClick }) => {
     }
   };
 
-  const pageInfo = getPageInfo();
+  const pageInfo    = getPageInfo();
   const IconComponent = pageInfo.icon;
 
   const formatTime = () =>
@@ -111,11 +109,14 @@ const Header = ({ onMenuClick }) => {
     });
 
   return (
+    // ✅ px-6 matches the content area px-6 in MainLayout exactly
     <header className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-slate-700 shadow-sm">
-      <div className="px-4 sm:px-6 lg:px-8 py-3">
+      <div className="px-6 py-3">
         <div className="flex items-center justify-between">
+
           {/* Left Section */}
           <div className="flex items-center gap-4">
+            {/* Hamburger */}
             <button
               onClick={onMenuClick}
               className="p-2 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-xl transition-all active:scale-95"
@@ -125,18 +126,19 @@ const Header = ({ onMenuClick }) => {
               <Menu size={22} className="text-gray-600 dark:text-gray-400" />
             </button>
 
+            {/* Page icon + title */}
             <div className="flex items-center gap-3">
               <div
                 className={`relative p-2.5 rounded-xl bg-gradient-to-br ${pageInfo.gradient} shadow-lg transition-all duration-300`}
               >
-                <IconComponent size={24} className="text-white relative z-10" />
+                <IconComponent size={22} className="text-white relative z-10" />
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${pageInfo.gradient} rounded-xl blur-md opacity-50`}
+                  className={`absolute inset-0 bg-gradient-to-br ${pageInfo.gradient} rounded-xl blur-md opacity-40`}
                 />
               </div>
 
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2 transition-all duration-300">
+                <h1 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 transition-all duration-300">
                   {pageInfo.title}
                   {(location.pathname === "/valuation" ||
                     location.pathname === "/dashboard") && (
@@ -146,22 +148,23 @@ const Header = ({ onMenuClick }) => {
                     </span>
                   )}
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 transition-all duration-300">
+                <p className="text-xs text-gray-500 dark:text-gray-400 transition-all duration-300">
                   {pageInfo.subtitle}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Right Section */}
+          {/* Right Section — date/time */}
           <div className="hidden lg:flex flex-col items-end bg-gray-100 dark:bg-slate-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-slate-700">
             <div className="text-sm font-semibold text-gray-900 dark:text-white">
               {formatTime()}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-500 dark:text-gray-400">
               {formatDate()}
             </div>
           </div>
+
         </div>
       </div>
     </header>
