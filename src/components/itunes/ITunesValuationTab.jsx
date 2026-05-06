@@ -147,10 +147,10 @@ const top10Popularities = top10.map((t, i) => {
   // Use catalog size to scale the base score
   // Bigger catalog = higher assumed popularity
   const catalogSize = totalAlbums * 3 + totalSingles + totalTracks;
-  const catalogMultiplier = Math.min(catalogSize / 30, 1.5); // scale up to 1.5x
+  const catalogMultiplier = Math.min(catalogSize / 50, 1.2); // scale up to 1.2x (was 1.5)
 
   // Base rank score scaled by catalog size
-  const baseScore = Math.round(85 - (i * 6));
+  const baseScore = Math.round(45 - (i * 4)); // Starts at 45 (was 85)
   return Math.min(Math.round(baseScore * catalogMultiplier), 100);
 });
 
@@ -482,7 +482,7 @@ const catalogBonus = Math.min(
     <div className="divide-y divide-slate-100 dark:divide-slate-800">
       {(topTracks ?? []).slice(0, 10).map((track, i) => {
         const real = track.popularity ?? track.trackPopularity ?? 0;
-        const pop  = real > 0 ? real : Math.round(85 - (i * 6));
+        const pop  = real > 0 ? real : Math.round(45 - (i * 4));
         const streams = estimateMonthlyStreams(pop);
         const revenue = streams * APPLE_MUSIC_RATE * 12;
 const trackName =
@@ -588,7 +588,7 @@ const trackImage = rawImage
           {formatCurrency(
             (topTracks ?? []).slice(0, 10).reduce((sum, t, i) => {
               const real = t.popularity ?? t.trackPopularity ?? 0;
-              const pop  = real > 0 ? real : Math.round(85 - (i * 6));
+              const pop  = real > 0 ? real : Math.round(45 - (i * 4));
               return sum + estimateMonthlyStreams(pop) * APPLE_MUSIC_RATE * 12;
             }, 0)
           )}
@@ -713,8 +713,8 @@ const trackImage = rawImage
             <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
               <li>
                 Monthly stream estimates are derived from Apple Music popularity
-                scores (0–100) using an exponential model where 100 = ~10M
-                streams/month, 50 = ~1.8M streams/month.
+                scores (0–100) using an exponential model where 100 = ~6M
+                streams/month, 50 = ~1.1M streams/month.
               </li>
               <li>
                 Apple Music payout rate used:{" "}

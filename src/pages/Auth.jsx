@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Music, Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -113,12 +113,12 @@ export default function Auth() {
           {/* Logo & Title */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center mb-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl blur-md opacity-50"></div>
-                <div className="relative w-16 h-16 bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center shadow-xl">
-                  <Music size={32} className="text-white" strokeWidth={2.5} />
-                </div>
-              </div>
+              <img 
+                src="/logo.png" 
+                alt="Logo" 
+                className="w-20 h-20 object-contain"
+                style={{ filter: 'drop-shadow(0 0 15px rgba(16, 185, 129, 0.4))' }}
+              />
             </div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
               Welcome Back
@@ -158,22 +158,6 @@ export default function Auth() {
               <span>Continue with Google</span>
             </button>
 
-            {/* YouTube */}
-            <button
-              onClick={handleYouTubeSignIn}
-              disabled={isAnyLoading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-600 hover:border-red-500 dark:hover:border-red-500 rounded-xl font-semibold text-slate-900 dark:text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading.youtube ? (
-                <Loader2 size={20} className="animate-spin text-red-500" />
-              ) : (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#FF0000">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                </svg>
-              )}
-              <span>Continue with YouTube</span>
-            </button>
-
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -185,6 +169,22 @@ export default function Auth() {
                 </span>
               </div>
             </div>
+
+            {/* YouTube */}
+            <button
+              onClick={handleYouTubeSignIn}
+              disabled={isAnyLoading}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#FF0000] hover:bg-[#e60000] border-2 border-[#FF0000] hover:border-[#e60000] rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading.youtube ? (
+                <Loader2 size={20} className="animate-spin" />
+              ) : (
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg>
+              )}
+              <span>Continue with YouTube</span>
+            </button>
 
             {/* Spotify */}
             <button
