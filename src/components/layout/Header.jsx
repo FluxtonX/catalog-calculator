@@ -33,7 +33,7 @@ const PLATFORM_META = {
   },
   youtube: {
     title: "YouTube Artist Catalog Valuation Tool",
-    subtitle: "Subscriber analytics & channel performance",
+    subtitle: " analytics and performance",
     icon: Youtube,
     gradient: "from-red-500 to-rose-500",
   },
@@ -46,7 +46,7 @@ const PLATFORM_META = {
 };
 
 const Header = ({ onMenuClick, isSidebarOpen }) => {
-  const location  = useLocation();
+  const location = useLocation();
   const { platform } = useArtistStore();
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -91,7 +91,7 @@ const Header = ({ onMenuClick, isSidebarOpen }) => {
     }
   };
 
-  const pageInfo    = getPageInfo();
+  const pageInfo = getPageInfo();
   const IconComponent = pageInfo.icon;
 
   const formatTime = () =>
@@ -142,11 +142,11 @@ const Header = ({ onMenuClick, isSidebarOpen }) => {
                   {pageInfo.title}
                   {(location.pathname === "/valuation" ||
                     location.pathname === "/dashboard") && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium rounded-full">
-                      <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                      Live
-                    </span>
-                  )}
+                      <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium rounded-full">
+                        <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        Live
+                      </span>
+                    )}
                 </h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400 transition-all duration-300">
                   {pageInfo.subtitle}

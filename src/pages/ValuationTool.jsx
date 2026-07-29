@@ -50,7 +50,7 @@ const YouTubeIcon = ({ size = 24, className = "" }) => (
     className={className}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
   </svg>
 );
 
@@ -74,7 +74,7 @@ const PLATFORM_CONFIG = {
   },
   youtube: {
     label: "YouTube",
-      icon: YouTubeIcon,
+    icon: YouTubeIcon,
     placeholder: "Search channel or artist on YouTube...",
     color: "from-red-500 via-rose-500 to-pink-600",
     bgPattern:
@@ -120,7 +120,7 @@ const PLATFORM_DESCRIPTIONS = {
   spotify:
     "Real-time valuation, stream analytics, and listener insights powered by Spotify data",
   youtube:
-    "Subscriber analytics, view counts, and channel performance powered by YouTube data",
+    "Analytics, view counts, and channel performance powered by YouTube data",
   itunes:
     "Track catalog, popularity scores, and royalty insights powered by Apple Music data",
 };
@@ -345,7 +345,7 @@ const ValuationTool = () => {
             results = [
               ...new Set([...results, ...apiResults.map((r) => r.name)]),
             ];
-          } catch {}
+          } catch { }
         }
         if (results.length === 0 && searchQuery.length > 1)
           results = [searchQuery];
@@ -461,8 +461,8 @@ const ValuationTool = () => {
   };
 
   return (
-   // ✅ No px — MainLayout px-6 is enough
-<div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-4 sm:py-8">
+    // ✅ No px — MainLayout px-6 is enough
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-4 sm:py-8">
       <div className="max-w-7xl mx-auto px-6 space-y-6 sm:space-y-8">
         {/* ── Page Header ───────────────────────────────── */}
         <div className="text-center space-y-3 sm:space-y-4">
@@ -483,25 +483,32 @@ const ValuationTool = () => {
           </p>
 
           {/* Platform switcher pills */}
-          <div className="flex items-center justify-center gap-2 flex-wrap pt-1">
-            {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
-              const PIcon = config.icon;
-              const isActive = platform === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => setPlatform(key)}
-                  className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border ${
-                    isActive
-                      ? `bg-gradient-to-r ${config.color} text-white border-transparent shadow-lg scale-105`
-                      : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"
-                  }`}
-                >
-                  <PIcon size={12} />
-                  {config.label}
-                </button>
-              );
-            })}
+          <div className="pt-3 pb-2 flex justify-center">
+            <div className="inline-flex items-center justify-center gap-2 p-2 bg-slate-100/90 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-lg hover:shadow-xl transition-all duration-300">
+              {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
+                const PIcon = config.icon;
+                const isActive = platform === key;
+                const glowClass = key === "spotify" 
+                  ? "shadow-[0_0_20px_rgba(16,185,129,0.4)] dark:shadow-[0_0_25px_rgba(16,185,129,0.35)]" 
+                  : key === "youtube"
+                    ? "shadow-[0_0_20px_rgba(239,68,68,0.4)] dark:shadow-[0_0_25px_rgba(239,68,68,0.35)]"
+                    : "shadow-[0_0_20px_rgba(236,72,153,0.4)] dark:shadow-[0_0_25px_rgba(236,72,153,0.35)]";
+
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setPlatform(key)}
+                    className={`inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm sm:text-base font-black transition-all duration-350 border ${isActive
+                        ? `bg-gradient-to-r ${config.color} text-white border-transparent scale-105 active:scale-100 ${glowClass}`
+                        : "bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40"
+                      }`}
+                  >
+                    <PIcon size={18} className={isActive ? "scale-110" : ""} />
+                    {config.label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
@@ -829,83 +836,80 @@ const ValuationTool = () => {
         )}
 
         {/* Empty State */}
-       {/* Empty State */}
-{!isLoading && !selectedArtist && !error && (
-  <div className={`text-center py-14 sm:py-20 bg-gradient-to-br ${cfg.color} rounded-3xl shadow-xl overflow-hidden relative`}>
-    
-    {/* Background decorative blobs */}
-    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-    <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+        {/* Empty State */}
+        {!isLoading && !selectedArtist && !error && (
+          <div className={`text-center py-14 sm:py-20 bg-gradient-to-br ${cfg.color} rounded-3xl shadow-xl overflow-hidden relative`}>
 
-    <div className="relative z-10 flex flex-col items-center gap-5 sm:gap-6 max-w-lg mx-auto px-4">
-      
-      {/* Platform icon — white circle so logo is always visible */}
-      <div className="relative">
-        <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl animate-pulse" />
-        <div className="relative p-5 sm:p-6 bg-white rounded-full shadow-2xl ring-4 ring-white/30">
-          <SelectedIcon
-            size={44}
-            className={`sm:w-14 sm:h-14 ${cfg.iconColor}`}
-          />
-        </div>
-      </div>
+            {/* Background decorative blobs */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Text */}
-      <div>
-        <h3 className="text-xl sm:text-3xl font-black text-white mb-2 sm:mb-3">
-          Ready to Discover?
-        </h3>
-        <p className="text-sm sm:text-base text-white/80 mb-5 sm:mb-6">
-          Search any artist on{" "}
-          <strong className="text-white">{cfg.label}</strong> to see
-          their Royalty Revenue
-        </p>
+            <div className="relative z-10 flex flex-col items-center gap-5 sm:gap-6 max-w-lg mx-auto px-4">
 
-        {/* Platform selector buttons */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
-          {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
-            const PIcon = config.icon;
-            const isActive = platform === key;
-            return (
-              <button
-                key={key}
-                onClick={() => setPlatform(key)}
-                className={`flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl border-2 transition-all duration-200 ${
-                  isActive
-                    ? "bg-white border-white shadow-lg scale-105"
-                    : "bg-white/15 border-white/30 hover:bg-white/25 hover:border-white/50 hover:scale-105"
-                }`}
-              >
-                {/* Colored icon circle */}
-                <div className={`p-2 rounded-full ${
-                  isActive
-                    ? `bg-gradient-to-br ${config.color}`
-                    : "bg-white/20"
-                } shadow-md transition-all duration-200`}>
-                  <PIcon
-                    size={18}
-                    className={isActive ? "text-white" : "text-white"}
+              {/* Platform icon — white circle so logo is always visible */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl animate-pulse" />
+                <div className="relative p-5 sm:p-6 bg-white rounded-full shadow-2xl ring-4 ring-white/30">
+                  <SelectedIcon
+                    size={44}
+                    className={`sm:w-14 sm:h-14 ${cfg.iconColor}`}
                   />
                 </div>
-                <span className={`text-xs font-bold ${
-                  isActive ? config.iconColor : "text-white"
-                }`}>
-                  {config.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+              </div>
 
-        {/* Bottom hint */}
-        <p className="flex items-center justify-center gap-2 text-sm text-white/60">
-          <TrendingUp size={14} />
-          Click a suggested artist above for instant results
-        </p>
-      </div>
-    </div>
-  </div>
-)}
+              {/* Text */}
+              <div>
+                <h3 className="text-xl sm:text-3xl font-black text-white mb-2 sm:mb-3">
+                  Ready to Discover?
+                </h3>
+                <p className="text-sm sm:text-base text-white/80 mb-5 sm:mb-6">
+                  Search any artist on{" "}
+                  <strong className="text-white">{cfg.label}</strong> to see
+                  their Royalty Revenue
+                </p>
+
+                {/* Platform selector buttons */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-6">
+                  {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
+                    const PIcon = config.icon;
+                    const isActive = platform === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => setPlatform(key)}
+                        className={`flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl border-2 transition-all duration-200 ${isActive
+                            ? "bg-white border-white shadow-lg scale-105"
+                            : "bg-white/15 border-white/30 hover:bg-white/25 hover:border-white/50 hover:scale-105"
+                          }`}
+                      >
+                        {/* Colored icon circle */}
+                        <div className={`p-2 rounded-full ${isActive
+                            ? `bg-gradient-to-br ${config.color}`
+                            : "bg-white/20"
+                          } shadow-md transition-all duration-200`}>
+                          <PIcon
+                            size={18}
+                            className={isActive ? "text-white" : "text-white"}
+                          />
+                        </div>
+                        <span className={`text-xs font-bold ${isActive ? config.iconColor : "text-white"
+                          }`}>
+                          {config.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Bottom hint */}
+                <p className="flex items-center justify-center gap-2 text-sm text-white/60">
+                  <TrendingUp size={14} />
+                  Click a suggested artist above for instant results
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
