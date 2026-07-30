@@ -199,30 +199,41 @@ setEnhancedAlbums(
   const singlesForDisplay = displayedSingles.length > 0 ? displayedSingles : singles || [];
 
   // ── Valuation styles per platform ─────────────────────
-  // Apple-black for iTunes
   const valuationBtnActive = isItunes
-    ? "bg-gradient-to-r from-slate-900 to-zinc-800 text-white shadow-lg shadow-slate-900/30 group-hover:shadow-slate-900/50 group-hover:scale-105"
+    ? "bg-gradient-to-r from-slate-900 to-zinc-800 text-white shadow-xl shadow-slate-900/40 hover:shadow-slate-900/60 hover:scale-105 active:scale-95"
     : isYouTube
-      ? "bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/30 group-hover:shadow-red-500/50 group-hover:scale-105"
-      : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 group-hover:scale-105";
+      ? "bg-gradient-to-r from-red-500 via-rose-500 to-pink-600 text-white shadow-xl shadow-red-500/40 hover:shadow-red-500/70 hover:scale-105 active:scale-95"
+      : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-500/40 hover:shadow-emerald-500/70 hover:scale-105 active:scale-95";
 
   const valuationBorderColor = isItunes
-    ? "border-slate-300 dark:border-slate-700"
+    ? "border-slate-300 dark:border-slate-600"
     : isYouTube
-      ? "border-red-200 dark:border-red-800/60"
-      : "border-emerald-200 dark:border-emerald-800/60";
+      ? "border-red-300 dark:border-red-700/70"
+      : "border-emerald-300 dark:border-emerald-700/70";
 
   const valuationBgColor = isItunes
-    ? "from-slate-100 to-zinc-100 dark:from-slate-900/60 dark:to-zinc-900/40"
+    ? "from-slate-50 via-zinc-50 to-slate-100 dark:from-slate-900/80 dark:via-zinc-900/60 dark:to-slate-900/80"
     : isYouTube
-      ? "from-red-50 to-rose-50 dark:from-red-950/40 dark:to-rose-950/40"
-      : "from-emerald-50 to-teal-50 dark:from-emerald-950/40 dark:to-teal-950/40";
+      ? "from-red-50 via-rose-50/80 to-pink-50 dark:from-red-950/60 dark:via-rose-950/50 dark:to-pink-950/60"
+      : "from-emerald-50 via-teal-50/80 to-green-50 dark:from-emerald-950/60 dark:via-teal-950/50 dark:to-green-950/60";
 
   const valuationIconBg = isItunes
     ? "from-slate-900 to-zinc-800"
     : isYouTube
-      ? "from-red-500 to-rose-600"
+      ? "from-red-500 via-rose-500 to-pink-600"
       : "from-emerald-500 to-teal-600";
+
+  const valuationAccentBar = isItunes
+    ? "bg-gradient-to-r from-slate-700 via-zinc-500 to-slate-700"
+    : isYouTube
+      ? "bg-gradient-to-r from-red-500 via-rose-400 to-pink-500"
+      : "bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500";
+
+  const valuationGlowRing = isItunes
+    ? "ring-2 ring-slate-400/30 dark:ring-slate-500/30"
+    : isYouTube
+      ? "ring-2 ring-red-400/40 dark:ring-red-500/40"
+      : "ring-2 ring-emerald-400/40 dark:ring-emerald-500/40";
 
   // ── Render valuation content ───────────────────────────
   const renderValuation = () => {
@@ -293,65 +304,74 @@ setEnhancedAlbums(
           getSocialIcon={getSocialIcon}
           onCalculateRoyalties={() => setShowValuation(true)}
         />
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
-    
-         <ArtistStats
-  stats={stats}
-  platform={platform}
-  topTracks={topTracks}
-  albums={albumsForDisplay}
-  singles={singlesForDisplay}
-/>
-        </div>
-      </div>
 
-      {/* ── Valuation Toggle ─────────────────────────────── */}
-      <div
-        ref={valuationSectionRef}
-        className={`rounded-3xl overflow-hidden border-2 ${valuationBorderColor} shadow-xl bg-gradient-to-br ${valuationBgColor}`}
-      >
-        <button
-          onClick={() => setShowValuation((v) => !v)}
-          className="w-full flex items-center justify-between gap-4 px-5 sm:px-8 py-5 sm:py-6 group"
+        {/* ── Valuation Toggle (primary CTA) ──────────────── */}
+        <div
+          ref={valuationSectionRef}
+          className={`relative overflow-hidden border-t-2 border-b-2 ${valuationBorderColor} ${valuationGlowRing} bg-gradient-to-br ${valuationBgColor} transition-all duration-300`}
         >
-          <div className="flex items-center gap-4">
-            <div
-              className={`p-3 bg-gradient-to-br ${valuationIconBg} rounded-2xl shadow-lg`}
-            >
-              <BarChart3 size={22} className="text-white" />
-            </div>
-            <div className="text-left">
-              <p className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                Artist Valuation
-              </p>
-              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                {isItunes
-                  ? "Apple Music revenue estimate & catalog analysis"
-                  : isYouTube
-                    ? " Youtube Revenue Estimates and Catalog Valuuation"
-                    : "Revenue estimate, deal score & market breakdown"}
-              </p>
-            </div>
-          </div>
-          <div
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all duration-200 ${
-              showValuation
-                ? "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
-                : valuationBtnActive
-            }`}
-          >
-            <BarChart3 size={15} />
-            {showValuation ? "Hide" : "Calculate Royalties"}
-          </div>
-        </button>
+          {/* Accent bar at top */}
+          <div className={`h-1.5 w-full ${valuationAccentBar}`} />
 
-        {showValuation && (
-          <div
-            className={`border-t-2 ${valuationBorderColor} p-4 sm:p-6 lg:p-8 bg-white dark:bg-slate-900`}
+          {/* Decorative glow blob */}
+          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full blur-3xl opacity-20 pointer-events-none bg-current" />
+
+          <button
+            onClick={() => setShowValuation((v) => !v)}
+            className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-6 px-6 sm:px-10 py-7 sm:py-9 group"
           >
-            {renderValuation()}
-          </div>
-        )}
+            {/* Left: icon + text */}
+            <div className="flex items-center gap-5">
+              <div
+                className={`p-4 sm:p-5 bg-gradient-to-br ${valuationIconBg} rounded-2xl shadow-xl ring-4 ring-white/20 flex-shrink-0 transition-transform duration-200 group-hover:scale-110`}
+              >
+                <BarChart3 size={28} className="sm:w-8 sm:h-8 text-white" />
+              </div>
+              <div className="text-left">
+                <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                  Artist Valuation
+                </p>
+                <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                  {isItunes
+                    ? "Apple Music revenue estimate & catalog analysis"
+                    : isYouTube
+                      ? "YouTube Revenue Estimates and Catalog Valuation"
+                      : "Revenue estimate, deal score & market breakdown"}
+                </p>
+              </div>
+            </div>
+
+            {/* Right: CTA button */}
+            <div
+              className={`flex-shrink-0 flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-black text-base sm:text-lg transition-all duration-200 ${
+                showValuation
+                  ? "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-md"
+                  : valuationBtnActive
+              }`}
+            >
+              <BarChart3 size={20} className="sm:w-6 sm:h-6" />
+              <span>{showValuation ? "Hide Results" : "Calculate Royalties"}</span>
+            </div>
+          </button>
+
+          {showValuation && (
+            <div
+              className={`border-t-2 ${valuationBorderColor} p-5 sm:p-8 lg:p-10 bg-white dark:bg-slate-900`}
+            >
+              {renderValuation()}
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
+          <ArtistStats
+            stats={stats}
+            platform={platform}
+            topTracks={topTracks}
+            albums={albumsForDisplay}
+            singles={singlesForDisplay}
+          />
+        </div>
       </div>
 
       {/* ── Biography ────────────────────────────────────── */}

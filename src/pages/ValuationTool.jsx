@@ -112,7 +112,7 @@ const PLATFORM_CONFIG = {
 // Add this object near PLATFORM_CONFIG
 const PLATFORM_TITLES = {
   spotify: "Spotify  Artist Catalog Valuation Tool",
-  youtube: "YouTube Channel Artist Catalog Valuation Tool",
+  youtube: "YouTube Artist Catalog Valuation Tool",
   itunes: "Apple Music Artist Catalog Valuation Tool",
 };
 
@@ -488,8 +488,8 @@ const ValuationTool = () => {
               {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
                 const PIcon = config.icon;
                 const isActive = platform === key;
-                const glowClass = key === "spotify" 
-                  ? "shadow-[0_0_20px_rgba(16,185,129,0.4)] dark:shadow-[0_0_25px_rgba(16,185,129,0.35)]" 
+                const glowClass = key === "spotify"
+                  ? "shadow-[0_0_20px_rgba(16,185,129,0.4)] dark:shadow-[0_0_25px_rgba(16,185,129,0.35)]"
                   : key === "youtube"
                     ? "shadow-[0_0_20px_rgba(239,68,68,0.4)] dark:shadow-[0_0_25px_rgba(239,68,68,0.35)]"
                     : "shadow-[0_0_20px_rgba(236,72,153,0.4)] dark:shadow-[0_0_25px_rgba(236,72,153,0.35)]";
@@ -499,8 +499,8 @@ const ValuationTool = () => {
                     key={key}
                     onClick={() => setPlatform(key)}
                     className={`inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm sm:text-base font-black transition-all duration-350 border ${isActive
-                        ? `bg-gradient-to-r ${config.color} text-white border-transparent scale-105 active:scale-100 ${glowClass}`
-                        : "bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40"
+                      ? `bg-gradient-to-r ${config.color} text-white border-transparent scale-105 active:scale-100 ${glowClass}`
+                      : "bg-transparent text-slate-500 dark:text-slate-400 border-transparent hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800/40"
                       }`}
                   >
                     <PIcon size={18} className={isActive ? "scale-110" : ""} />
@@ -878,14 +878,14 @@ const ValuationTool = () => {
                         key={key}
                         onClick={() => setPlatform(key)}
                         className={`flex flex-col items-center gap-2 p-3 sm:p-4 rounded-2xl border-2 transition-all duration-200 ${isActive
-                            ? "bg-white border-white shadow-lg scale-105"
-                            : "bg-white/15 border-white/30 hover:bg-white/25 hover:border-white/50 hover:scale-105"
+                          ? "bg-white border-white shadow-lg scale-105"
+                          : "bg-white/15 border-white/30 hover:bg-white/25 hover:border-white/50 hover:scale-105"
                           }`}
                       >
                         {/* Colored icon circle */}
                         <div className={`p-2 rounded-full ${isActive
-                            ? `bg-gradient-to-br ${config.color}`
-                            : "bg-white/20"
+                          ? `bg-gradient-to-br ${config.color}`
+                          : "bg-white/20"
                           } shadow-md transition-all duration-200`}>
                           <PIcon
                             size={18}
