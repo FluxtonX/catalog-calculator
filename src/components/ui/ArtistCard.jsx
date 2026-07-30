@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import * as Tabs from "@radix-ui/react-tabs";
 import * as ScrollArea from "@radix-ui/react-scroll-area";
 import * as Separator from "@radix-ui/react-separator";
+import * as Tooltip from "@radix-ui/react-tooltip";
 import {
   Music,
   Facebook,
@@ -342,16 +343,32 @@ setEnhancedAlbums(
             </div>
 
             {/* Right: CTA button */}
-            <div
-              className={`flex-shrink-0 flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-black text-base sm:text-lg transition-all duration-200 ${
-                showValuation
-                  ? "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-md"
-                  : valuationBtnActive
-              }`}
-            >
-              <BarChart3 size={20} className="sm:w-6 sm:h-6" />
-              <span>{showValuation ? "Hide Results" : "Calculate Royalties"}</span>
-            </div>
+            <Tooltip.Provider delayDuration={200}>
+              <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                  <div
+                    className={`flex-shrink-0 flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-black text-base sm:text-lg transition-all duration-200 ${
+                      showValuation
+                        ? "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-md"
+                        : valuationBtnActive
+                    }`}
+                  >
+                    <BarChart3 size={20} className="sm:w-6 sm:h-6" />
+                    <span>{showValuation ? "Hide Results" : "Calculate Royalties"}</span>
+                  </div>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Content
+                    className="z-50 px-3 py-2 bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 text-sm font-semibold rounded-lg shadow-xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
+                    sideOffset={10}
+                    side="top"
+                  >
+                    Click here to calculate royalties
+                    <Tooltip.Arrow className="fill-slate-900 dark:fill-slate-50" />
+                  </Tooltip.Content>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            </Tooltip.Provider>
           </button>
 
           {showValuation && (
