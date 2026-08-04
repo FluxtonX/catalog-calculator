@@ -69,7 +69,7 @@ const ArtistCard = ({
 
   const isItunes = platform === "itunes";
   const isYouTube = platform === "youtube";
-  const isApify = platform === "apify";
+  const isApify = platform === "apify" || platform === "spotify";
 
   // ── Helpers ───────────────────────────────────────────
   const extractSpotifyId = useCallback((url) => {

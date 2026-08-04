@@ -94,7 +94,7 @@ const ArtistHeader = ({
   platform, spotifyUrl, youtubeUrl, appleUrl, externalLinks,
   onLaunchValuation, getSocialIcon, onCalculateRoyalties,
 }) => {
-  const isApify = platform === "apify";
+  const isApify = platform === "apify" || platform === "spotify";
   const isYoutube = platform === "youtube";
   const isItunes = platform === "itunes";
 

@@ -10,7 +10,7 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 async function getAuthHeaders() {
   const { data: { session } } = await supabase.auth.getSession()
   return {
-    Authorization: `Bearer ${session?.access_token || ''}`,
+    Authorization: `Bearer ${session?.access_token || SUPABASE_ANON_KEY}`,
   }
 }
 

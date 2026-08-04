@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import * as Select from "@radix-ui/react-select";
 import {
   Search,
@@ -26,6 +27,7 @@ import {
   searchAppleMusic,
   searchItunes,
 } from "../utils/api";
+import { supabase } from "../utils/supabase";
 import { useArtistStore } from "../store/artistStore";
 import ChannelSelector from "../components/youtube/ChannelSelector";
 const SpotifyIcon = ({ size = 24, className = "" }) => (
@@ -156,61 +158,80 @@ const PLATFORM_FEATURES = {
 };
 
 // ── Platform-aware Radix Select ───────────────────────────
-const PlatformSelect = ({ platform, setPlatform, isLoading }) => {
-  const cfg = PLATFORM_CONFIG[platform];
-  const Icon = cfg.icon;
+const PlatformSelect = ({ platforms, setPlatforms, platform, setPlatform, isLoading }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const togglePlatform = (key) => {
+    if (platforms.includes(key)) {
+      if (platforms.length > 1) {
+        const newPlatforms = platforms.filter((p) => p !== key);
+        setPlatforms(newPlatforms);
+        if (platform === key) setPlatform(newPlatforms[0]);
+      }
+    } else {
+      setPlatforms([...platforms, key]);
+    }
+  };
+
   return (
-    <Select.Root
-      value={platform}
-      onValueChange={setPlatform}
-      disabled={isLoading}
-    >
-      <Select.Trigger
-        className="flex items-center justify-between gap-3 w-full lg:w-56
+    <div className="relative w-full lg:w-56" ref={dropdownRef}>
+      <button
+        onClick={() => !isLoading && setIsOpen(!isOpen)}
+        disabled={isLoading}
+        className="flex items-center justify-between gap-3 w-full
           px-4 py-3.5 bg-white/15 hover:bg-white/22
           backdrop-blur-xl border border-white/30 hover:border-white/55
           rounded-xl text-white font-bold text-sm
           focus:outline-none focus:ring-2 focus:ring-white/50
           transition-all duration-200 shadow-lg
           disabled:opacity-50 disabled:cursor-not-allowed group"
-        aria-label="Platform"
       >
         <div className="flex items-center gap-2.5">
           <div className="p-1 bg-white/15 rounded-lg">
-            <Icon size={15} className="text-white" />
+             <Database size={15} className="text-white" />
           </div>
-          <Select.Value />
+          <span>{platforms.length} Platforms</span>
         </div>
-        <Select.Icon>
-          <ChevronDown
-            size={15}
-            className="opacity-70 group-data-[state=open]:rotate-180 transition-transform duration-200"
-          />
-        </Select.Icon>
-      </Select.Trigger>
+        <ChevronDown
+          size={15}
+          className={`opacity-70 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        />
+      </button>
 
-      <Select.Portal>
-        <Select.Content
-          className="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-[999] min-w-[220px]"
-          position="popper"
-          sideOffset={8}
-        >
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden z-[999] min-w-[220px]">
           <div className="px-4 py-2.5 border-b border-slate-100 dark:border-slate-700">
             <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-              Select Platform
+              Select Platforms
             </p>
           </div>
-          <Select.Viewport className="p-2">
+          <div className="p-3 pb-4 flex flex-col gap-1.5">
             {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
               const PIcon = config.icon;
-              const isSelected = platform === key;
+              const isSelected = platforms.includes(key);
               return (
-                <Select.Item
+                <button
                   key={key}
-                  value={key}
-                  className="flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-semibold cursor-pointer outline-none text-slate-700 dark:text-slate-200 transition-all duration-150 mb-0.5 last:mb-0 data-[highlighted]:bg-slate-100 dark:data-[highlighted]:bg-slate-700/70"
+                  onClick={() => togglePlatform(key)}
+                  className={`flex items-center justify-between gap-3 px-3 py-3 rounded-xl text-sm font-semibold cursor-pointer outline-none transition-all duration-150 ${isSelected ? "bg-slate-100 dark:bg-slate-700/70 text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50"}`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 text-left">
+                    <div
+                      className={`flex items-center justify-center w-5 h-5 rounded-md border ${isSelected ? "bg-emerald-500 border-emerald-500" : "border-slate-300 dark:border-slate-600 bg-transparent"}`}
+                    >
+                      {isSelected && <Check size={14} className="text-white" />}
+                    </div>
                     <div
                       className={`p-1.5 rounded-lg ${isSelected ? config.iconBg : "bg-slate-100 dark:bg-slate-700"} transition-colors`}
                     >
@@ -224,33 +245,16 @@ const PlatformSelect = ({ platform, setPlatform, isLoading }) => {
                       />
                     </div>
                     <div>
-                      <Select.ItemText>{config.label}</Select.ItemText>
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-normal mt-0.5">
-                        {key === "spotify"
-                          ? "via Apify scraper"
-                          : key === "youtube"
-                            ? "via YouTube API"
-                            : "via iTunes API"}
-                      </p>
+                      <p>{config.label}</p>
                     </div>
                   </div>
-                  <Select.ItemIndicator>
-                    <div className={`p-1 rounded-full ${config.iconBg}`}>
-                      <Check size={11} className={config.checkColor} />
-                    </div>
-                  </Select.ItemIndicator>
-                </Select.Item>
+                </button>
               );
             })}
-          </Select.Viewport>
-          <div className="px-4 py-2.5 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-            <p className="text-[10px] text-slate-400 dark:text-slate-500">
-              Switch platforms to compare analytics
-            </p>
           </div>
-        </Select.Content>
-      </Select.Portal>
-    </Select.Root>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -262,13 +266,19 @@ const FeaturePill = ({ label }) => (
 );
 
 const ValuationTool = () => {
+  usePageTitle("Valuation Tool | FluxtonX");
+  const navigate = useNavigate();
   const {
     searchQuery,
     setSearchQuery,
     selectedArtist,
     setSelectedArtist,
+    selectedArtists,
+    setSelectedArtists,
     platform,
     setPlatform,
+    platforms,
+    setPlatforms,
   } = useArtistStore();
 
   const cfg = PLATFORM_CONFIG[platform]; // ← define cfg FIRST
@@ -316,11 +326,11 @@ const ValuationTool = () => {
     }
     if (
       searchQuery.trim() &&
-      selectedArtist &&
-      selectedArtist.platform !== platform
+      Object.keys(selectedArtists).length > 0 &&
+      platforms.some(p => !selectedArtists[p])
     )
       handleSearch();
-  }, [platform]);
+  }, [platforms]);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -363,21 +373,23 @@ const ValuationTool = () => {
     return () => clearTimeout(timer);
   }, [searchQuery, platform, shouldShowSuggestions]);
 
-  const doSearch = async (query) => {
-    switch (platform) {
+  const doSearchForPlatform = async (query, plt) => {
+    switch (plt) {
       case "spotify":
         return await searchApify(query);
       case "youtube": {
         const result = await searchYouTube(query);
         if (result.type === "channel_list")
-          return { type: "channel_list", channels: result.channels };
-        return result;
+          return { type: "channel_list", channels: result.channels, platform: plt };
+        return { ...result, platform: plt };
       }
       case "itunes":
         try {
-          return await searchAppleMusic(query);
+          const res = await searchAppleMusic(query);
+          return { ...res, platform: plt };
         } catch {
-          return await searchItunes(query);
+          const res = await searchItunes(query);
+          return { ...res, platform: plt };
         }
       default:
         throw new Error("Invalid platform selected");
@@ -389,55 +401,124 @@ const ValuationTool = () => {
       setError("Please enter a search query");
       return;
     }
+
+    const { data: { session } } = await supabase.auth.getSession();
+    const isGuest = !session;
+
     setIsLoading(true);
     setError(null);
     setSelectedArtist(null);
+    setSelectedArtists({});
     setShowSuggestionsDropdown(false);
     setShowChannelSelector(false);
     setYoutubeChannels([]);
+    let hasChannelList = false;
     try {
-      const result = await doSearch(searchQuery);
-      if (result?.type === "channel_list") {
-        setYoutubeChannels(result.channels);
+      const results = await Promise.allSettled(
+        platforms.map(p => doSearchForPlatform(searchQuery, p))
+      );
+      
+      const newSelectedArtists = {};
+      
+      results.forEach((res, i) => {
+        const p = platforms[i];
+        if (res.status === 'fulfilled') {
+          const data = res.value;
+          if (data?.type === "channel_list") {
+            setYoutubeChannels(data.channels);
+            hasChannelList = true;
+          } else if (data?.name) {
+            newSelectedArtists[p] = { ...data, platform: p };
+          }
+        }
+      });
+      
+      if (hasChannelList) {
         setShowChannelSelector(true);
-        setIsLoading(false);
-        return;
       }
-      if (!result?.name) throw new Error("Invalid response from API");
-      setSelectedArtist(result);
+      
+      if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList) {
+        throw new Error("Failed to fetch data from selected platforms");
+      }
+      
+      setSelectedArtists(newSelectedArtists);
+      if (platforms.length === 1) setSelectedArtist(newSelectedArtists[platforms[0]]);
+      
       setError(null);
-      saveRecentSearch(searchQuery); // ← added here
+      saveRecentSearch(searchQuery);
+
+      if (isGuest && !hasChannelList) {
+        setTimeout(() => {
+          navigate('/auth');
+        }, 5000); // 5 seconds of viewing results before redirect
+      }
     } catch (err) {
-      setError(err.message || `Failed to fetch data from ${cfg.label}`);
+      setError(err.message || "Search failed");
       setSelectedArtist(null);
+      setSelectedArtists({});
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleSuggestionClick = async (artist) => {
     setSearchQuery(artist);
     setShowSuggestionsDropdown(false);
     setShouldShowSuggestions(false);
     setError(null);
 
+    const { data: { session } } = await supabase.auth.getSession();
+    const isGuest = !session;
+
     setIsLoading(true);
     setSelectedArtist(null);
+    setSelectedArtists({});
     setShowChannelSelector(false);
     setYoutubeChannels([]);
+    let hasChannelList = false;
     try {
-      const result = await doSearch(artist);
-      if (result?.type === "channel_list") {
-        setYoutubeChannels(result.channels);
+      const results = await Promise.allSettled(
+        platforms.map(p => doSearchForPlatform(artist, p))
+      );
+      
+      const newSelectedArtists = {};
+      
+      results.forEach((res, i) => {
+        const p = platforms[i];
+        if (res.status === 'fulfilled') {
+          const data = res.value;
+          if (data?.type === "channel_list") {
+            setYoutubeChannels(data.channels);
+            hasChannelList = true;
+          } else if (data?.name) {
+            newSelectedArtists[p] = { ...data, platform: p };
+          }
+        }
+      });
+      
+      if (hasChannelList) {
         setShowChannelSelector(true);
-        setIsLoading(false);
-        return;
       }
-      if (!result?.name) throw new Error("Invalid response from API");
-      setSelectedArtist(result);
+      
+      if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList) {
+        throw new Error("Failed to fetch data from selected platforms");
+      }
+      
+      setSelectedArtists(newSelectedArtists);
+      if (platforms.length === 1) setSelectedArtist(newSelectedArtists[platforms[0]]);
+      
       setError(null);
       saveRecentSearch(artist);
+
+      if (isGuest && !hasChannelList) {
+        setTimeout(() => {
+          navigate('/auth');
+        }, 5000); // 5 seconds of viewing results before redirect
+      }
     } catch (err) {
-      setError(err.message || `Failed to fetch data from ${cfg.label}`);
+      setError(err.message || "Search failed");
+      setSelectedArtist(null);
+      setSelectedArtists({});
     } finally {
       setIsLoading(false);
     }
@@ -450,11 +531,24 @@ const ValuationTool = () => {
     try {
       const result = await getYouTubeChannelDetails(searchQuery, channel.id);
       if (!result?.name) throw new Error("Invalid response from API");
-      setSelectedArtist(result);
+      
+      const newYoutubeArtist = { ...result, platform: 'youtube' };
+      setSelectedArtists(prev => {
+        const next = { ...prev, youtube: newYoutubeArtist };
+        if (platforms.length === 1) setSelectedArtist(next.youtube);
+        return next;
+      });
+      
       setError(null);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setTimeout(() => {
+          navigate('/auth');
+        }, 5000); // 5 seconds of viewing results before redirect
+      }
     } catch (err) {
       setError(err.message || "Failed to fetch channel details");
-      setSelectedArtist(null);
     } finally {
       setIsLoading(false);
     }
@@ -514,22 +608,24 @@ const ValuationTool = () => {
 
         {/* ── Search Card ────────────────────────────────── */}
         <div
-          className={`relative overflow-hidden rounded-3xl bg-gradient-to-br ${cfg.color} shadow-2xl transition-all duration-500`}
+          className={`relative rounded-3xl bg-gradient-to-br ${cfg.color} shadow-2xl transition-all duration-500`}
         >
-          <div
-            className="absolute inset-0 opacity-30"
-            style={{ background: cfg.bgPattern }}
-          />
-          <div className="absolute -top-24 -right-24 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none" />
-          <div
-            className="absolute inset-0 opacity-5"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle, white 1px, transparent 1px)",
-              backgroundSize: "24px 24px",
-            }}
-          />
+          <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+            <div
+              className="absolute inset-0 opacity-30"
+              style={{ background: cfg.bgPattern }}
+            />
+            <div className="absolute -top-24 -right-24 w-80 h-80 bg-white/5 rounded-full blur-3xl" />
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
+            <div
+              className="absolute inset-0 opacity-5"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle, white 1px, transparent 1px)",
+                backgroundSize: "24px 24px",
+              }}
+            />
+          </div>
 
           <div className="relative z-10 p-5 sm:p-7 lg:p-10">
             <div className="flex items-start sm:items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
@@ -554,6 +650,8 @@ const ValuationTool = () => {
 
             <div className="flex gap-2 sm:gap-3 flex-col lg:flex-row">
               <PlatformSelect
+                platforms={platforms}
+                setPlatforms={setPlatforms}
                 platform={platform}
                 setPlatform={setPlatform}
                 isLoading={isLoading}
@@ -775,69 +873,76 @@ const ValuationTool = () => {
         )}
 
         {/* Artist Analysis */}
-        {!isLoading && selectedArtist && (
-          <div className="space-y-5 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`p-2.5 sm:p-3 bg-gradient-to-br ${cfg.color} rounded-xl shadow-lg ring-1 ring-white/20`}
-                >
-                  <SelectedIcon size={20} className="text-white" />
+        {!isLoading && Object.keys(selectedArtists).length > 0 && (
+          <div className="space-y-8">
+            {Object.values(selectedArtists).map((artistData, idx) => {
+              const pCfg = PLATFORM_CONFIG[artistData.platform] || cfg;
+              const PIcon = pCfg.icon || SelectedIcon;
+              return (
+              <div key={artistData.platform || idx} className="space-y-5 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`p-2.5 sm:p-3 bg-gradient-to-br ${pCfg.color} rounded-xl shadow-lg ring-1 ring-white/20`}
+                    >
+                      <PIcon size={20} className="text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                        Live {pCfg.label} Analysis
+                      </h2>
+                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
+                        Real-time data · {artistData.name}
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className={`flex items-center gap-2 px-3 py-1.5 ${pCfg.liveBadgeBg} border rounded-full`}
+                  >
+                    <span
+                      className={`w-2 h-2 rounded-full animate-pulse ${pCfg.liveDot}`}
+                    />
+                    <span
+                      className={`text-xs font-bold uppercase tracking-wide ${pCfg.liveText}`}
+                    >
+                      Live
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                    Live {cfg.label} Analysis
-                  </h2>
-                  <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                    Real-time data · {selectedArtist.name}
-                  </p>
-                </div>
-              </div>
-              <div
-                className={`flex items-center gap-2 px-3 py-1.5 ${cfg.liveBadgeBg} border rounded-full`}
-              >
-                <span
-                  className={`w-2 h-2 rounded-full animate-pulse ${cfg.liveDot}`}
-                />
-                <span
-                  className={`text-xs font-bold uppercase tracking-wide ${cfg.liveText}`}
-                >
-                  Live
-                </span>
-              </div>
-            </div>
 
-            <ArtistCard
-              name={selectedArtist.name}
-              image={selectedArtist.image}
-              followers={selectedArtist.followers}
-              popularity={selectedArtist.popularity}
-              genres={selectedArtist.genres}
-              topTracks={selectedArtist.topTracks}
-              relatedArtists={selectedArtist.relatedArtists}
-              albums={selectedArtist.albums}
-              singles={selectedArtist.singles}
-              popularReleases={selectedArtist.popularReleases}
-              stats={{
-                ...selectedArtist.stats,
-                scoring: selectedArtist.scoring,
-                catalogScore: selectedArtist.scoring?.catalogScore,
-              }}
-              spotifyUrl={selectedArtist.spotifyUrl}
-              youtubeUrl={selectedArtist.youtubeUrl}
-              appleUrl={selectedArtist.appleUrl}
-              platform={selectedArtist.platform}
-              monthlyListeners={selectedArtist.monthlyListeners}
-              biography={selectedArtist.biography}
-              topCities={selectedArtist.topCities}
-              externalLinks={selectedArtist.externalLinks}
-            />
+                <ArtistCard
+                  name={artistData.name}
+                  image={artistData.image}
+                  followers={artistData.followers}
+                  popularity={artistData.popularity}
+                  genres={artistData.genres}
+                  topTracks={artistData.topTracks}
+                  relatedArtists={artistData.relatedArtists}
+                  albums={artistData.albums}
+                  singles={artistData.singles}
+                  popularReleases={artistData.popularReleases}
+                  stats={{
+                    ...artistData.stats,
+                    scoring: artistData.scoring,
+                    catalogScore: artistData.scoring?.catalogScore,
+                  }}
+                  spotifyUrl={artistData.spotifyUrl}
+                  youtubeUrl={artistData.youtubeUrl}
+                  appleUrl={artistData.appleUrl}
+                  platform={artistData.platform}
+                  monthlyListeners={artistData.monthlyListeners}
+                  biography={artistData.biography}
+                  topCities={artistData.topCities}
+                  externalLinks={artistData.externalLinks}
+                />
+              </div>
+              );
+            })}
           </div>
         )}
 
         {/* Empty State */}
-        {/* Empty State */}
-        {!isLoading && !selectedArtist && !error && (
+        {!isLoading && Object.keys(selectedArtists).length === 0 && !error && (
           <div className={`text-center py-14 sm:py-20 bg-gradient-to-br ${cfg.color} rounded-3xl shadow-xl overflow-hidden relative`}>
 
             {/* Background decorative blobs */}

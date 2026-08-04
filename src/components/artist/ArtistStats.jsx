@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
-  const isApify = platform === "apify";
+  const isApify = platform === "apify" || platform === "spotify";
   const isYouTube = platform === "youtube";
   const isItunes = platform === "itunes";
   const gridColsClass = isApify ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-2 lg:grid-cols-3";

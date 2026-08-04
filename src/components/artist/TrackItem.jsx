@@ -41,9 +41,17 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
       badge: "bg-violet-100 dark:bg-violet-500/20 text-violet-700 dark:text-violet-300 border border-violet-300 dark:border-violet-500/40",
       label: "⚡ Popular",
     };
-    return {
+    if (score >= 40) return {
       badge: "bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-500/40",
       label: "📈 Growing",
+    };
+    if (score >= 20) return {
+      badge: "bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-500/40",
+      label: "⭐ Emerging",
+    };
+    return {
+      badge: "bg-slate-100 dark:bg-slate-500/20 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-500/40",
+      label: "💎 Hidden Gem",
     };
   };
 

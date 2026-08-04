@@ -47,10 +47,19 @@ export const formatCurrency = (num) => {
  */
 export const cleanHtmlText = (text) => {
   if (!text) return "";
-  return text
-    .replace(/<\/?[^>]+(>|$)/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+  
+  // Remove HTML tags
+  let stripped = text.replace(/<\/?[^>]+(>|$)/g, "");
+  
+  // Decode HTML entities (&#34;, &#39;, &quot;, etc.) using DOMParser
+  try {
+    const doc = new DOMParser().parseFromString(stripped, "text/html");
+    stripped = doc.documentElement.textContent;
+  } catch (e) {
+    // Fallback if DOMParser is unavailable
+  }
+  
+  return stripped.replace(/\s+/g, " ").trim();
 };
 
 /**

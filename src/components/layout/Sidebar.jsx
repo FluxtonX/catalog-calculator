@@ -68,7 +68,7 @@ const Sidebar = ({ isOpen, onClose }) => {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut();
-      navigate("/auth");
+      navigate("/");
       onClose();
     } catch (error) {
       console.error("Logout error:", error);
@@ -291,28 +291,53 @@ const Sidebar = ({ isOpen, onClose }) => {
             </div>
           )}
 
-          {/* Logout Button */}
-          <button
-            onClick={handleLogout}
-            className="
-              w-full group flex items-center justify-center gap-2 px-4 py-2.5
-              rounded-xl text-sm font-semibold
-              text-red-500 dark:text-red-400
-              bg-red-50 dark:bg-red-900/10
-              border border-red-100 dark:border-red-900/30
-              hover:bg-red-100 dark:hover:bg-red-900/20
-              hover:border-red-200 dark:hover:border-red-800/50
-              hover:shadow-md hover:shadow-red-500/10
-              active:scale-[0.98] transition-all duration-200
-            "
-          >
-            <LogOut
-              size={16}
-              strokeWidth={2.2}
-              className="group-hover:-translate-x-0.5 transition-transform duration-200"
-            />
-            Log out
-          </button>
+          {/* Auth Button */}
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="
+                w-full group flex items-center justify-center gap-2 px-4 py-2.5
+                rounded-xl text-sm font-semibold
+                text-red-500 dark:text-red-400
+                bg-red-50 dark:bg-red-900/10
+                border border-red-100 dark:border-red-900/30
+                hover:bg-red-100 dark:hover:bg-red-900/20
+                hover:border-red-200 dark:hover:border-red-800/50
+                hover:shadow-md hover:shadow-red-500/10
+                active:scale-[0.98] transition-all duration-200
+              "
+            >
+              <LogOut
+                size={16}
+                strokeWidth={2.2}
+                className="group-hover:-translate-x-0.5 transition-transform duration-200"
+              />
+              Log out
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                navigate("/auth");
+                onClose();
+              }}
+              className="
+                w-full group flex items-center justify-center gap-2 px-4 py-2.5
+                rounded-xl text-sm font-semibold
+                text-white
+                bg-emerald-500 hover:bg-emerald-600
+                border border-emerald-600
+                hover:shadow-md hover:shadow-emerald-500/20
+                active:scale-[0.98] transition-all duration-200
+              "
+            >
+              <User
+                size={16}
+                strokeWidth={2.2}
+                className="group-hover:translate-x-0.5 transition-transform duration-200"
+              />
+              Log in
+            </button>
+          )}
 
         </div>
       </aside>
