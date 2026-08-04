@@ -876,16 +876,17 @@ const ValuationTool = () => {
         {/* Artist Analysis */}
         {!isLoading && Object.keys(selectedArtists).length > 0 && (
           <div className="space-y-8">
-            {Object.keys(selectedArtists).length > 1 && (() => {
+            {Object.keys(selectedArtists).length > 0 && (() => {
               const metrics = getCombinedMetrics(selectedArtists);
               if (!metrics) return null;
+              const isCombined = Object.keys(selectedArtists).length > 1;
               return (
                 <div className="p-6 sm:p-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="relative z-10 flex flex-col items-center text-center">
                     <p className="text-white/80 text-sm sm:text-base font-bold uppercase tracking-widest mb-4">
-                      Combined Cross-Platform Analytics ({Object.keys(selectedArtists).length} Platforms)
+                      {isCombined ? "Combined Cross-Platform Analytics" : "Overall Analytics"} ({Object.keys(selectedArtists).length} Platform{isCombined ? 's' : ''})
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl mt-2">
                       <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm">
