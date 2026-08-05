@@ -581,26 +581,21 @@ const ValuationTool = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#05080F] text-white py-4 sm:py-8 overflow-x-hidden relative">
-      {/* Ambient Background Glows */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#00FF66]/5 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-[#C29C5B]/5 rounded-full blur-[120px]"></div>
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto px-6 space-y-6 sm:space-y-8">
+    // ✅ No px — MainLayout px-6 is enough
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-6 space-y-6 sm:space-y-8">
         {/* ── Page Header ───────────────────────────────── */}
         <div className="text-center space-y-3 sm:space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#00FF66]/10 rounded-full border border-[#00FF66]/20 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500/10 to-blue-500/10 dark:from-emerald-500/20 dark:to-blue-500/20 rounded-full border border-emerald-500/20 dark:border-emerald-500/30 shadow-sm">
             <Sparkles
               size={15}
-              className="text-[#00FF66]"
+              className="text-emerald-600 dark:text-emerald-400"
             />
-            <span className="text-xs sm:text-sm font-bold text-[#00FF66] uppercase tracking-wide">
+            <span className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wide">
               {cfg.label} · Real-Time Analytics
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight transition-all duration-300">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent tracking-tight transition-all duration-300">
             {PLATFORM_TITLES[platform]}
           </h1>
           <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto transition-all duration-300">
