@@ -5,6 +5,17 @@ import { supabase } from '../utils/supabase';
 import { searchApify, searchYouTube, searchItunes, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation, formatCurrency } from '../utils/combinedValuation';
 
+import imgTuneCore from '../assets/distribution logos/tunecore.png';
+import imgDistroKid from '../assets/distribution logos/distrokid.png';
+import imgCDBaby from '../assets/distribution logos/cdbaby.webp';
+import imgSymphonic from '../assets/distribution logos/Symphonic_Logo.png';
+import imgUnitedMasters from '../assets/distribution logos/unitedmasters.png';
+import imgDittoMusic from '../assets/distribution logos/dittomusic.jpg';
+import imgAWAL from '../assets/distribution logos/awal.png';
+import imgStem from '../assets/distribution logos/stem-logo.png';
+import imgAmuse from '../assets/distribution logos/amuse.png';
+import imgRecordUnion from '../assets/distribution logos/record union.png';
+
 export default function LandingPage() {
   const navigate = useNavigate();
   
@@ -29,16 +40,16 @@ export default function LandingPage() {
   const [error, setError] = useState(null);
 
   const distributors = [
-    { name: 'TuneCore', img: 'https://logo.clearbit.com/tunecore.com' },
-    { name: 'DistroKid', img: 'https://logo.clearbit.com/distrokid.com' },
-    { name: 'CD Baby', img: 'https://logo.clearbit.com/cdbaby.com' },
-    { name: 'Symphonic', img: 'https://logo.clearbit.com/symphonic.com' },
-    { name: 'UnitedMasters', img: 'https://logo.clearbit.com/unitedmasters.com' },
-    { name: 'Ditto Music', img: 'https://logo.clearbit.com/dittomusic.com' },
-    { name: 'AWAL', img: 'https://logo.clearbit.com/awal.com' },
-    { name: 'Stem', img: 'https://logo.clearbit.com/stem.is' },
-    { name: 'Amuse', img: 'https://logo.clearbit.com/amuse.io' },
-    { name: 'Record Union', img: 'https://logo.clearbit.com/recordunion.com' },
+    { name: 'TuneCore', img: imgTuneCore },
+    { name: 'DistroKid', img: imgDistroKid },
+    { name: 'CD Baby', img: imgCDBaby },
+    { name: 'Symphonic', img: imgSymphonic },
+    { name: 'UnitedMasters', img: imgUnitedMasters },
+    { name: 'Ditto Music', img: imgDittoMusic },
+    { name: 'AWAL', img: imgAWAL },
+    { name: 'Stem', img: imgStem },
+    { name: 'Amuse', img: imgAmuse },
+    { name: 'Record Union', img: imgRecordUnion },
   ];
 
   useEffect(() => {
@@ -439,7 +450,7 @@ export default function LandingPage() {
                           <img 
                             src={d.img} 
                             alt={d.name} 
-                            className="w-[18px] h-[18px] rounded-[4px] object-contain bg-white"
+                            className="w-[18px] h-[18px] rounded-[4px] object-cover"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
