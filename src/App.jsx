@@ -10,6 +10,7 @@ import UserDashboard from './pages/UserDashboard';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProPlan from './pages/ProPlan';
+import LandingPage from './pages/LandingPage';
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/auth" element={<Auth />} />
-          <Route path="/" element={<Navigate to="/valuation" replace />} />
+          <Route path="/" element={<LandingPage />} />
 
           {/* Valuation is public — auth only triggered on PDF download */}
           <Route element={<MainLayout />}>
