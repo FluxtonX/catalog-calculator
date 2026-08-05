@@ -288,7 +288,7 @@ setEnhancedAlbums(
   return (
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* ── Artist Info Card ─────────────────────────────── */}
-      <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
+      <div className="rounded-[2rem] overflow-hidden shadow-2xl border border-[#1A2333] bg-[#0B101A]">
         <ArtistHeader
           name={name}
           image={image}
@@ -309,13 +309,13 @@ setEnhancedAlbums(
         {/* ── Valuation Toggle (primary CTA) ──────────────── */}
         <div
           ref={valuationSectionRef}
-          className={`relative overflow-hidden border-t-2 border-b-2 ${valuationBorderColor} ${valuationGlowRing} bg-gradient-to-br ${valuationBgColor} transition-all duration-300`}
+          className={`relative overflow-hidden border-t border-b border-[#1A2333] bg-[#05080F] transition-all duration-300`}
         >
           {/* Accent bar at top */}
-          <div className={`h-1.5 w-full ${valuationAccentBar}`} />
+          <div className="h-1.5 w-full bg-gradient-to-r from-[#00FF66] to-[#C29C5B]" />
 
           {/* Decorative glow blob */}
-          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full blur-3xl opacity-20 pointer-events-none bg-current" />
+          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full blur-[80px] opacity-10 pointer-events-none bg-[#00FF66]" />
 
           <button
             onClick={() => setShowValuation((v) => !v)}
@@ -323,16 +323,14 @@ setEnhancedAlbums(
           >
             {/* Left: icon + text */}
             <div className="flex items-center gap-5">
-              <div
-                className={`p-4 sm:p-5 bg-gradient-to-br ${valuationIconBg} rounded-2xl shadow-xl ring-4 ring-white/20 flex-shrink-0 transition-transform duration-200 group-hover:scale-110`}
-              >
-                <BarChart3 size={28} className="sm:w-8 sm:h-8 text-white" />
+              <div className="p-4 sm:p-5 bg-[#00FF66]/10 rounded-2xl shadow-xl ring-1 ring-[#00FF66]/30 flex-shrink-0 transition-transform duration-200 group-hover:scale-110">
+                <BarChart3 size={28} className="sm:w-8 sm:h-8 text-[#00FF66]" />
               </div>
               <div className="text-left">
-                <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                <p className="text-xl sm:text-2xl font-black text-white tracking-tight">
                   Artist Valuation
                 </p>
-                <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+                <p className="text-sm sm:text-base text-white/60 mt-0.5 font-medium">
                   {isItunes
                     ? "Apple Music revenue estimate & catalog analysis"
                     : isYouTube
@@ -349,8 +347,8 @@ setEnhancedAlbums(
                   <div
                     className={`flex-shrink-0 flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-black text-base sm:text-lg transition-all duration-200 ${
                       showValuation
-                        ? "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-md"
-                        : valuationBtnActive
+                        ? "bg-[#1A2333] text-white/70 shadow-md"
+                        : "bg-gradient-to-r from-[#00FF66] to-emerald-500 text-[#05080F] shadow-[0_0_20px_rgba(0,255,102,0.3)] hover:shadow-[0_0_30px_rgba(0,255,102,0.5)] hover:scale-105 active:scale-95"
                     }`}
                   >
                     <BarChart3 size={20} className="sm:w-6 sm:h-6" />
@@ -359,12 +357,12 @@ setEnhancedAlbums(
                 </Tooltip.Trigger>
                 <Tooltip.Portal>
                   <Tooltip.Content
-                    className="z-50 px-3 py-2 bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 text-sm font-semibold rounded-lg shadow-xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
+                    className="z-50 px-3 py-2 bg-[#1A2333] text-white text-sm font-semibold rounded-lg shadow-xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
                     sideOffset={10}
                     side="top"
                   >
                     Click here to calculate royalties
-                    <Tooltip.Arrow className="fill-slate-900 dark:fill-slate-50" />
+                    <Tooltip.Arrow className="fill-[#1A2333]" />
                   </Tooltip.Content>
                 </Tooltip.Portal>
               </Tooltip.Root>
@@ -372,15 +370,13 @@ setEnhancedAlbums(
           </button>
 
           {showValuation && (
-            <div
-              className={`border-t-2 ${valuationBorderColor} p-5 sm:p-8 lg:p-10 bg-white dark:bg-slate-900`}
-            >
+            <div className="border-t border-[#1A2333] p-5 sm:p-8 lg:p-10 bg-[#0B101A]">
               {renderValuation()}
             </div>
           )}
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
+        <div className="bg-[#0B101A] p-4 sm:p-6 lg:p-8">
           <ArtistStats
             stats={stats}
             platform={platform}
@@ -393,23 +389,15 @@ setEnhancedAlbums(
 
       {/* ── Biography ────────────────────────────────────── */}
       {(isApify || isItunes) && biography && (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
+        <div className="bg-[#0B101A] rounded-[2rem] border border-[#1A2333] shadow-xl p-4 sm:p-6 lg:p-8">
           <SectionHeader
             icon={Music}
             title="Biography"
-            iconBg={
-              isItunes
-                ? "from-slate-800/15 to-zinc-800/15"
-                : "from-emerald-500/20 to-blue-500/20"
-            }
-            iconColor={
-              isItunes
-                ? "text-slate-900 dark:text-white"
-                : "text-emerald-600 dark:text-emerald-400"
-            }
+            iconBg="from-[#00FF66]/20 to-[#C29C5B]/20"
+            iconColor="text-[#00FF66]"
           />
           <Separator.Root
-            className="bg-slate-100 dark:bg-slate-800 h-px mb-4"
+            className="bg-[#1A2333] h-px mb-4"
             decorative
           />
           <BioText text={biography} />
@@ -417,10 +405,10 @@ setEnhancedAlbums(
       )}
 
       {/* ── Radix Tabs Card ──────────────────────────────── */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+      <div className="bg-[#0B101A] rounded-[2rem] border border-[#1A2333] shadow-2xl overflow-hidden">
         <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
           {/* Tab List */}
-          <div className="bg-slate-50 dark:bg-slate-800/70 border-b-2 border-slate-200 dark:border-slate-700">
+          <div className="bg-[#05080F] border-b border-[#1A2333]">
             <ScrollArea.Root className="w-full">
               <ScrollArea.Viewport className="w-full">
                 <Tabs.List
@@ -440,14 +428,9 @@ setEnhancedAlbums(
               </ScrollArea.Viewport>
               <ScrollArea.Scrollbar
                 orientation="horizontal"
-                className="flex h-0.5 bg-slate-200 dark:bg-slate-700"
+                className="flex h-0.5 bg-[#1A2333]"
               >
-                {/* Black scrollbar thumb for iTunes */}
-                <ScrollArea.Thumb
-                  className={`rounded-full ${
-                    isItunes ? "bg-slate-900 dark:bg-white" : "bg-emerald-500"
-                  }`}
-                />
+                <ScrollArea.Thumb className="rounded-full bg-[#00FF66]" />
               </ScrollArea.Scrollbar>
             </ScrollArea.Root>
           </div>

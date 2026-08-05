@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark } from 'lucide-react';
 import { supabase } from '../utils/supabase';
@@ -135,28 +135,33 @@ export default function LandingPage() {
     }
   };
 
-  const handleYouTubeSignIn = async () => {
-    setLoading(prev => ({ ...prev, youtube: true }));
-    setError(null);
-    setTimeout(() => {
-      navigate('/valuation');
-    }, 800);
-  };
+  const handleSignIn = async (provider) => {
+    try {
+      setLoading(prev => ({ ...prev, [provider]: true }));
+      setError(null);
+      
+      let options = { redirectTo: `${window.location.origin}/valuation` };
+      let finalProvider = provider;
+      
+      if (provider === 'youtube') {
+        finalProvider = 'google';
+        options.scopes = 'email profile https://www.googleapis.com/auth/youtube.readonly';
+        options.queryParams = { access_type: 'offline', prompt: 'consent' };
+      } else if (provider === 'apple') {
+        // Apple auth needs specific configuration in Supabase
+      } else if (provider === 'spotify') {
+        options.scopes = 'user-read-email user-read-private';
+      }
 
-  const handleSpotifySignIn = async () => {
-    setLoading(prev => ({ ...prev, spotify: true }));
-    setError(null);
-    setTimeout(() => {
-      navigate('/valuation');
-    }, 800);
-  };
-
-  const handleAppleSignIn = async () => {
-    setLoading(prev => ({ ...prev, apple: true }));
-    setError(null);
-    setTimeout(() => {
-      navigate('/valuation');
-    }, 800);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: finalProvider,
+        options,
+      });
+      if (error) throw error;
+    } catch (error) {
+      setError(error.message || `Failed to sign in with ${provider}`);
+      setLoading(prev => ({ ...prev, [provider]: false }));
+    }
   };
 
   return (
@@ -323,10 +328,7 @@ export default function LandingPage() {
                 className="w-full py-3.5 bg-gradient-to-b from-[#1E293B] to-[#0F172A] border border-[#334155] hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-sm font-medium text-white shadow-xl transition-all flex items-center justify-center gap-2"
               >
                 {isSearching ? (
-                  <>
-                    <div className="w-4 h-4 border-[1.5px] border-white/30 border-t-[#00FF66] rounded-full animate-spin" />
-                    <span className="animate-pulse">Calculating...</span>
-                  </>
+                  <div className="w-4 h-4 border-[1.5px] border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
                     <Calculator className="w-4 h-4 opacity-70" />
@@ -425,12 +427,6 @@ export default function LandingPage() {
                 <p className="text-[13px] text-white/50">Sign in to access actual valuation data</p>
               </div>
 
-              {error && (
-                <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-400 text-center flex items-center justify-center gap-2">
-                  <span className="font-bold">Error:</span> {error}
-                </div>
-              )}
-
               <div className="space-y-3">
                 {/* Distributor Dropdown */}
                 <div className="relative mb-6">
@@ -472,7 +468,7 @@ export default function LandingPage() {
 
                 {/* DSP Logins */}
                 <button
-                  onClick={handleYouTubeSignIn}
+                  onClick={() => handleSignIn('youtube')}
                   disabled={loading.youtube}
                   className="w-full py-3.5 bg-[#FF0000] hover:bg-[#CC0000] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
                 >
@@ -483,7 +479,7 @@ export default function LandingPage() {
                 </button>
 
                 <button
-                  onClick={handleSpotifySignIn}
+                  onClick={() => handleSignIn('spotify')}
                   disabled={loading.spotify}
                   className="w-full py-3.5 bg-[#1DB954] hover:bg-[#1ED760] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
                 >
@@ -494,7 +490,7 @@ export default function LandingPage() {
                 </button>
                 
                 <button
-                  onClick={handleAppleSignIn}
+                  onClick={() => handleSignIn('apple')}
                   disabled={loading.apple}
                   className="w-full py-3.5 bg-black hover:bg-[#111] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
                 >
