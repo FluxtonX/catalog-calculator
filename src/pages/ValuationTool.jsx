@@ -325,12 +325,27 @@ const ValuationTool = () => {
       isInitialMount.current = false;
       return;
     }
-    if (
-      searchQuery.trim() &&
-      Object.keys(selectedArtists).length > 0 &&
-      platforms.some(p => !selectedArtists[p])
-    )
-      handleSearch();
+    
+    if (searchQuery.trim() && Object.keys(selectedArtists).length > 0) {
+      // Remove data for platforms that are no longer selected
+      const currentKeys = Object.keys(selectedArtists);
+      const hasRemoved = currentKeys.some(k => !platforms.includes(k));
+      
+      if (hasRemoved) {
+        const newSelectedArtists = { ...selectedArtists };
+        currentKeys.forEach(k => {
+          if (!platforms.includes(k)) {
+            delete newSelectedArtists[k];
+          }
+        });
+        setSelectedArtists(newSelectedArtists);
+      }
+      
+      // Fetch data for newly selected platforms that don't have data yet
+      if (platforms.some(p => !selectedArtists[p])) {
+        handleSearch();
+      }
+    }
   }, [platforms]);
 
   useEffect(() => {
@@ -420,13 +435,14 @@ const ValuationTool = () => {
       );
       
       const newSelectedArtists = {};
+      let youtubeChannelsData = [];
       
       results.forEach((res, i) => {
         const p = platforms[i];
         if (res.status === 'fulfilled') {
           const data = res.value;
           if (data?.type === "channel_list") {
-            setYoutubeChannels(data.channels);
+            youtubeChannelsData = data.channels;
             hasChannelList = true;
           } else if (data?.name) {
             newSelectedArtists[p] = { ...data, platform: p };
@@ -434,7 +450,16 @@ const ValuationTool = () => {
         }
       });
       
-      if (hasChannelList) {
+      if (hasChannelList && youtubeChannelsData.length > 0) {
+        setYoutubeChannels(youtubeChannelsData);
+        // Automatically fetch the top/official channel (first in list) to instantly populate combined metrics
+        try {
+          const bestChannel = youtubeChannelsData[0];
+          const details = await getYouTubeChannelDetails(searchQuery, bestChannel.id);
+          newSelectedArtists["youtube"] = { ...details, platform: "youtube" };
+        } catch (err) {
+          console.error("Auto-fetch for top YouTube channel failed:", err);
+        }
         setShowChannelSelector(true);
       }
       
@@ -879,27 +904,91 @@ const ValuationTool = () => {
             {Object.keys(selectedArtists).length > 0 && (() => {
               const metrics = getCombinedMetrics(selectedArtists);
               if (!metrics) return null;
-              const isCombined = platforms.length > 1;
+              const loadedPlatformCount = Object.keys(selectedArtists).length;
+              const isCombined = loadedPlatformCount > 1;
+              const platformNames = Object.keys(selectedArtists).map(k => {
+                if (k === 'apify' || k === 'spotify') return 'Spotify';
+                if (k === 'youtube') return 'YouTube';
+                if (k === 'itunes') return 'Apple Music';
+                return k.charAt(0).toUpperCase() + k.slice(1);
+              }).join(', ');
               return (
                 <div className="p-6 sm:p-8 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
                   <div className="relative z-10 flex flex-col items-center text-center">
-                    <p className="text-white/80 text-sm sm:text-base font-bold uppercase tracking-widest mb-4">
-                      {isCombined ? "Combined Cross-Platform Analytics" : "Overall Analytics"} ({platforms.length} Platform{isCombined ? 's' : ''})
+                    <p className="text-white/80 text-sm sm:text-base font-bold uppercase tracking-widest mb-1">
+                      {isCombined ? "Combined Cross-Platform Analytics" : "Overall Analytics"}
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl mt-2">
-                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm">
+                    <p className="text-white/60 text-xs font-medium uppercase tracking-wider mb-4">
+                      {platformNames}
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6 w-full max-w-4xl mt-2">
+                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm flex flex-col">
                         <p className="text-white/70 text-xs sm:text-sm font-bold uppercase mb-1">Total Followers</p>
-                        <p className="text-3xl sm:text-4xl font-black text-white">{formatNumberAbbrev(metrics.totalFollowers)}</p>
+                        <p className="text-2xl sm:text-4xl font-black text-white">{formatNumberAbbrev(metrics.totalFollowers)}</p>
+                        {isCombined && (
+                          <div className="mt-auto pt-2 text-[10px] sm:text-xs text-white/60 space-y-0.5 w-full">
+                            {Object.entries(metrics.breakdown).map(([p, data]) => (
+                              data.followers > 0 && <div key={p} className="flex justify-between w-full"><span>{p.charAt(0).toUpperCase() + p.slice(1)}:</span> <span>{formatNumberAbbrev(data.followers)}</span></div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm">
+                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm flex flex-col">
                         <p className="text-white/70 text-xs sm:text-sm font-bold uppercase mb-1">Total Market Valuation</p>
-                        <p className="text-3xl sm:text-4xl font-black text-white">{formatCurrency(metrics.totalValuation)}</p>
+                        <p className="text-2xl sm:text-4xl font-black text-white">{formatCurrency(metrics.totalValuation)}</p>
+                        {isCombined && (
+                          <div className="mt-auto pt-2 text-[10px] sm:text-xs text-white/60 space-y-0.5 w-full">
+                            {Object.entries(metrics.breakdown).map(([p, data]) => (
+                              data.valuation > 0 && <div key={p} className="flex justify-between w-full"><span>{p.charAt(0).toUpperCase() + p.slice(1)}:</span> <span>{formatCurrency(data.valuation)}</span></div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm">
+                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm flex flex-col">
                         <p className="text-white/70 text-xs sm:text-sm font-bold uppercase mb-1">Total Streams / Views</p>
-                        <p className="text-3xl sm:text-4xl font-black text-white">{formatNumberAbbrev(metrics.totalStreams)}</p>
+                        <p className="text-2xl sm:text-4xl font-black text-white">{formatNumberAbbrev(metrics.totalStreams)}</p>
+                        {isCombined && (
+                          <div className="mt-auto pt-2 text-[10px] sm:text-xs text-white/60 space-y-0.5 w-full">
+                            {Object.entries(metrics.breakdown).map(([p, data]) => (
+                              data.streams > 0 && <div key={p} className="flex justify-between w-full"><span>{p.charAt(0).toUpperCase() + p.slice(1)}:</span> <span>{formatNumberAbbrev(data.streams)}</span></div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm flex flex-col">
+                        <p className="text-white/70 text-xs sm:text-sm font-bold uppercase mb-1">Total Albums</p>
+                        <p className="text-2xl sm:text-4xl font-black text-white">{metrics.totalAlbums || 0}</p>
+                        {isCombined && (
+                          <div className="mt-auto pt-2 text-[10px] sm:text-xs text-white/60 space-y-0.5 w-full">
+                            {Object.entries(metrics.breakdown).map(([p, data]) => (
+                              data.albums > 0 && <div key={p} className="flex justify-between w-full"><span>{p.charAt(0).toUpperCase() + p.slice(1)}:</span> <span>{data.albums}</span></div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm flex flex-col">
+                        <p className="text-white/70 text-xs sm:text-sm font-bold uppercase mb-1">Total Singles</p>
+                        <p className="text-2xl sm:text-4xl font-black text-white">{metrics.totalSingles || 0}</p>
+                        {isCombined && (
+                          <div className="mt-auto pt-2 text-[10px] sm:text-xs text-white/60 space-y-0.5 w-full">
+                            {Object.entries(metrics.breakdown).map(([p, data]) => (
+                              data.singles > 0 && <div key={p} className="flex justify-between w-full"><span>{p.charAt(0).toUpperCase() + p.slice(1)}:</span> <span>{data.singles}</span></div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div className="bg-white/10 rounded-2xl p-4 border border-white/20 backdrop-blur-sm flex flex-col">
+                        <p className="text-white/70 text-[10px] sm:text-xs font-bold uppercase mb-1">Total Tracks / Videos</p>
+                        <p className="text-2xl sm:text-4xl font-black text-white">{metrics.totalTracks || 0}</p>
+                        {isCombined && (
+                          <div className="mt-auto pt-2 text-[10px] sm:text-xs text-white/60 space-y-0.5 w-full">
+                            {Object.entries(metrics.breakdown).map(([p, data]) => (
+                              data.tracks > 0 && <div key={p} className="flex justify-between w-full"><span>{p.charAt(0).toUpperCase() + p.slice(1)}:</span> <span>{data.tracks}</span></div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

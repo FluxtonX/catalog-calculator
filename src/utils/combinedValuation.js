@@ -85,33 +85,89 @@ export const getCombinedMetrics = (selectedArtists) => {
   let totalValuation = 0;
   let totalFollowers = 0;
   let totalStreams = 0;
+  let totalAlbums = 0;
+  let totalSingles = 0;
+  let totalTracks = 0;
+  
+  const breakdown = {};
   
   Object.values(selectedArtists).forEach(artist => {
-    totalValuation += getPlatformValuation(artist);
+    const platform = artist.platform === 'apify' ? 'spotify' : artist.platform;
+    if (!breakdown[platform]) {
+      breakdown[platform] = { valuation: 0, followers: 0, streams: 0, albums: 0, singles: 0, tracks: 0 };
+    }
+
+    const val = getPlatformValuation(artist);
+    totalValuation += val;
+    breakdown[platform].valuation += val;
     
     // Parse followers/subscribers
-    if (artist.followers) {
-      totalFollowers += parseNumber(artist.followers);
+    const followers = artist.followers || artist.subscribers || artist.stats?.totalSubscribers || artist.stats?.subscribers;
+    if (followers) {
+      const parsedFollowers = parseNumber(followers);
+      totalFollowers += parsedFollowers;
+      breakdown[platform].followers += parsedFollowers;
     }
     
     // Parse streams/views/monthly listeners
     if (artist.platform === "youtube") {
-      totalStreams += parseNumber(artist.totalViews || artist.stats?.totalViews);
+      const streams = parseNumber(artist.totalViews || artist.stats?.totalViews);
+      totalStreams += streams;
+      breakdown[platform].streams += streams;
+      
+      const tracks = parseNumber(artist.stats?.totalVideos || 0); // treating videos as tracks for youtube
+      totalTracks += tracks;
+      breakdown[platform].tracks += tracks;
     } else if (artist.platform === "spotify" || artist.platform === "apify") {
-      totalStreams += parseNumber(artist.monthlyListeners); // or streams, but listeners is typically available
+      let streams = 0;
+      const lifetime = getLifetimeStreams(artist);
+      if (lifetime > 0) {
+        streams = lifetime;
+      } else {
+        streams = parseNumber(artist.monthlyListeners);
+      }
+      totalStreams += streams;
+      breakdown[platform].streams += streams;
+      
+      const albums = artist.stats?.totalAlbums || artist.albums?.length || 0;
+      totalAlbums += albums;
+      breakdown[platform].albums += albums;
+      
+      const singles = artist.stats?.totalSingles || artist.singles?.length || 0;
+      totalSingles += singles;
+      breakdown[platform].singles += singles;
+      
+      const tracks = artist.stats?.totalTopTracks || artist.topTracks?.length || 0;
+      totalTracks += tracks;
+      breakdown[platform].tracks += tracks;
     } else if (artist.platform === "itunes") {
-      // Itunes doesn't have a direct "followers" or "streams" easily parseable here without the full calculation, 
-      // but we can just use the estimatedMonthlyStreams logic from above if we want, or leave it.
-      // We will leave it as is, or approximate it. Let's approximate based on popularity.
       const avgPop = artist.popularity ?? 50;
-      totalStreams += estimateMonthlyStreams(avgPop);
+      const streams = estimateMonthlyStreams(avgPop);
+      totalStreams += streams;
+      breakdown[platform].streams += streams;
+      
+      const albums = artist.stats?.totalAlbums || artist.albums?.length || 0;
+      totalAlbums += albums;
+      breakdown[platform].albums += albums;
+      
+      const singles = artist.stats?.totalSingles || artist.singles?.length || 0;
+      totalSingles += singles;
+      breakdown[platform].singles += singles;
+      
+      const tracks = artist.stats?.totalTopTracks || artist.topTracks?.length || 0;
+      totalTracks += tracks;
+      breakdown[platform].tracks += tracks;
     }
   });
   
   return {
     totalValuation,
     totalFollowers,
-    totalStreams
+    totalStreams,
+    totalAlbums,
+    totalSingles,
+    totalTracks,
+    breakdown
   };
 };
 
