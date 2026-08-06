@@ -228,6 +228,21 @@ export default function LandingPage() {
                 </p>
               </div>
             </div>
+
+            {/* Added Login Section */}
+            <div className="mt-12 bg-white/5 border border-white/10 rounded-xl p-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl transform translate-x-1/2 -translate-y-1/2"></div>
+              <p className="text-xs text-white/80 font-medium mb-3 leading-relaxed relative z-10">
+                Login for a detailed valuation report
+              </p>
+              <button 
+                onClick={() => navigate('/auth')}
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-[13px] font-semibold text-white transition-all shadow-lg shadow-blue-500/20 relative z-10"
+              >
+                <Lock className="w-3.5 h-3.5" />
+                Login
+              </button>
+            </div>
           </div>
 
           {/* Right Main Box Option 1 */}
