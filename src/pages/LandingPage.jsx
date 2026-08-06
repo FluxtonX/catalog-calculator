@@ -140,27 +140,56 @@ export default function LandingPage() {
   };
 
   const handleYouTubeSignIn = async () => {
-    setLoading(prev => ({ ...prev, youtube: true }));
-    setError(null);
-    setTimeout(() => {
-      navigate('/valuation');
-    }, 800);
+    try {
+      setLoading(prev => ({ ...prev, youtube: true }));
+      setError(null);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/valuation`,
+          scopes: 'email profile',
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      setError(error.message || 'Failed to sign in with YouTube');
+      setLoading(prev => ({ ...prev, youtube: false }));
+    }
   };
 
   const handleSpotifySignIn = async () => {
-    setLoading(prev => ({ ...prev, spotify: true }));
-    setError(null);
-    setTimeout(() => {
-      navigate('/valuation');
-    }, 800);
+    try {
+      setLoading(prev => ({ ...prev, spotify: true }));
+      setError(null);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'spotify',
+        options: {
+          redirectTo: `${window.location.origin}/valuation`,
+          scopes: 'user-read-email user-read-private',
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      setError(error.message || 'Failed to sign in with Spotify');
+      setLoading(prev => ({ ...prev, spotify: false }));
+    }
   };
 
   const handleAppleSignIn = async () => {
-    setLoading(prev => ({ ...prev, apple: true }));
-    setError(null);
-    setTimeout(() => {
-      navigate('/valuation');
-    }, 800);
+    try {
+      setLoading(prev => ({ ...prev, apple: true }));
+      setError(null);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: `${window.location.origin}/valuation`,
+        },
+      });
+      if (error) throw error;
+    } catch (error) {
+      setError(error.message || 'Failed to sign in with Apple');
+      setLoading(prev => ({ ...prev, apple: false }));
+    }
   };
 
   const formatLocalCurrency = (value) => {
@@ -377,8 +406,11 @@ export default function LandingPage() {
               {/* Results */}
               <div className={`transition-all duration-500 overflow-hidden ${estimatedValue !== null ? 'max-h-[500px] opacity-100 mt-10 pt-8 border-t border-[#1A2333]' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
                 <p className="text-[10px] text-[#00E5FF] font-bold tracking-widest uppercase text-center mb-2">ESTIMATED CATALOG VALUE</p>
-                <p className="text-[3.5rem] font-bold text-center tracking-tight mb-6 leading-none text-white">
+                <p className="text-[3.5rem] font-bold text-center tracking-tight mb-2 leading-none text-white">
                   {formatLocalCurrency(estimatedValue)}
+                </p>
+                <p className="text-[11px] text-white/40 text-center mb-6 max-w-sm mx-auto">
+                  This estimate is based on their top 10 songs only
                 </p>
                 
                 {/* Custom Inputs */}
@@ -430,10 +462,15 @@ export default function LandingPage() {
                   </div>
                 </div>
 
-                <button className="mx-auto flex w-full max-w-[380px] py-3.5 bg-gradient-to-r from-[#C29C5B] to-[#A27A3F] hover:brightness-110 rounded-xl text-[15px] font-medium text-white shadow-xl transition-all items-center justify-center gap-3">
+                <a 
+                  href="https://www.creativefundingagency.com/application"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mx-auto flex w-full max-w-[380px] py-3.5 bg-gradient-to-r from-[#C29C5B] to-[#A27A3F] hover:brightness-110 rounded-xl text-[15px] font-medium text-white shadow-xl transition-all items-center justify-center gap-3"
+                >
                   Sell Your Catalog Now
                   <span className="text-lg font-light leading-none mb-[2px]">&rarr;</span>
-                </button>
+                </a>
               </div>
 
             </div>

@@ -67,11 +67,7 @@ export default function Auth() {
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/valuation`,
-          scopes: 'email profile https://www.googleapis.com/auth/youtube.readonly',
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+          scopes: 'email profile',
         },
       });
       if (error) throw error;
