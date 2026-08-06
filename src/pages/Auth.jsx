@@ -22,6 +22,7 @@ export default function Auth() {
     { name: 'Stem', icon: 'S', color: 'bg-purple-600' },
     { name: 'Amuse', icon: 'a', color: 'bg-yellow-400' },
     { name: 'Record Union', icon: 'ru', color: 'bg-black' },
+    { name: 'Too Lost', icon: 'TL', color: 'bg-purple-500' },
   ];
 
   useEffect(() => {

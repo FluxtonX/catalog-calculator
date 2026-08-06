@@ -15,6 +15,7 @@ import imgAWAL from '../assets/distribution logos/awal.png';
 import imgStem from '../assets/distribution logos/stem-logo.png';
 import imgAmuse from '../assets/distribution logos/amuse.png';
 import imgRecordUnion from '../assets/distribution logos/record union.png';
+import imgTooLost from '../assets/distribution logos/too_lost.jpg';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -54,6 +55,7 @@ export default function LandingPage() {
     { name: 'Stem', img: imgStem },
     { name: 'Amuse', img: imgAmuse },
     { name: 'Record Union', img: imgRecordUnion },
+    { name: 'Too Lost', img: imgTooLost },
   ];
 
   useEffect(() => {
@@ -573,15 +575,17 @@ export default function LandingPage() {
                     <div className="absolute top-full left-0 w-full mt-2 bg-[#0B101A] border border-[#1A2333] rounded-xl overflow-hidden z-20 py-2 shadow-2xl">
                       {distributors.map((d, idx) => (
                         <button key={idx} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left">
-                          <img 
-                            src={d.img} 
-                            alt={d.name} 
-                            className="w-[18px] h-[18px] rounded-[4px] object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
+                          <div className="w-[18px] h-[18px] rounded-[4px] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <img 
+                              src={d.img} 
+                              alt={d.name} 
+                              className={`w-full h-full object-cover ${d.name === 'Too Lost' ? 'scale-[1.4]' : ''}`}
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                if (e.target.parentElement.nextSibling) e.target.parentElement.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          </div>
                           <div className="hidden w-[18px] h-[18px] rounded-[4px] items-center justify-center bg-gray-800 text-[10px] font-bold text-white uppercase">
                             {d.name[0]}
                           </div>
