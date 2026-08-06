@@ -29,6 +29,10 @@ export default function LandingPage() {
   });
   const [estimatedValue, setEstimatedValue] = useState(null);
   
+  // Results Options State
+  const [currency, setCurrency] = useState('USD');
+  const [royaltyShare, setRoyaltyShare] = useState(100);
+  
   // Auto-suggest State
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -157,6 +161,22 @@ export default function LandingPage() {
     setTimeout(() => {
       navigate('/valuation');
     }, 800);
+  };
+
+  const formatLocalCurrency = (value) => {
+    if (value === null) return "$0";
+    const adjustedValue = value * (royaltyShare / 100);
+    let rate = 1;
+    let symbol = '$';
+    if (currency === 'GBP') { rate = 0.79; symbol = '£'; }
+    if (currency === 'EUR') { rate = 0.92; symbol = '€'; }
+    
+    const converted = adjustedValue * rate;
+    
+    if (converted >= 1_000_000_000) return `${symbol}${(converted / 1_000_000_000).toFixed(2)}B`;
+    if (converted >= 1_000_000) return `${symbol}${(converted / 1_000_000).toFixed(2)}M`;
+    if (converted >= 1_000) return `${symbol}${(converted / 1_000).toFixed(1)}K`;
+    return `${symbol}${converted.toFixed(0)}`;
   };
 
   return (
@@ -355,11 +375,61 @@ export default function LandingPage() {
               )}
 
               {/* Results */}
-              <div className={`transition-all duration-500 overflow-hidden ${estimatedValue !== null ? 'max-h-[300px] opacity-100 mt-10 pt-8 border-t border-[#1A2333]' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
+              <div className={`transition-all duration-500 overflow-hidden ${estimatedValue !== null ? 'max-h-[500px] opacity-100 mt-10 pt-8 border-t border-[#1A2333]' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
                 <p className="text-[10px] text-[#00E5FF] font-bold tracking-widest uppercase text-center mb-2">ESTIMATED CATALOG VALUE</p>
-                <p className="text-[3.5rem] font-bold text-center tracking-tight mb-8 leading-none text-white">
-                  {formatCurrency(estimatedValue)}
+                <p className="text-[3.5rem] font-bold text-center tracking-tight mb-6 leading-none text-white">
+                  {formatLocalCurrency(estimatedValue)}
                 </p>
+                
+                {/* Custom Inputs */}
+                <div className="flex flex-col gap-4 max-w-[320px] mx-auto mb-8 bg-[#0B101A] border border-[#1A2333] p-4 rounded-xl shadow-lg">
+                  {/* Royalty Share Row */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[13px] font-medium text-white/70">Royalty share</span>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center bg-[#05080F] border border-[#1A2333] rounded-lg overflow-hidden h-8 focus-within:border-cyan-500/50 transition-colors">
+                        <input 
+                          type="number" 
+                          value={royaltyShare}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '') setRoyaltyShare('');
+                            else setRoyaltyShare(Math.min(100, Math.max(0, Number(val))));
+                          }}
+                          className="w-12 bg-transparent text-white text-center text-sm focus:outline-none"
+                        />
+                        <span className="text-white/40 text-xs pr-2">%</span>
+                      </div>
+                      <button 
+                        onClick={() => setRoyaltyShare(100)}
+                        className="px-2.5 h-8 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20 rounded-lg text-xs font-semibold transition-all"
+                      >
+                        Get 100%
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Currency Row */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[13px] font-medium text-white/70">Currency</span>
+                    <div className="flex items-center gap-1.5">
+                      {['USD', 'GBP', 'EUR'].map(curr => (
+                        <button
+                          key={curr}
+                          onClick={() => setCurrency(curr)}
+                          className={`px-3 h-8 rounded-lg text-xs font-semibold transition-all ${
+                            currency === curr 
+                              ? 'bg-cyan-400 text-black shadow-[0_0_10px_rgba(34,211,238,0.3)]' 
+                              : 'bg-[#05080F] border border-[#1A2333] text-white/50 hover:text-white/90 hover:border-white/20'
+                          }`}
+                        >
+                          {curr}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <button className="mx-auto flex w-full max-w-[380px] py-3.5 bg-gradient-to-r from-[#C29C5B] to-[#A27A3F] hover:brightness-110 rounded-xl text-[15px] font-medium text-white shadow-xl transition-all items-center justify-center gap-3">
                   Sell Your Catalog Now
                   <span className="text-lg font-light leading-none mb-[2px]">&rarr;</span>
