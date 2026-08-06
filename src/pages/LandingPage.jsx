@@ -193,7 +193,7 @@ export default function LandingPage() {
         <header className="relative py-8 flex items-center justify-center">
           
           {/* Centered Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 transform translate-x-[18px]">
             <div className="relative w-10 h-10 flex items-center justify-center">
               <Hexagon className="absolute inset-0 w-10 h-10 text-cyan-400" strokeWidth={1.5} />
               <Calculator className="w-4 h-4 text-white relative z-10" />
