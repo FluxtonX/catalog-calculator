@@ -285,6 +285,7 @@ const ValuationTool = () => {
     setPlatforms,
     importedData,
     selectedDistributor,
+    clearImportedData,
   } = useArtistStore();
 
   const cfg = PLATFORM_CONFIG[platform]; // ← define cfg FIRST
@@ -328,9 +329,14 @@ const ValuationTool = () => {
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
-      // If we just redirected from Data Import and have importedData + a searchQuery,
-      // auto-trigger the search so the user doesn't have to click the button.
-      if (importedData && searchQuery.trim() && Object.keys(selectedArtists).length === 0) {
+
+      // Case 1: came from Landing Page — selectedArtists already populated, skip re-fetch
+      if (Object.keys(selectedArtists).length > 0) {
+        return; // Data is already there, just render it
+      }
+
+      // Case 2: came from Data Import — importedData set, trigger auto-search
+      if (importedData && searchQuery.trim()) {
         handleSearch();
       }
       return;
@@ -451,6 +457,9 @@ const ValuationTool = () => {
     setError(null);
     setSelectedArtist(null);
     setSelectedArtists({});
+    // If user is doing a manual fresh search (not an auto-redirect from DataImport),
+    // clear any stale custom distributor data so it doesn't pollute the results.
+    clearImportedData();
     setShowSuggestionsDropdown(false);
     setShowChannelSelector(false);
     setYoutubeChannels([]);

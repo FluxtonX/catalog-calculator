@@ -4,6 +4,7 @@ import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckC
 import { supabase } from '../utils/supabase';
 import { searchApify, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation, formatCurrency } from '../utils/combinedValuation';
+import { useArtistStore } from '../store/artistStore';
 
 import imgTuneCore from '../assets/distribution logos/tunecore.png';
 import imgDistroKid from '../assets/distribution logos/distrokid.png';
@@ -19,6 +20,7 @@ import imgTooLost from '../assets/distribution logos/too_lost.jpg';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { setSelectedArtists, setSearchQuery: setStoreSearchQuery, clearImportedData } = useArtistStore();
   
   // Option 1 State
   const [searchQuery, setSearchQuery] = useState('');
@@ -136,6 +138,16 @@ export default function LandingPage() {
       
       const val = getCombinedValuation(artistsMap);
       setEstimatedValue(val);
+      
+      // ── KEY FIX ──────────────────────────────────────────────────────────────
+      // Save the exact same artistsMap and searchQuery into the global store so
+      // that when the user navigates to the Valuation Tool, it uses this SAME
+      // API response data — not a fresh API call that might return slightly
+      // different popularity scores and thus a different valuation number.
+      clearImportedData();
+      setStoreSearchQuery(searchQuery);
+      setSelectedArtists(artistsMap);
+      // ─────────────────────────────────────────────────────────────────────────
       
     } catch (err) {
       console.error(err);
