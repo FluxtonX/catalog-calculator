@@ -173,11 +173,17 @@ export const getLifetimeStreams = (artistData) => {
   if (artistData.topTracks && artistData.topTracks.length > 0) {
     let totalFromTracks = 0;
     artistData.topTracks.forEach((track) => {
+      let trackStreams = 0;
       if (track.streamCount) {
-        totalFromTracks += parseInt(track.streamCount);
+        trackStreams = parseInt(track.streamCount);
       } else if (track.streamCountFormatted) {
-        totalFromTracks += parseStreamCount(track.streamCountFormatted);
+        trackStreams = parseStreamCount(track.streamCountFormatted);
+      } else if (track.streams) {
+        trackStreams = parseInt(track.streams);
+      } else if (track.playCount) {
+        trackStreams = parseInt(track.playCount);
       }
+      totalFromTracks += trackStreams;
     });
     if (totalFromTracks > 0) return totalFromTracks;
   }
@@ -193,23 +199,35 @@ export const getLifetimeStreams = (artistData) => {
 };
 
 /**
- * Get average release date from top tracks
+ * Get average release date from top tracks and albums
  */
 export const getAverageReleaseDate = (artistData) => {
-  if (!artistData?.topTracks || artistData.topTracks.length === 0) {
+  const dates = [];
+  
+  if (artistData?.albums) {
+    artistData.albums.forEach((a) => {
+      if (a.releaseDate) {
+        const t = new Date(a.releaseDate).getTime();
+        if (!isNaN(t)) dates.push(t);
+      }
+    });
+  }
+  
+  if (artistData?.topTracks) {
+    artistData.topTracks.forEach((t) => {
+      let d = t.releaseDate || (t.releaseYear ? `${t.releaseYear}-01-01` : null);
+      if (d) {
+        const ts = new Date(d).getTime();
+        if (!isNaN(ts)) dates.push(ts);
+      }
+    });
+  }
+
+  if (dates.length === 0) {
     return "2022-01-01";
   }
 
-  const releaseDates = artistData.topTracks
-    .filter((track) => track.releaseDate)
-    .map((track) => new Date(track.releaseDate).getTime());
-
-  if (releaseDates.length === 0) {
-    return "2022-01-01";
-  }
-
-  const avgTimestamp =
-    releaseDates.reduce((a, b) => a + b, 0) / releaseDates.length;
+  const avgTimestamp = dates.reduce((a, b) => a + b, 0) / dates.length;
   const avgDate = new Date(avgTimestamp);
   return avgDate.toISOString().split("T")[0];
 };
@@ -346,6 +364,10 @@ export const calculateMonthlyStreamsAndRevenue = (
         trackStreams = parseInt(track.streamCount);
       } else if (track.streamCountFormatted) {
         trackStreams = parseStreamCount(track.streamCountFormatted);
+      } else if (track.streams) {
+        trackStreams = parseInt(track.streams);
+      } else if (track.playCount) {
+        trackStreams = parseInt(track.playCount);
       }
 
       if (trackStreams > 0) {

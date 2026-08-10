@@ -11,6 +11,7 @@ import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProPlan from './pages/ProPlan';
 import LandingPage from './pages/LandingPage';
+import DataImport from './pages/DataImport';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route element={<MainLayout />}>
             <Route path="/valuation" element={<ValuationTool />} />
             <Route path="/pro-plan" element={<ProPlan />} />
+            <Route path="/import" element={<DataImport />} />
           </Route>
 
           {/* Protected Routes */}

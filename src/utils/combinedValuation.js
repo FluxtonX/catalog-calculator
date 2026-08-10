@@ -22,6 +22,7 @@ export const getPlatformValuation = (artistData) => {
       creatorCut: 55,
       streamingRate: 0.0054,
     });
+    console.log("YouTube getPlatformValuation metrics:", metrics, "totalViews:", totalViews, "from raw:", artistData.totalViews, artistData.stats?.totalViews);
     return metrics.marketValuation || 0;
   }
   
@@ -58,6 +59,20 @@ export const getPlatformValuation = (artistData) => {
     return ltmRevenue * 8 || 0;
   }
   
+  if (artistData.platform === "custom") {
+    // Treat the manually entered revenue as the LTM revenue, or use streams if revenue is missing
+    const revenue = artistData.stats?.totalRevenue || 0;
+    const streams = artistData.stats?.totalStreams || 0;
+    
+    if (revenue > 0) {
+      return revenue * 8; // standard 8x multiple on LTM
+    } else if (streams > 0) {
+      // average blended rate
+      return streams * 0.004 * 8;
+    }
+    return 0;
+  }
+  
   return 0;
 };
 
@@ -91,15 +106,23 @@ export const getCombinedMetrics = (selectedArtists) => {
   
   const breakdown = {};
   
+  // Check if custom distributor data exists. If it does, we use it for financial valuation
+  // instead of estimating from public platforms to avoid double-counting.
+  const hasCustomData = !!selectedArtists["custom"];
+  
   Object.values(selectedArtists).forEach(artist => {
     const platform = artist.platform === 'apify' ? 'spotify' : artist.platform;
     if (!breakdown[platform]) {
       breakdown[platform] = { valuation: 0, followers: 0, streams: 0, albums: 0, singles: 0, tracks: 0 };
     }
-
-    const val = getPlatformValuation(artist);
-    totalValuation += val;
-    breakdown[platform].valuation += val;
+    
+    // Only calculate valuation from public platforms if we DON'T have custom distributor data,
+    // OR if this is the custom data itself.
+    if (!hasCustomData || platform === "custom") {
+      const val = getPlatformValuation(artist);
+      totalValuation += val;
+      breakdown[platform].valuation += val;
+    }
     
     // Parse followers/subscribers
     const followers = artist.followers || artist.subscribers || artist.stats?.totalSubscribers || artist.stats?.subscribers;
@@ -112,11 +135,11 @@ export const getCombinedMetrics = (selectedArtists) => {
     // Parse streams/views/monthly listeners
     if (artist.platform === "youtube") {
       const streams = parseNumber(artist.totalViews || artist.stats?.totalViews);
-      totalStreams += streams;
+      if (!hasCustomData) totalStreams += streams;
       breakdown[platform].streams += streams;
       
       const tracks = parseNumber(artist.stats?.totalVideos || 0); // treating videos as tracks for youtube
-      totalTracks += tracks;
+      if (!hasCustomData) totalTracks += tracks;
       breakdown[platform].tracks += tracks;
     } else if (artist.platform === "spotify" || artist.platform === "apify") {
       let streams = 0;
@@ -126,35 +149,43 @@ export const getCombinedMetrics = (selectedArtists) => {
       } else {
         streams = parseNumber(artist.monthlyListeners);
       }
-      totalStreams += streams;
+      if (!hasCustomData) totalStreams += streams;
       breakdown[platform].streams += streams;
       
       const albums = artist.stats?.totalAlbums || artist.albums?.length || 0;
-      totalAlbums += albums;
+      if (!hasCustomData) totalAlbums += albums;
       breakdown[platform].albums += albums;
       
       const singles = artist.stats?.totalSingles || artist.singles?.length || 0;
-      totalSingles += singles;
+      if (!hasCustomData) totalSingles += singles;
       breakdown[platform].singles += singles;
       
       const tracks = artist.stats?.totalTopTracks || artist.topTracks?.length || 0;
-      totalTracks += tracks;
+      if (!hasCustomData) totalTracks += tracks;
       breakdown[platform].tracks += tracks;
     } else if (artist.platform === "itunes") {
       const avgPop = artist.popularity ?? 50;
       const streams = estimateMonthlyStreams(avgPop);
-      totalStreams += streams;
+      if (!hasCustomData) totalStreams += streams;
       breakdown[platform].streams += streams;
       
       const albums = artist.stats?.totalAlbums || artist.albums?.length || 0;
-      totalAlbums += albums;
+      if (!hasCustomData) totalAlbums += albums;
       breakdown[platform].albums += albums;
       
       const singles = artist.stats?.totalSingles || artist.singles?.length || 0;
-      totalSingles += singles;
+      if (!hasCustomData) totalSingles += singles;
       breakdown[platform].singles += singles;
       
       const tracks = artist.stats?.totalTopTracks || artist.topTracks?.length || 0;
+      if (!hasCustomData) totalTracks += tracks;
+      breakdown[platform].tracks += tracks;
+    } else if (artist.platform === "custom") {
+      const streams = parseNumber(artist.stats?.totalStreams || 0);
+      totalStreams += streams;
+      breakdown[platform].streams += streams;
+      
+      const tracks = parseNumber(artist.stats?.totalTracks || 0);
       totalTracks += tracks;
       breakdown[platform].tracks += tracks;
     }

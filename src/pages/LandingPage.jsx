@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark } from 'lucide-react';
 import { supabase } from '../utils/supabase';
-import { searchApify, searchYouTube, searchItunes, getYouTubeChannelDetails } from '../utils/api';
+import { searchApify, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation, formatCurrency } from '../utils/combinedValuation';
 
 import imgTuneCore from '../assets/distribution logos/tunecore.png';
@@ -113,7 +113,11 @@ export default function LandingPage() {
           }
           return { ...d, platform: 'youtube' };
         });
-        if (p === 'itunes') return searchItunes(searchQuery).then(d => ({...d, platform: 'itunes'})).catch(() => null);
+        if (p === 'itunes') {
+          return searchAppleMusic(searchQuery)
+            .then(d => ({ ...d, platform: 'itunes' }))
+            .catch(() => searchItunes(searchQuery).then(d => ({ ...d, platform: 'itunes' })).catch(() => null));
+        }
         return null;
       });
 
@@ -574,7 +578,7 @@ export default function LandingPage() {
                   {showDistributors && (
                     <div className="absolute top-full left-0 w-full mt-2 bg-[#0B101A] border border-[#1A2333] rounded-xl overflow-hidden z-20 py-2 shadow-2xl">
                       {distributors.map((d, idx) => (
-                        <button key={idx} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left">
+                        <button key={idx} onClick={() => navigate('/import', { state: { distributor: d.name } })} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left">
                           <div className="w-[18px] h-[18px] rounded-[4px] overflow-hidden flex-shrink-0 flex items-center justify-center">
                             <img 
                               src={d.img} 

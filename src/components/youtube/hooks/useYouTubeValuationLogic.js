@@ -26,6 +26,7 @@ export const calculateYouTubeMetrics = ({
   const adRevenue = grossAdRevenue * (creatorCut / 100);
   const estimatedTotalPlays = estimatedAnnualViews * CONTENT_ID_MULTIPLIER;
   const streamingRevenue = estimatedTotalPlays * streamingRate;
+  
   const totalAnnualRevenue = adRevenue + streamingRevenue;
 
   const conservativeValuation = totalAnnualRevenue * 6;
@@ -34,8 +35,7 @@ export const calculateYouTubeMetrics = ({
 
   const advanceCalculation = totalAnnualRevenue * 0.15;
   const caccAdjustedValuation = totalAnnualRevenue * 8 * 1.3;
-// CORRECT — total equals the base advance calculation
-const totalAdvancePackage = advanceCalculation;
+  const totalAdvancePackage = advanceCalculation;
 
   return {
     estimatedAnnualViews, monetizedViews, grossAdRevenue,
@@ -43,6 +43,7 @@ const totalAdvancePackage = advanceCalculation;
     totalAnnualRevenue, conservativeValuation, marketValuation,
     premiumValuation, advanceCalculation, caccAdjustedValuation,
     totalAdvancePackage,
+    isCustomRevenue: false
   };
 };
 

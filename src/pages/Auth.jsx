@@ -176,7 +176,7 @@ export default function Auth() {
                     {distributors.map((dist) => (
                       <button
                         key={dist.name}
-                        onClick={() => navigate('/valuation')}
+                        onClick={() => navigate('/import', { state: { distributor: dist.name } })}
                         className="flex items-center gap-4 px-4 py-2.5 hover:bg-slate-200 dark:hover:bg-slate-700/50 transition-colors w-full text-left"
                       >
                         <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white ${dist.color}`}>

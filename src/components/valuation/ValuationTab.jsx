@@ -49,9 +49,12 @@ const [authLoading, setAuthLoading] = useState(true);
     getAverageReleaseDate(artistData),
   );
 
-
-
-
+  useEffect(() => {
+    if (artistData) {
+      setLifetimeStreamsInput(getLifetimeStreams(artistData).toString());
+      setReleaseDate(getAverageReleaseDate(artistData));
+    }
+  }, [artistData]);
 
 // Replace the auth useEffect with this:
 useEffect(() => {

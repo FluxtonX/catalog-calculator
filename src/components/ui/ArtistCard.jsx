@@ -60,6 +60,7 @@ const ArtistCard = ({
   biography,
   topCities,
   externalLinks,
+  importedDistributor,
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tracks");
@@ -70,6 +71,7 @@ const ArtistCard = ({
   const isItunes = platform === "itunes";
   const isYouTube = platform === "youtube";
   const isApify = platform === "apify" || platform === "spotify";
+  const isCustom = platform === "custom";
 
   // ── Helpers ───────────────────────────────────────────
   const extractSpotifyId = useCallback((url) => {
@@ -248,6 +250,7 @@ setEnhancedAlbums(
             followers,
             popularity,
             platform,
+            importedDistributor,
           }}
         />
       );
@@ -392,7 +395,7 @@ setEnhancedAlbums(
       </div>
 
       {/* ── Biography ────────────────────────────────────── */}
-      {(isApify || isItunes) && biography && (
+      {(isApify || isItunes) && !isCustom && biography && (
         <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
           <SectionHeader
             icon={Music}
@@ -417,6 +420,7 @@ setEnhancedAlbums(
       )}
 
       {/* ── Radix Tabs Card ──────────────────────────────── */}
+      {!isCustom && (
       <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
         <Tabs.Root value={activeTab} onValueChange={setActiveTab}>
           {/* Tab List */}
@@ -549,6 +553,7 @@ setEnhancedAlbums(
           </div>
         </Tabs.Root>
       </div>
+      )}
     </div>
   );
 };

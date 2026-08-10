@@ -111,6 +111,7 @@ const PLATFORM_CONFIG = {
     liveDot: "bg-slate-900 dark:bg-white",
     liveText: "text-slate-900 dark:text-slate-200",
   },
+
 };
 // Add this object near PLATFORM_CONFIG
 const PLATFORM_TITLES = {
@@ -174,14 +175,16 @@ const PlatformSelect = ({ platforms, setPlatforms, platform, setPlatform, isLoad
   }, []);
 
   const togglePlatform = (key) => {
-    if (platforms.includes(key)) {
-      if (platforms.length > 1) {
-        const newPlatforms = platforms.filter((p) => p !== key);
+    const currentPlatforms = useArtistStore.getState().platforms || [];
+    const currentPlatform = useArtistStore.getState().platform;
+    if (currentPlatforms.includes(key)) {
+      if (currentPlatforms.length > 1) {
+        const newPlatforms = currentPlatforms.filter((p) => p !== key);
         setPlatforms(newPlatforms);
-        if (platform === key) setPlatform(newPlatforms[0]);
+        if (currentPlatform === key) setPlatform(newPlatforms[0]);
       }
     } else {
-      setPlatforms([...platforms, key]);
+      setPlatforms([...currentPlatforms, key]);
     }
   };
 
@@ -280,6 +283,8 @@ const ValuationTool = () => {
     setPlatform,
     platforms,
     setPlatforms,
+    importedData,
+    selectedDistributor,
   } = useArtistStore();
 
   const cfg = PLATFORM_CONFIG[platform]; // ← define cfg FIRST
@@ -323,9 +328,14 @@ const ValuationTool = () => {
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
+      // If we just redirected from Data Import and have importedData + a searchQuery,
+      // auto-trigger the search so the user doesn't have to click the button.
+      if (importedData && searchQuery.trim() && Object.keys(selectedArtists).length === 0) {
+        handleSearch();
+      }
       return;
     }
-    
+
     if (searchQuery.trim() && Object.keys(selectedArtists).length > 0) {
       // Remove data for platforms that are no longer selected
       const currentKeys = Object.keys(selectedArtists);
@@ -389,6 +399,8 @@ const ValuationTool = () => {
     return () => clearTimeout(timer);
   }, [searchQuery, platform, shouldShowSuggestions]);
 
+
+
   const doSearchForPlatform = async (query, plt) => {
     switch (plt) {
       case "spotify":
@@ -409,6 +421,20 @@ const ValuationTool = () => {
         }
       default:
         throw new Error("Invalid platform selected");
+    }
+  };
+
+  useEffect(() => {
+    // Only auto-trigger if we have imported data and no artists selected yet
+    if (importedData && searchQuery.trim() && Object.keys(selectedArtists).length === 0 && !isLoading && !error) {
+      handleSearch();
+    }
+  }, [importedData, searchQuery, isLoading, error]); // Re-run if searchQuery updates after mount
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      setShouldShowSuggestions(false);
+      handleSearch();
     }
   };
 
@@ -463,21 +489,29 @@ const ValuationTool = () => {
         setShowChannelSelector(true);
       }
       
-      if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList) {
+      if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList && !importedData) {
         throw new Error("Failed to fetch data from selected platforms");
       }
-      
+
+      if (importedData) {
+        newSelectedArtists["custom"] = {
+          name: searchQuery,
+          platform: "custom",
+          importedDistributor: selectedDistributor,
+          stats: {
+            totalRevenue: parseFloat(importedData.totalRevenue || 0),
+            totalStreams: parseInt(importedData.totalStreams || 0, 10),
+            totalTracks: parseInt(importedData.totalTracks || 0, 10)
+          }
+        };
+      }
+
       setSelectedArtists(newSelectedArtists);
       if (platforms.length === 1) setSelectedArtist(newSelectedArtists[platforms[0]]);
       
       setError(null);
       saveRecentSearch(searchQuery);
 
-      if (isGuest && !hasChannelList) {
-        setTimeout(() => {
-          navigate('/auth');
-        }, 5000); // 5 seconds of viewing results before redirect
-      }
     } catch (err) {
       setError(err.message || "Search failed");
       setSelectedArtist(null);
@@ -529,18 +563,13 @@ const ValuationTool = () => {
       if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList) {
         throw new Error("Failed to fetch data from selected platforms");
       }
-      
+
       setSelectedArtists(newSelectedArtists);
       if (platforms.length === 1) setSelectedArtist(newSelectedArtists[platforms[0]]);
       
       setError(null);
       saveRecentSearch(artist);
 
-      if (isGuest && !hasChannelList) {
-        setTimeout(() => {
-          navigate('/auth');
-        }, 5000); // 5 seconds of viewing results before redirect
-      }
     } catch (err) {
       setError(err.message || "Search failed");
       setSelectedArtist(null);
@@ -559,22 +588,15 @@ const ValuationTool = () => {
       if (!result?.name) throw new Error("Invalid response from API");
       
       const newYoutubeArtist = { ...result, platform: 'youtube' };
-      setSelectedArtists(prev => {
-        const next = { ...prev, youtube: newYoutubeArtist };
-        if (platforms.length === 1) setSelectedArtist(next.youtube);
-        return next;
-      });
-      
-      setError(null);
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        setTimeout(() => {
-          navigate('/auth');
-        }, 5000); // 5 seconds of viewing results before redirect
-      }
+      const currentSelectedArtists = useArtistStore.getState().selectedArtists || {};
+      const nextSelectedArtists = { ...currentSelectedArtists, youtube: newYoutubeArtist };
+      setSelectedArtists(nextSelectedArtists);
+      if (platforms.length === 1) setSelectedArtist(nextSelectedArtists.youtube);
+      saveRecentSearch(searchQuery);
+
     } catch (err) {
-      setError(err.message || "Failed to fetch channel details");
+      setError(err.message || "Failed to load channel details");
     } finally {
       setIsLoading(false);
     }
@@ -995,7 +1017,9 @@ const ValuationTool = () => {
                 </div>
               );
             })()}
-            {Object.values(selectedArtists).map((artistData, idx) => {
+            {Object.values(selectedArtists)
+              .filter(artistData => artistData.platform !== "custom")
+              .map((artistData, idx) => {
               const pCfg = PLATFORM_CONFIG[artistData.platform] || cfg;
               const PIcon = pCfg.icon || SelectedIcon;
               return (
@@ -1009,7 +1033,7 @@ const ValuationTool = () => {
                     </div>
                     <div>
                       <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                        Live {pCfg.label} Analysis
+                        Live {artistData.importedDistributor ? `${artistData.importedDistributor} Analytics (Merged)` : `${pCfg.label} Analysis`}
                       </h2>
                       <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                         Real-time data · {artistData.name}
