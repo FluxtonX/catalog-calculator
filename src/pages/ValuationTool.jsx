@@ -299,6 +299,7 @@ const ValuationTool = () => {
   );
 
   const isInitialMount = useRef(true);
+  const isPlatformUserChange = useRef(false); // tracks if platforms was changed by user in THIS session
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [suggestions, setSuggestions] = useState([]);
@@ -343,6 +344,14 @@ const ValuationTool = () => {
     }
 
     if (searchQuery.trim() && Object.keys(selectedArtists).length > 0) {
+      // Only re-fetch if the user explicitly toggled a platform inside the Valuation Tool.
+      // If the data was pre-loaded from the Landing Page, isPlatformUserChange is false,
+      // so we skip the re-fetch to avoid a second API call with potentially different results.
+      if (!isPlatformUserChange.current) {
+        isPlatformUserChange.current = true; // After the first skip, allow future user-changes
+        return;
+      }
+
       // Remove data for platforms that are no longer selected
       const currentKeys = Object.keys(selectedArtists);
       const hasRemoved = currentKeys.some(k => !platforms.includes(k));

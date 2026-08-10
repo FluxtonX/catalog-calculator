@@ -22,7 +22,6 @@ export const getPlatformValuation = (artistData) => {
       creatorCut: 55,
       streamingRate: 0.0054,
     });
-    console.log("YouTube getPlatformValuation metrics:", metrics, "totalViews:", totalViews, "from raw:", artistData.totalViews, artistData.stats?.totalViews);
     return metrics.marketValuation || 0;
   }
   
@@ -138,7 +137,7 @@ export const getCombinedMetrics = (selectedArtists) => {
       if (!hasCustomData) totalStreams += streams;
       breakdown[platform].streams += streams;
       
-      const tracks = parseNumber(artist.stats?.totalVideos || 0); // treating videos as tracks for youtube
+      const tracks = parseNumber(artist.stats?.totalVideos || 0);
       if (!hasCustomData) totalTracks += tracks;
       breakdown[platform].tracks += tracks;
     } else if (artist.platform === "spotify" || artist.platform === "apify") {

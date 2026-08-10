@@ -33,6 +33,8 @@ export async function searchSpotify(query) {
 /**
  * Search YouTube channels
  */
+const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+
 export const searchYouTube = async (query) => {
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube`, {
@@ -60,6 +62,33 @@ export const searchYouTube = async (query) => {
 /**
  * Get YouTube channel details
  */
+
+/**
+ * Fetch authentic channel statistics (viewCount, subscriberCount, videoCount)
+ * directly from YouTube Data API v3 using the real channel ID.
+ * This is the ONLY source of truth for financial valuation — no estimations.
+ */
+async function fetchYouTubeChannelStats(channelId) {
+  if (!channelId || !YOUTUBE_API_KEY) return null;
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${YOUTUBE_API_KEY}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const channel = data?.items?.[0];
+    if (!channel) return null;
+    return {
+      totalViews: parseInt(channel.statistics?.viewCount || 0, 10),
+      subscribers: parseInt(channel.statistics?.subscriberCount || 0, 10),
+      totalVideos: parseInt(channel.statistics?.videoCount || 0, 10),
+      channelTitle: channel.snippet?.title || '',
+    };
+  } catch (err) {
+    console.error('YouTube Data API v3 stats fetch failed:', err);
+    return null;
+  }
+}
+
 export const getYouTubeChannelDetails = async (query, channelId) => {
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube`, {
@@ -77,6 +106,29 @@ export const getYouTubeChannelDetails = async (query, channelId) => {
     }
 
     const data = await response.json();
+
+    // ── Authentic Data Enrichment ─────────────────────────────────────────────
+    // The Supabase Edge Function may not return totalViews (viewCount).
+    // We call YouTube Data API v3 directly with the real channelId to get the
+    // 100% authentic viewCount, subscriberCount, and videoCount.
+    if (channelId) {
+      const realStats = await fetchYouTubeChannelStats(channelId);
+      if (realStats) {
+        return {
+          ...data,
+          totalViews: realStats.totalViews,          // authentic view count
+          subscribers: realStats.subscribers,         // authentic subscriber count
+          stats: {
+            ...(data.stats || {}),
+            totalViews: realStats.totalViews,
+            totalSubscribers: realStats.subscribers,
+            totalVideos: realStats.totalVideos,
+          },
+        };
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     return data;
   } catch (error) {
     console.error('YouTube channel details error:', error);

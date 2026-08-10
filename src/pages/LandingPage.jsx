@@ -20,7 +20,7 @@ import imgTooLost from '../assets/distribution logos/too_lost.jpg';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { setSelectedArtists, setSearchQuery: setStoreSearchQuery, clearImportedData } = useArtistStore();
+  const { setSelectedArtists, setSearchQuery: setStoreSearchQuery, clearImportedData, setPlatforms: setStorePlatforms } = useArtistStore();
   
   // Option 1 State
   const [searchQuery, setSearchQuery] = useState('');
@@ -140,13 +140,14 @@ export default function LandingPage() {
       setEstimatedValue(val);
       
       // ── KEY FIX ──────────────────────────────────────────────────────────────
-      // Save the exact same artistsMap and searchQuery into the global store so
-      // that when the user navigates to the Valuation Tool, it uses this SAME
-      // API response data — not a fresh API call that might return slightly
-      // different popularity scores and thus a different valuation number.
+      // Save EXACTLY what was fetched into the global store — artistsMap, the
+      // search query, AND the active platform list. This means when the Valuation
+      // Tool loads it uses the SAME data and does NOT re-trigger API calls for
+      // platforms the user did not select on the Landing Page.
       clearImportedData();
       setStoreSearchQuery(searchQuery);
       setSelectedArtists(artistsMap);
+      setStorePlatforms(activePlatforms); // ← sync platform selection to store
       // ─────────────────────────────────────────────────────────────────────────
       
     } catch (err) {
