@@ -34,7 +34,22 @@ export default function LandingPage() {
   
   // Results Options State
   const [currency, setCurrency] = useState('USD');
+  const [exchangeRates, setExchangeRates] = useState({ USD: 1 });
+  const [availableCurrencies, setAvailableCurrencies] = useState(['USD', 'GBP', 'EUR']);
   const [royaltyShare, setRoyaltyShare] = useState(100);
+  
+  // Fetch exchange rates on mount
+  useEffect(() => {
+    fetch('https://api.exchangerate-api.com/v4/latest/USD')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.rates) {
+          setExchangeRates(data.rates);
+          setAvailableCurrencies(Object.keys(data.rates));
+        }
+      })
+      .catch(err => console.error("Failed to load exchange rates", err));
+  }, []);
   
   // Auto-suggest State
   const [suggestions, setSuggestions] = useState([]);
@@ -214,10 +229,12 @@ export default function LandingPage() {
   const formatLocalCurrency = (value) => {
     if (value === null) return "$0";
     const adjustedValue = value * (royaltyShare / 100);
-    let rate = 1;
+    const rate = exchangeRates[currency] || 1;
+    
     let symbol = '$';
-    if (currency === 'GBP') { rate = 0.79; symbol = '£'; }
-    if (currency === 'EUR') { rate = 0.92; symbol = '€'; }
+    try {
+      symbol = (0).toLocaleString('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).replace(/\d|\.|,/g, '').trim();
+    } catch(e) {}
     
     const converted = adjustedValue * rate;
     
@@ -463,20 +480,21 @@ export default function LandingPage() {
                   {/* Currency Row */}
                   <div className="flex items-center justify-between">
                     <span className="text-[13px] font-medium text-white/70">Currency</span>
-                    <div className="flex items-center gap-1.5">
-                      {['USD', 'GBP', 'EUR'].map(curr => (
-                        <button
-                          key={curr}
-                          onClick={() => setCurrency(curr)}
-                          className={`px-3 h-8 rounded-lg text-xs font-semibold transition-all ${
-                            currency === curr 
-                              ? 'bg-cyan-400 text-black shadow-[0_0_10px_rgba(34,211,238,0.3)]' 
-                              : 'bg-[#05080F] border border-[#1A2333] text-white/50 hover:text-white/90 hover:border-white/20'
-                          }`}
-                        >
-                          {curr}
-                        </button>
-                      ))}
+                    <div className="relative">
+                      <select
+                        value={currency}
+                        onChange={(e) => setCurrency(e.target.value)}
+                        className="appearance-none bg-[#05080F] border border-[#1A2333] text-white/90 text-xs font-semibold h-8 pl-3 pr-8 rounded-lg focus:outline-none focus:border-cyan-500/50 hover:border-white/20 transition-all cursor-pointer"
+                      >
+                        {availableCurrencies.map(curr => (
+                          <option key={curr} value={curr}>{curr}</option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/50">
+                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                          <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
