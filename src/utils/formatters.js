@@ -71,12 +71,12 @@ export const parseStreamCount = (streamsStr) => {
   const str = String(streamsStr);
   
   if (str.includes("B")) {
-    return parseFloat(str.replace("B", "")) * 1000000000;
+    return parseFloat(str.replace("B", "")) * 1000000000 || 0;
   } else if (str.includes("M")) {
-    return parseFloat(str.replace("M", "")) * 1000000;
+    return parseFloat(str.replace("M", "")) * 1000000 || 0;
   } else if (str.includes("K")) {
-    return parseFloat(str.replace("K", "")) * 1000;
+    return parseFloat(str.replace("K", "")) * 1000 || 0;
   } else {
-    return parseFloat(str.replace(/,/g, ""));
+    return parseFloat(str.replace(/,/g, "")) || 0;
   }
 };

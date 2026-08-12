@@ -175,13 +175,13 @@ export const getLifetimeStreams = (artistData) => {
     artistData.topTracks.forEach((track) => {
       let trackStreams = 0;
       if (track.streamCount) {
-        trackStreams = parseInt(track.streamCount);
+        trackStreams = parseInt(String(track.streamCount).replace(/,/g, "")) || 0;
       } else if (track.streamCountFormatted) {
         trackStreams = parseStreamCount(track.streamCountFormatted);
       } else if (track.streams) {
-        trackStreams = parseInt(track.streams);
+        trackStreams = parseInt(String(track.streams).replace(/,/g, "")) || 0;
       } else if (track.playCount) {
-        trackStreams = parseInt(track.playCount);
+        trackStreams = parseInt(String(track.playCount).replace(/,/g, "")) || 0;
       }
       totalFromTracks += trackStreams;
     });
@@ -191,7 +191,7 @@ export const getLifetimeStreams = (artistData) => {
   if (artistData.monthlyListeners) {
     const listenersNum = parseFloat(
       String(artistData.monthlyListeners).replace(/[^0-9.]/g, ""),
-    );
+    ) || 0;
     return listenersNum * 15 * 12;
   }
 
@@ -277,10 +277,10 @@ export const calculateDollarAge = (artistData, effectiveSpotifyRate, currentDate
 
     // Get stream count
     let trackStreams = 0;
-    if (track.streamCount)               trackStreams = parseInt(track.streamCount);
+    if (track.streamCount)               trackStreams = parseInt(String(track.streamCount).replace(/,/g, "")) || 0;
     else if (track.streamCountFormatted) trackStreams = parseStreamCount(track.streamCountFormatted);
-    else if (track.streams)              trackStreams = parseInt(track.streams);
-    else if (track.playCount)            trackStreams = parseInt(track.playCount);
+    else if (track.streams)              trackStreams = parseInt(String(track.streams).replace(/,/g, "")) || 0;
+    else if (track.playCount)            trackStreams = parseInt(String(track.playCount).replace(/,/g, "")) || 0;
 
     if (trackStreams === 0) return;
 
@@ -336,13 +336,14 @@ export const calculateMonthlyStreamsAndRevenue = (
 
   // Priority 1: Recent 30 days
   if (artistData.streams_last_30_days) {
-    monthlyStreamsEst = artistData.streams_last_30_days;
+    monthlyStreamsEst = parseFloat(String(artistData.streams_last_30_days).replace(/,/g, "")) || 0;
     monthlyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
     methodUsed = "RECENT_30D";
   }
   // Priority 2: Recent 28 days (normalized to 30)
   else if (artistData.streams_last_28_days) {
-    monthlyStreamsEst = Math.round(artistData.streams_last_28_days * (30 / 28));
+    const last28 = parseFloat(String(artistData.streams_last_28_days).replace(/,/g, "")) || 0;
+    monthlyStreamsEst = Math.round(last28 * (30 / 28));
     monthlyRevenue = monthlyStreamsEst * effectiveSpotifyRate;
     methodUsed = "RECENT_28D_NORMALIZED";
   }
@@ -361,13 +362,13 @@ export const calculateMonthlyStreamsAndRevenue = (
       
       // Parse stream count
       if (track.streamCount) {
-        trackStreams = parseInt(track.streamCount);
+        trackStreams = parseInt(String(track.streamCount).replace(/,/g, "")) || 0;
       } else if (track.streamCountFormatted) {
         trackStreams = parseStreamCount(track.streamCountFormatted);
       } else if (track.streams) {
-        trackStreams = parseInt(track.streams);
+        trackStreams = parseInt(String(track.streams).replace(/,/g, "")) || 0;
       } else if (track.playCount) {
-        trackStreams = parseInt(track.playCount);
+        trackStreams = parseInt(String(track.playCount).replace(/,/g, "")) || 0;
       }
 
       if (trackStreams > 0) {

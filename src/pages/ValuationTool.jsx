@@ -508,6 +508,8 @@ const ValuationTool = () => {
       }
       
       if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList && !importedData) {
+        const rejected = results.find(res => res.status === 'rejected');
+        if (rejected) throw rejected.reason;
         throw new Error("Failed to fetch data from selected platforms");
       }
 
@@ -579,6 +581,8 @@ const ValuationTool = () => {
       }
       
       if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList) {
+        const rejected = results.find(res => res.status === 'rejected');
+        if (rejected) throw rejected.reason;
         throw new Error("Failed to fetch data from selected platforms");
       }
 

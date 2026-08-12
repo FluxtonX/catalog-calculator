@@ -14,15 +14,67 @@ async function getAuthHeaders() {
   }
 }
 
+// Convert technical API errors into user-friendly messages
+function getUserFriendlyErrorMessage(rawError, status) {
+  const errorLower = (rawError || '').toLowerCase();
+  
+  if (status === 404 || errorLower.includes('not found')) {
+    return "We couldn't find any results for this search. Please check the spelling and try again.";
+  }
+  
+  if (status === 429 || errorLower.includes('rate limit') || errorLower.includes('too many requests')) {
+    return "We're receiving too many requests right now. Please wait a moment and try again.";
+  }
+  
+  if (
+    status === 401 || 
+    status === 403 || 
+    errorLower.includes('api key') || 
+    errorLower.includes('unauthorized') || 
+    errorLower.includes('token') || 
+    errorLower.includes('credentials') ||
+    errorLower.includes('secret')
+  ) {
+    return "We're experiencing a temporary issue connecting to the data provider. Please try again later.";
+  }
+  
+  if (status === 400 || errorLower.includes('required') || errorLower.includes('invalid json')) {
+    return "Please provide a valid search query.";
+  }
+
+  return "Something went wrong while fetching the data. Please try again later.";
+}
+
+// Wrapper to call Edge Functions with real error extraction
+async function invokeEdgeFunction(functionName, body) {
+  const headers = await getAuthHeaders();
+  const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...headers
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    let rawError = `Edge Function ${functionName} returned ${response.status}`;
+    try {
+      const errorData = await response.json();
+      rawError = errorData.error || errorData.message || rawError;
+    } catch (err) {
+      // Ignored
+    }
+    const userFriendlyMessage = getUserFriendlyErrorMessage(rawError, response.status);
+    throw new Error(userFriendlyMessage);
+  }
+
+  return await response.json();
+}
+
 // Spotify
 export async function searchSpotify(query) {
-  const headers = await getAuthHeaders()
-  const { data, error } = await supabase.functions.invoke('spotify', {
-    body: { query },
-    headers,
-  })
-  if (error) throw error
-  return data
+  return await invokeEdgeFunction('spotify', { query });
 }
 
 // YouTube
@@ -138,13 +190,7 @@ export const getYouTubeChannelDetails = async (query, channelId) => {
 
 // Apify
 export async function searchApify(query) {
-  const headers = await getAuthHeaders()
-  const { data, error } = await supabase.functions.invoke('apify', {
-    body: { query },
-    headers,
-  })
-  if (error) throw error
-  return data
+  return await invokeEdgeFunction('apify', { query });
 }
 
 // Fetch album images from Spotify by searching for albums
@@ -173,19 +219,10 @@ export async function getSpotifyAlbumImages(artistName, albums) {
           if (album.id) {
             console.log(`Calling spotify-album function for ID: ${album.id}`);
             
-            const { data, error } = await supabase.functions.invoke('spotify-album', {
-              body: { albumId: album.id },
-              headers,
-            });
+            const data = await invokeEdgeFunction('spotify-album', { albumId: album.id });
             
             console.log('Supabase response for', album.name);
             console.log('  - Data:', JSON.stringify(data, null, 2));
-            console.log('  - Error:', error);
-            
-            if (error) {
-              console.error(`❌ Error fetching album ${album.name}:`, error);
-              return { albumName: album.name, image: null };
-            }
             
             // Extract image from response
             const image = data?.image || data?.images?.[0]?.url || null;
@@ -227,16 +264,9 @@ export async function getArtistSuggestions(query, platform = 'spotify') {
   try {
     if (!query.trim()) return []
     
-    const headers = await getAuthHeaders()
-    
     if (platform === 'spotify') {
       // Call Apify to get artist suggestions
-      const { data, error } = await supabase.functions.invoke('apify', {
-        body: { query },
-        headers,
-      })
-      
-      if (error) throw error
+      const data = await invokeEdgeFunction('apify', { query });
       
       // Return a simple object with the found artist
       // You can also return multiple matches if the API supports it
@@ -250,12 +280,7 @@ export async function getArtistSuggestions(query, platform = 'spotify') {
       return []
     } else if (platform === 'youtube') {
       // Call YouTube to get channel suggestions
-      const { data, error } = await supabase.functions.invoke('youtube', {
-        body: { query },
-        headers,
-      })
-      
-      if (error) throw error
+      const data = await invokeEdgeFunction('youtube', { query });
       
       if (data?.name) {
         return [{
@@ -299,16 +324,9 @@ export async function getTrendingArtists(platform = 'spotify') {
       return trendingArtistsCache[platform];
     }
 
-    const headers = await getAuthHeaders();
-
     if (platform === 'spotify') {
       // Call your backend to get trending artists
-      const { data, error } = await supabase.functions.invoke('apify-trending', {
-        body: { limit: 100 }, // Get top 100 artists
-        headers,
-      });
-
-      if (error) throw error;
+      const data = await invokeEdgeFunction('apify-trending', { limit: 100 });
 
       // Extract artist names from response
       const artists = (data?.artists || []).map(artist => ({
@@ -321,12 +339,7 @@ export async function getTrendingArtists(platform = 'spotify') {
       trendingArtistsCache.lastFetch.spotify = now;
       return artists;
     } else if (platform === 'youtube') {
-      const { data, error } = await supabase.functions.invoke('youtube-trending', {
-        body: { limit: 100 },
-        headers,
-      });
-
-      if (error) throw error;
+      const data = await invokeEdgeFunction('youtube-trending', { limit: 100 });
 
       const channels = (data?.channels || []).map(channel => ({
         name: channel.name,
