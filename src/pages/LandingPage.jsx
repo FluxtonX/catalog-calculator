@@ -255,10 +255,10 @@ export default function LandingPage() {
       <div className="relative z-10 max-w-[960px] mx-auto px-4 md:px-6 pb-24">
         
         {/* Header */}
-        <header className="relative py-8 flex items-center justify-center">
+        <header className="relative py-8 flex items-center justify-center lg:pl-[260px]">
           
           {/* Centered Logo */}
-          <div className="flex items-center gap-3 transform translate-x-[18px]">
+          <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 flex items-center justify-center">
               <Hexagon className="absolute inset-0 w-10 h-10 text-cyan-400" strokeWidth={1.5} />
               <Calculator className="w-4 h-4 text-white relative z-10" />
@@ -285,11 +285,11 @@ export default function LandingPage() {
         </header>
 
         {/* Hero */}
-        <div className="text-center mt-10 md:mt-12 mb-12 md:mb-16 space-y-4 px-4">
+        <div className="w-full flex flex-col items-center justify-center text-center mt-10 md:mt-12 mb-12 md:mb-16 space-y-4 px-4 lg:pl-[260px]">
           <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white tracking-tight">
             What's Your Catalog Worth?
           </h2>
-          <p className="text-white/60 text-sm md:text-[15px] max-w-2xl mx-auto">
+          <p className="text-white/60 text-sm md:text-[15px] max-w-3xl mx-auto">
             Search for an artist and get an estimated catalog valuation based on Spotify, Apple Music, and YouTube.
           </p>
         </div>
