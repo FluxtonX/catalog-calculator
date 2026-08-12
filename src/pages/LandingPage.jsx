@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark } from 'lucide-react';
+import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark, Sparkles } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 import { searchApify, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation, formatCurrency } from '../utils/combinedValuation';
@@ -244,438 +244,381 @@ export default function LandingPage() {
     return `${symbol}${converted.toFixed(0)}`;
   };
 
+
   return (
-    <div className="min-h-screen bg-[#05080F] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
-      {/* Background Glows */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-1/4 -left-[10%] w-[40%] h-[50%] bg-purple-600/30 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="absolute top-1/4 -right-[10%] w-[40%] h-[50%] bg-cyan-500/20 blur-[120px] rounded-full mix-blend-screen" />
+    <div className="min-h-screen bg-[#030509] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden relative">
+      {/* Animated Ambient Background Glows */}
+      <div className="fixed inset-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-[10%] left-[-10%] w-[50%] h-[60%] bg-purple-600/20 blur-[150px] rounded-full mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-[20%] right-[-10%] w-[45%] h-[65%] bg-cyan-500/15 blur-[150px] rounded-full mix-blend-screen animate-pulse" style={{ animationDuration: '10s', animationDelay: '1s' }} />
+        <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[50%] bg-emerald-500/10 blur-[150px] rounded-full mix-blend-screen animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
       </div>
 
-      <div className="relative z-10 max-w-[960px] mx-auto px-4 md:px-6 pb-24">
+      <div className="relative z-10 max-w-[1200px] mx-auto px-4 md:px-8 pb-24">
         
         {/* Header */}
-        <header className="relative py-8 flex items-center justify-center lg:pl-[260px]">
-          
-          {/* Centered Logo */}
+        <header className="relative py-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 flex items-center justify-center">
-              <Hexagon className="absolute inset-0 w-10 h-10 text-cyan-400" strokeWidth={1.5} />
-              <Calculator className="w-4 h-4 text-white relative z-10" />
+            <div className="relative w-12 h-12 flex items-center justify-center bg-white/5 rounded-xl border border-white/10 backdrop-blur-md shadow-lg shadow-cyan-500/10">
+              <Hexagon className="absolute inset-0 w-12 h-12 text-cyan-400 opacity-80" strokeWidth={1} />
+              <Calculator className="w-5 h-5 text-white relative z-10" />
             </div>
             <div className="flex flex-col items-start leading-tight">
-              <h1 className="font-bold text-xl tracking-tight text-white flex items-center gap-1.5">
-                Catalog <span className="text-[#00E5FF] font-medium">Calculator</span>
+              <h1 className="font-extrabold text-xl md:text-2xl tracking-tight text-white flex items-center gap-1.5">
+                Catalog <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Calculator</span>
               </h1>
-              <p className="text-[11px] text-white/60 font-medium tracking-wide">by CFA</p>
+              <p className="text-[11px] text-white/50 font-semibold tracking-widest uppercase">by Creative Funding Agency</p>
             </div>
           </div>
 
-          {/* Right Button */}
-          <div className="absolute right-0">
+          <div className="hidden md:block">
             <button 
               onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="flex items-center gap-2 px-5 py-2.5 bg-transparent border border-purple-500/30 hover:bg-white/5 rounded-xl text-[13px] font-medium text-white transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]"
+              className="group flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 hover:border-cyan-500/50 hover:bg-white/10 rounded-full text-[13px] font-semibold text-white transition-all shadow-lg hover:shadow-cyan-500/20"
             >
-              <Lock className="w-3.5 h-3.5 opacity-80" />
-              Connect Your DSPs
-              <ChevronRight className="w-3.5 h-3.5 opacity-50 ml-1" />
+              <Lock className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
+              Connect DSPs
+              <ChevronRight className="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-transform" />
             </button>
           </div>
         </header>
 
-        {/* Hero */}
-        <div className="w-full flex flex-col items-center justify-center text-center mt-10 md:mt-12 mb-12 md:mb-16 space-y-4 px-4 lg:pl-[260px]">
-          <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white tracking-tight">
-            What's Your Catalog Worth?
+        {/* Hero Section */}
+        <div className="w-full flex flex-col items-center justify-center text-center mt-12 md:mt-16 mb-16 space-y-6 px-4">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold tracking-wide uppercase mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            Industry Leading Valuation Engine
+          </div>
+          <h2 className="text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tight leading-tight">
+            What's Your <br className="md:hidden" />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
+              Catalog Worth?
+            </span>
           </h2>
-          <p className="text-white/60 text-sm md:text-[15px] max-w-3xl mx-auto">
-            Search for an artist and get an estimated catalog valuation based on Spotify, Apple Music, and YouTube.
+          <p className="text-white/60 text-[15px] md:text-lg max-w-2xl mx-auto font-medium leading-relaxed">
+            Discover the true value of your music rights. Search instantly for a quick estimate, or securely connect your platforms for an institutional-grade report.
           </p>
         </div>
 
-        {/* Option 1 Row */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start mb-12">
+        {/* Dual Card Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 relative z-20">
           
-          {/* Left Sidebar Option 1 */}
-          <div className="w-full lg:w-[220px] flex-shrink-0 pt-2 lg:pt-4">
-            <div className="inline-block px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold tracking-widest uppercase rounded border border-blue-500/20 mb-6">
-              OPTION 1
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full border border-blue-500/30 flex items-center justify-center flex-shrink-0 mt-1">
-                <Zap className="w-4 h-4 text-blue-400" />
+          {/* Card 1: Quick Search */}
+          <div className="bg-[#0A101D]/80 backdrop-blur-2xl border border-white/10 hover:border-white/20 rounded-[32px] p-8 lg:p-10 shadow-2xl transition-all relative overflow-hidden group">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            <div className="flex items-start gap-4 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                <Search className="w-5 h-5 text-cyan-400" />
               </div>
               <div>
-                <h3 className="text-xl lg:text-2xl font-bold mb-2 lg:mb-3 leading-tight">Get a quick<br/>estimate</h3>
-                <p className="text-xs text-white/40 leading-relaxed max-w-[200px]">
-                  Select one or multiple platforms to generate an overall estimated value.
-                </p>
+                <h3 className="text-2xl font-bold mb-1 text-white">Quick Estimate</h3>
+                <p className="text-sm text-white/50">Search any artist for an instant public-data valuation.</p>
               </div>
             </div>
 
-            {/* Added Login Section */}
-            <div className="mt-12 bg-white/5 border border-white/10 rounded-xl p-5 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl transform translate-x-1/2 -translate-y-1/2"></div>
-              <p className="text-xs text-white/80 font-medium mb-3 leading-relaxed relative z-10">
-                Login for a detailed valuation report
+            {/* Search Input */}
+            <div className="relative mb-8">
+              <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                <Search className="w-5 h-5 text-white/30" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Search artist name..."
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-12 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:bg-white/10 transition-all"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    setShowSuggestions(false);
+                    handleCalculate();
+                  }
+                }}
+              />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
+                {isSuggesting ? (
+                  <div className="w-4 h-4 border-2 border-cyan-500/50 border-t-cyan-400 rounded-full animate-spin" />
+                ) : null}
+              </div>
+              
+              {/* Auto-suggest */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#0B101A] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 backdrop-blur-xl">
+                  {suggestions.map((artist, idx) => (
+                    <button
+                      key={idx}
+                      className="w-full text-left px-4 py-3.5 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0 text-sm text-white flex items-center gap-3"
+                      onClick={() => {
+                        setSearchQuery(artist.artistName);
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      <Search className="w-4 h-4 text-white/40" />
+                      <span className="font-medium text-white/90">{artist.artistName}</span>
+                      {artist.primaryGenreName && (
+                        <span className="text-[10px] text-white/40 uppercase tracking-wider ml-auto bg-white/5 px-2 py-1 rounded-full">{artist.primaryGenreName}</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Platforms */}
+            <div className="mb-8">
+              <p className="text-[11px] text-white/40 font-bold tracking-widest uppercase mb-3">Include Data From</p>
+              <div className="space-y-2.5">
+                {[
+                  { id: 'spotify', name: 'Spotify', icon: 'M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z', color: 'text-[#1DB954]' },
+                  { id: 'apple', name: 'Apple Music', icon: 'M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.641-.026 2.669-1.48 3.666-2.928 1.16-1.68 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.484-4.662 2.597-4.74-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.702z', color: 'text-white' },
+                  { id: 'youtube', name: 'YouTube', icon: 'M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z', color: 'text-[#FF0000]' }
+                ].map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => setPlatforms(prev => ({ ...prev, [p.id]: !prev[p.id] }))}
+                    className={"w-full flex items-center p-3.5 rounded-xl border transition-all duration-300 " + (platforms[p.id] ? 'bg-white/10 border-white/20 shadow-lg' : 'bg-transparent border-white/5 hover:bg-white/5')}
+                  >
+                    <div className={"w-5 h-5 rounded flex items-center justify-center mr-4 transition-colors " + (platforms[p.id] ? 'bg-cyan-500' : 'bg-white/10')}>
+                      {platforms[p.id] && <Check className="w-3.5 h-3.5 text-black" strokeWidth={3} />}
+                    </div>
+                    <svg className={"w-5 h-5 mr-3 " + p.color} viewBox="0 0 24 24" fill="currentColor">
+                      <path d={p.icon} />
+                    </svg>
+                    <span className="text-sm font-semibold text-white/90">{p.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button 
+              onClick={handleCalculate}
+              disabled={isSearching || !searchQuery.trim()}
+              className="w-full py-4 bg-white hover:bg-gray-100 text-black rounded-xl text-sm font-bold shadow-xl shadow-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSearching ? (
+                <>
+                  <div className="w-4 h-4 border-[2px] border-black/20 border-t-black rounded-full animate-spin" />
+                  Analyzing Catalog...
+                </>
+              ) : (
+                <>
+                  <Calculator className="w-4 h-4" />
+                  Calculate Valuation
+                </>
+              )}
+            </button>
+            {error && <p className="text-red-400 text-sm text-center mt-4">{error}</p>}
+
+            {/* Results */}
+            <div className={"transition-all duration-500 overflow-hidden " + (estimatedValue !== null ? 'max-h-[700px] opacity-100 mt-8 pt-8 border-t border-white/10' : 'max-h-0 opacity-0 m-0 p-0 border-transparent')}>
+              <p className="text-[10px] text-cyan-400 font-bold tracking-widest uppercase text-center mb-3">Estimated Catalog Value</p>
+              <p className="text-[3rem] lg:text-[3.5rem] font-bold text-center tracking-tight mb-2 leading-none text-white drop-shadow-[0_0_15px_rgba(0,229,255,0.3)]">
+                {formatLocalCurrency(estimatedValue)}
               </p>
-              <button 
-                onClick={() => navigate('/auth')}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-[13px] font-semibold text-white transition-all shadow-lg shadow-blue-500/20 relative z-10"
+              <p className="text-xs text-white/40 text-center mb-6 max-w-sm mx-auto">
+                Based on top 10 tracks public data
+              </p>
+              
+              {/* Custom Options */}
+              <div className="flex flex-col gap-3 mb-8 bg-white/5 border border-white/10 p-4 rounded-2xl shadow-inner">
+                {/* Royalty Share Row */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-white/70">Royalty share</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center bg-black/20 border border-white/10 rounded-lg overflow-hidden h-8 focus-within:border-cyan-500/50 transition-colors">
+                      <input 
+                        type="number" 
+                        value={royaltyShare}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === '') setRoyaltyShare('');
+                          else setRoyaltyShare(Math.min(100, Math.max(0, Number(val))));
+                        }}
+                        className="w-12 bg-transparent text-white text-center text-sm focus:outline-none"
+                      />
+                      <span className="text-white/40 text-xs pr-2">%</span>
+                    </div>
+                    <button 
+                      onClick={() => setRoyaltyShare(100)}
+                      className="px-2.5 h-8 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20 rounded-lg text-xs font-semibold transition-all"
+                    >
+                      Get 100%
+                    </button>
+                  </div>
+                </div>
+
+                {/* Currency Row */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-white/70">Currency</span>
+                  <div className="relative">
+                    <select
+                      value={currency}
+                      onChange={(e) => setCurrency(e.target.value)}
+                      className="appearance-none bg-black/20 border border-white/10 text-white/90 text-xs font-semibold h-8 pl-3 pr-8 rounded-lg focus:outline-none focus:border-cyan-500/50 hover:border-white/20 transition-all cursor-pointer"
+                    >
+                      {availableCurrencies.map(curr => (
+                        <option key={curr} value={curr} className="bg-[#0A101D] text-white">
+                          {curr}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/50">
+                      <ChevronDown className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <a 
+                href="https://www.creativefundingagency.com/application"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full py-4 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 rounded-xl text-sm font-bold text-white shadow-lg transition-all items-center justify-center gap-2"
               >
-                <Lock className="w-3.5 h-3.5" />
-                Login
-              </button>
+                Get a Real Offer for this Catalog
+                <ChevronRight className="w-4 h-4" />
+              </a>
             </div>
           </div>
 
-          {/* Right Main Box Option 1 */}
-          <div className="flex-1 w-full">
-            <div className="bg-[#0B101A] border border-[#1A2333] rounded-[24px] p-6 lg:p-8 shadow-2xl relative">
-              
-              {/* Search */}
-              <div className="relative mb-8 z-50">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  placeholder="Search artist name..."
-                  className="w-full bg-[#05080F] border border-[#1A2333] rounded-xl py-4 pl-12 pr-12 text-sm text-white placeholder-white/30 focus:outline-none focus:border-cyan-500/50 transition-all"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      setShowSuggestions(false);
-                      handleCalculate();
-                    }
-                  }}
+          {/* Card 2: Connect DSPs */}
+          <div id="auth-section" className="bg-[#0A101D]/80 backdrop-blur-2xl border border-white/10 hover:border-white/20 rounded-[32px] p-8 lg:p-10 shadow-2xl transition-all relative overflow-hidden group">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-purple-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            <div className="flex items-start gap-4 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0">
+                <Lock className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-2xl font-bold mb-1 text-white">Detailed Report</h3>
+                <p className="text-sm text-white/50">Securely connect DSPs for a private, accurate appraisal.</p>
+              </div>
+            </div>
+
+            <div className="flex justify-center mb-8">
+              <div className="relative">
+                <div className="absolute inset-0 bg-emerald-500/20 blur-2xl rounded-full" />
+                <img 
+                  src="/logo.png" 
+                  alt="Logo" 
+                  className="w-20 h-20 object-contain relative z-10 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]"
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center">
-                  {isSuggesting ? (
-                    <div className="w-4 h-4 border-2 border-cyan-500/50 border-t-cyan-500 rounded-full animate-spin" />
-                  ) : (
-                    <Search className="w-4 h-4 text-white/30" />
-                  )}
-                </div>
-                
-                {/* Auto-suggest Dropdown */}
-                {showSuggestions && suggestions.length > 0 && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-[#05080F] border border-[#1A2333] rounded-xl shadow-2xl overflow-hidden z-50">
-                    {suggestions.map((artist, idx) => (
-                      <button
-                        key={idx}
-                        className="w-full text-left px-4 py-3 hover:bg-white/5 transition-colors border-b border-[#1A2333] last:border-0 text-sm text-white flex items-center gap-3"
-                        onClick={() => {
-                          setSearchQuery(artist.artistName);
-                          setShowSuggestions(false);
-                        }}
-                      >
-                        <Search className="w-4 h-4 text-white/30" />
-                        <span className="font-medium">{artist.artistName}</span>
-                        {artist.primaryGenreName && (
-                          <span className="text-[10px] text-white/40 uppercase tracking-wider ml-auto">{artist.primaryGenreName}</span>
-                        )}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {/* Distributor Dropdown */}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowDistributors(!showDistributors)}
+                  className="w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+                      <Landmark className="w-3.5 h-3.5 text-white/70" />
+                    </div>
+                    <span className="text-sm font-semibold text-white/90">Sign in to Distributor</span>
+                  </div>
+                  <ChevronDown className={"w-4 h-4 text-white/50 transition-transform " + (showDistributors ? 'rotate-180' : '')} />
+                </button>
+
+                {showDistributors && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-[#0B101A] border border-white/10 rounded-xl overflow-hidden z-20 py-2 shadow-2xl backdrop-blur-xl max-h-[250px] overflow-y-auto">
+                    {distributors.map((d, idx) => (
+                      <button key={idx} onClick={() => navigate('/import', { state: { distributor: d.name } })} className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 transition-colors text-left">
+                        <div className="w-6 h-6 rounded flex-shrink-0 overflow-hidden bg-white/5">
+                          <img 
+                            src={d.img} 
+                            alt={d.name} 
+                            className={"w-full h-full object-cover " + (d.name === 'Too Lost' ? 'scale-[1.4]' : '')}
+                            onError={(e) => e.target.style.display = 'none'}
+                          />
+                        </div>
+                        <span className="text-sm font-medium text-white/90">{d.name}</span>
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Data Sources */}
-              <div className="mb-8">
-                <p className="text-[10px] text-cyan-500 font-bold tracking-widest uppercase text-center mb-4">Select Data Sources</p>
-                <div className="space-y-2">
-                  {[
-                    { id: 'spotify', name: 'Spotify', icon: 'M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z', color: 'text-[#1DB954]' },
-                    { id: 'apple', name: 'Apple Music', icon: 'M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.641-.026 2.669-1.48 3.666-2.928 1.16-1.68 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.484-4.662 2.597-4.74-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.702z', color: 'text-white' },
-                    { id: 'youtube', name: 'YouTube', icon: 'M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z', color: 'text-[#FF0000]' }
-                  ].map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => setPlatforms(prev => ({ ...prev, [p.id]: !prev[p.id] }))}
-                      className="w-full flex items-center justify-between p-4 bg-[#05080F] border border-[#1A2333] hover:border-white/10 rounded-xl transition-all"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-[18px] h-[18px] rounded-[4px] flex items-center justify-center transition-colors ${platforms[p.id] ? 'bg-[#1DB954]' : 'bg-[#1A2333]'}`}>
-                          {platforms[p.id] && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
-                        </div>
-                        <svg className={`w-[18px] h-[18px] ${p.color}`} viewBox="0 0 24 24" fill="currentColor">
-                          <path d={p.icon} />
-                        </svg>
-                        <span className="text-sm font-medium">{p.name}</span>
-                      </div>
-                      <ChevronRight className="w-4 h-4 text-white/30" />
-                    </button>
-                  ))}
-                </div>
+              <div className="flex items-center gap-4 py-2">
+                <div className="flex-1 h-[1px] bg-white/10" />
+                <span className="text-[10px] uppercase tracking-widest text-white/30 font-bold">OR DIRECT DSP</span>
+                <div className="flex-1 h-[1px] bg-white/10" />
               </div>
 
-              <div className="flex items-center gap-2 mb-6 text-white/40">
-                <InfoIcon className="w-[14px] h-[14px] flex-shrink-0" />
-                <p className="text-[11px]">Combine Spotify, Apple Music, and YouTube for one overall estimated value.</p>
-              </div>
-
-              <button 
-                onClick={handleCalculate}
-                disabled={isSearching || !searchQuery.trim()}
-                className="w-full py-3.5 bg-gradient-to-b from-[#1E293B] to-[#0F172A] border border-[#334155] hover:border-cyan-500/50 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-sm font-medium text-white shadow-xl transition-all flex items-center justify-center gap-2"
+              <button
+                onClick={handleSpotifySignIn}
+                disabled={loading.spotify}
+                className="w-full py-4 bg-[#1DB954] hover:bg-[#1ED760] rounded-xl text-sm font-bold text-white transition-all shadow-lg shadow-[#1DB954]/20 flex items-center justify-center gap-3 disabled:opacity-50"
               >
-                {isSearching ? (
-                  <>
-                    <div className="w-4 h-4 border-[1.5px] border-white/30 border-t-[#00FF66] rounded-full animate-spin" />
-                    <span className="animate-pulse">Calculating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Calculator className="w-4 h-4 opacity-70" />
-                    Calculate Catalog Value
-                  </>
-                )}
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+                </svg>
+                {loading.spotify ? 'Connecting...' : 'Connect Spotify for Artists'}
               </button>
 
-              {error && (
-                <p className="text-red-400 text-sm text-center mt-4">{error}</p>
-              )}
-
-              {/* Results */}
-              <div className={`transition-all duration-500 overflow-hidden ${estimatedValue !== null ? 'max-h-[500px] opacity-100 mt-10 pt-8 border-t border-[#1A2333]' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
-                <p className="text-[10px] text-[#00E5FF] font-bold tracking-widest uppercase text-center mb-2">ESTIMATED CATALOG VALUE</p>
-                <p className="text-[3.5rem] font-bold text-center tracking-tight mb-2 leading-none text-white">
-                  {formatLocalCurrency(estimatedValue)}
-                </p>
-                <p className="text-[11px] text-white/40 text-center mb-6 max-w-sm mx-auto">
-                  This estimate is based on their top 10 songs only
-                </p>
-                
-                {/* Custom Inputs */}
-                <div className="flex flex-col gap-4 max-w-[320px] mx-auto mb-8 bg-[#0B101A] border border-[#1A2333] p-4 rounded-xl shadow-lg">
-                  {/* Royalty Share Row */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-medium text-white/70">Royalty share</span>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center bg-[#05080F] border border-[#1A2333] rounded-lg overflow-hidden h-8 focus-within:border-cyan-500/50 transition-colors">
-                        <input 
-                          type="number" 
-                          value={royaltyShare}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === '') setRoyaltyShare('');
-                            else setRoyaltyShare(Math.min(100, Math.max(0, Number(val))));
-                          }}
-                          className="w-12 bg-transparent text-white text-center text-sm focus:outline-none"
-                        />
-                        <span className="text-white/40 text-xs pr-2">%</span>
-                      </div>
-                      <button 
-                        onClick={() => setRoyaltyShare(100)}
-                        className="px-2.5 h-8 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20 rounded-lg text-xs font-semibold transition-all"
-                      >
-                        Get 100%
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Currency Row */}
-                  <div className="flex items-center justify-between">
-                    <span className="text-[13px] font-medium text-white/70">Currency</span>
-                    <div className="relative">
-                      <select
-                        value={currency}
-                        onChange={(e) => setCurrency(e.target.value)}
-                        className="appearance-none bg-[#05080F] border border-[#1A2333] text-white/90 text-xs font-semibold h-8 pl-3 pr-8 rounded-lg focus:outline-none focus:border-cyan-500/50 hover:border-white/20 transition-all cursor-pointer"
-                      >
-                        {availableCurrencies.map(curr => (
-                          <option key={curr} value={curr}>{curr}</option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white/50">
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                          <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <a 
-                  href="https://www.creativefundingagency.com/application"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mx-auto flex w-full max-w-[380px] py-3.5 bg-gradient-to-r from-[#C29C5B] to-[#A27A3F] hover:brightness-110 rounded-xl text-[15px] font-medium text-white shadow-xl transition-all items-center justify-center gap-3"
-                >
-                  Sell Your Catalog Now
-                  <span className="text-lg font-light leading-none mb-[2px]">&rarr;</span>
-                </a>
-              </div>
-
-            </div>
-          </div>
-        </div>
-
-        {/* Divider / Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 py-12 border-y border-[#1A2333] mb-12">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-white/80">Private & Confidential</p>
-              <p className="text-[10px] text-white/40">Your data is secure and never shared.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <p className="text-[10px] text-white/40 font-medium">Powered by</p>
-            <div className="flex items-center gap-1.5">
-              <span className="text-base font-bold tracking-tight">CFA</span>
-              <span className="text-[8px] text-white/60 font-medium leading-[10px] uppercase">CREATIVE FUNDING<br/>AGENCY</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full border border-white/20 flex items-center justify-center flex-shrink-0">
-              <CheckCircle2 className="w-3.5 h-3.5 text-white/60" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-white/80">Trusted by Artists & Rights Holders</p>
-              <p className="text-[10px] text-white/40">Accurate valuations. Real offers.</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Option 2 Row */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start" id="auth-section">
-          
-          {/* Left Sidebar Option 2 */}
-          <div className="w-full lg:w-[220px] flex-shrink-0 pt-2 lg:pt-4">
-            <div className="inline-block px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-bold tracking-widest uppercase rounded border border-purple-500/20 mb-6">
-              OPTION 2
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-1">
-                <Lock className="w-4 h-4 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-xl lg:text-2xl font-bold mb-2 lg:mb-3 leading-tight">Connect for<br/>actual valuation</h3>
-                <p className="text-xs text-white/40 leading-relaxed max-w-[200px]">
-                  Login via your preferred DSP to pull actual read-only account data for a more accurate valuation.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Main Box Option 2 */}
-          <div className="flex-1 w-full relative">
-            {/* Outer Box for Option 2 exactly like design */}
-            <div className="absolute -inset-8 border border-[#1A2333] rounded-[32px] pointer-events-none hidden lg:block" />
-            
-            <div className="bg-[#0B101A] border border-[#1A2333] rounded-[24px] p-6 lg:p-10 shadow-2xl relative max-w-[440px] mx-auto">
-              
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center mb-4">
-                  <img 
-                    src="/logo.png" 
-                    alt="Logo" 
-                    className="w-16 h-16 object-contain"
-                    style={{ filter: 'drop-shadow(0 0 15px rgba(16, 185, 129, 0.4))' }}
-                  />
-                </div>
-                <h4 className="text-[22px] font-bold mb-1 tracking-tight text-white">Welcome Back</h4>
-                <p className="text-[13px] text-white/50">Sign in to access actual valuation data</p>
-              </div>
-
-              {error && (
-                <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-400 text-center flex items-center justify-center gap-2">
-                  <span className="font-bold">Error:</span> {error}
-                </div>
-              )}
-
-              <div className="space-y-3">
-                {/* Distributor Dropdown */}
-                <div className="relative mb-6">
-                  <button 
-                    onClick={() => setShowDistributors(!showDistributors)}
-                    className="w-full flex items-center justify-between p-3.5 bg-[#05080F] border border-[#1A2333] rounded-xl hover:border-white/20 transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 flex items-center justify-center text-white/50">
-                        <Landmark className="w-4 h-4" />
-                      </div>
-                      <span className="text-sm font-medium text-white/80">Sign in to Distribution Company</span>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${showDistributors ? 'rotate-180' : ''}`} />
-                  </button>
-
-                  {showDistributors && (
-                    <div className="absolute top-full left-0 w-full mt-2 bg-[#0B101A] border border-[#1A2333] rounded-xl overflow-hidden z-20 py-2 shadow-2xl">
-                      {distributors.map((d, idx) => (
-                        <button key={idx} onClick={() => navigate('/import', { state: { distributor: d.name } })} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left">
-                          <div className="w-[18px] h-[18px] rounded-[4px] overflow-hidden flex-shrink-0 flex items-center justify-center">
-                            <img 
-                              src={d.img} 
-                              alt={d.name} 
-                              className={`w-full h-full object-cover ${d.name === 'Too Lost' ? 'scale-[1.4]' : ''}`}
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                if (e.target.parentElement.nextSibling) e.target.parentElement.nextSibling.style.display = 'flex';
-                              }}
-                            />
-                          </div>
-                          <div className="hidden w-[18px] h-[18px] rounded-[4px] items-center justify-center bg-gray-800 text-[10px] font-bold text-white uppercase">
-                            {d.name[0]}
-                          </div>
-                          <span className="text-[13px] text-white/90">{d.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* DSP Logins */}
+              <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={handleYouTubeSignIn}
                   disabled={loading.youtube}
-                  className="w-full py-3.5 bg-[#FF0000] hover:bg-[#CC0000] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-2"
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-4 h-4 text-[#FF0000]" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
                   </svg>
-                  {loading.youtube ? 'Connecting...' : 'Continue with YouTube'}
-                </button>
-
-                <button
-                  onClick={handleSpotifySignIn}
-                  disabled={loading.spotify}
-                  className="w-full py-3.5 bg-[#1DB954] hover:bg-[#1ED760] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                  </svg>
-                  {loading.spotify ? 'Connecting...' : 'Continue with Spotify'}
+                  {loading.youtube ? '...' : 'YouTube'}
                 </button>
                 
                 <button
                   onClick={handleAppleSignIn}
                   disabled={loading.apple}
-                  className="w-full py-3.5 bg-black hover:bg-[#111] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
+                  className="w-full py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center gap-2"
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.641-.026 2.669-1.48 3.666-2.928 1.16-1.68 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.484-4.662 2.597-4.74-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.702z" />
                   </svg>
-                  {loading.apple ? 'Connecting...' : 'Continue with Apple'}
+                  {loading.apple ? '...' : 'Apple'}
                 </button>
               </div>
+            </div>
 
-              <p className="text-center text-[9px] leading-relaxed text-white/30 mt-6 px-4">
-                By signing in, you agree to our Terms of Service and Privacy Policy.<br/>YouTube sign-in also requests read-only access to your channel.
-              </p>
+            <p className="text-center text-[10px] leading-relaxed text-white/30 mt-6 px-4">
+              By connecting, you agree to our <a href="#" className="underline hover:text-white/60">Terms</a>. We request read-only access.
+            </p>
+          </div>
+          
+        </div>
+
+        {/* Trust Badges Ribbon */}
+        <div className="mt-16 py-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 relative z-20">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-[#D4AF37]" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white/90">Institutional Security</p>
+              <p className="text-[11px] text-white/50">Your catalog data is strictly confidential.</p>
             </div>
           </div>
-
+          <div className="hidden md:block w-px h-10 bg-white/10" />
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-cyan-500/10 flex items-center justify-center">
+              <CheckCircle2 className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-white/90">Trusted Valuations</p>
+              <p className="text-[11px] text-white/50">Backed by real transaction models.</p>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
   );
+
 }
 
 function InfoIcon(props) {
