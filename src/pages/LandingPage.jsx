@@ -307,13 +307,30 @@ export default function LandingPage() {
           <div className="bg-[#0A101D]/80 backdrop-blur-2xl border border-white/10 hover:border-white/20 rounded-[32px] p-8 lg:p-10 shadow-2xl transition-all relative overflow-hidden group">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
-            <div className="flex items-start gap-4 mb-8">
-              <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                <Search className="w-5 h-5 text-cyan-400" />
+            <div className="mb-8">
+              <div className="inline-flex items-center px-3 py-1 rounded border border-blue-500/30 bg-blue-500/10 text-[10px] font-bold text-blue-400 tracking-wider mb-6">
+                OPTION 1
               </div>
-              <div>
-                <h3 className="text-2xl font-bold mb-1 text-white">Quick Estimate</h3>
-                <p className="text-sm text-white/50">Search any artist for an instant public-data valuation.</p>
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center flex-shrink-0">
+                  <Zap className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-2 text-white">Get a quick estimate</h3>
+                  <p className="text-sm text-white/50">Select one or multiple platforms to generate an overall estimated value.</p>
+                </div>
+              </div>
+              
+              {/* Nested Login Box from screenshot */}
+              <div className="mt-8 p-5 bg-[#0D1321] border border-white/5 rounded-2xl">
+                <p className="text-sm font-semibold text-white/90 mb-4">Login for a detailed valuation report</p>
+                <button 
+                  onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="w-full py-3 bg-[#2D68FF] hover:bg-[#255DE6] rounded-xl text-sm font-bold text-white transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
+                >
+                  <Lock className="w-4 h-4" />
+                  Login
+                </button>
               </div>
             </div>
 
