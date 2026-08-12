@@ -273,7 +273,7 @@ export default function LandingPage() {
 
           <div className="hidden md:block">
             <button 
-              onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => navigate('/auth')}
               className="group flex items-center gap-2 px-6 py-2.5 bg-white/5 border border-white/10 hover:border-cyan-500/50 hover:bg-white/10 rounded-full text-[13px] font-semibold text-white transition-all shadow-lg hover:shadow-cyan-500/20"
             >
               <Lock className="w-3.5 h-3.5 text-cyan-400 group-hover:scale-110 transition-transform" />
@@ -325,7 +325,7 @@ export default function LandingPage() {
               <div className="mt-8 p-5 bg-[#0D1321] border border-white/5 rounded-2xl">
                 <p className="text-sm font-semibold text-white/90 mb-4">Login for a detailed valuation report</p>
                 <button 
-                  onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={() => navigate('/auth')}
                   className="w-full py-3 bg-[#2D68FF] hover:bg-[#255DE6] rounded-xl text-sm font-bold text-white transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20"
                 >
                   <Lock className="w-4 h-4" />
