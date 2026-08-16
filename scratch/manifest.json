@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Music Catalog & Royalty Data Extractor",
+  "version": "1.0.0",
+  "description": "Export your track catalog, streams, and royalty data from distribution companies (DistroKid, TuneCore, etc.) to CSV.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "downloads"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*",
+    "file://*/*"
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "FluxtonX Extractor"
+  },
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "file://*/*", "file:///*"],
+      "js": ["scripts/content.js"]
+    }
+  ]
+}
