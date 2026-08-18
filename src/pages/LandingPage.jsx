@@ -285,7 +285,7 @@ export default function LandingPage() {
         </header>
 
         {/* Hero */}
-        <div className="w-full flex flex-col items-center justify-center text-center mt-10 md:mt-12 mb-12 md:mb-16 space-y-4 px-4">
+        <div className="w-full flex flex-col items-center justify-center text-center mt-10 md:mt-12 mb-12 md:mb-16 space-y-4 pl-16 md:pl-48 lg:pl-72 pr-4">
           <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white tracking-tight">
             What's Your Catalog Worth?
           </h2>
