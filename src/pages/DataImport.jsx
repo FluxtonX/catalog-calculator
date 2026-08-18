@@ -1,68 +1,121 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { UploadCloud, CheckCircle, ArrowLeft, Loader2, Music, DollarSign, ListMusic, User } from 'lucide-react';
+import { UploadCloud, ArrowLeft, Loader2, Music, DollarSign, ListMusic, User, Lock } from 'lucide-react';
 import { usePageTitle } from '../hooks/usePageTitle';
+import { supabase } from '../utils/supabase';
 
 export default function DataImport() {
   const location = useLocation();
   const navigate = useNavigate();
-  const distributor = location.state?.distributor || 'Your Distributor';
+  // Restore distributor from location.state or from localStorage (preserved across auth redirect)
+  const distributor = location.state?.distributor 
+    || window.localStorage.getItem('cc_pending_distributor') 
+    || 'Your Distributor';
   
   usePageTitle(`Data from ${distributor} | FluxtonX`);
 
   const [extractedData, setExtractedData] = useState(null);
   const [showExtensionModal, setShowExtensionModal] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [extensionInstalled, setExtensionInstalled] = useState(false);
+  const [user, setUser] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   useEffect(() => {
-    // The extension content script will add this attribute
+    // Use getSession() not getUser() to avoid 401 race conditions
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      // If user just logged in and we have extracted data that wasn't saved yet, save it now
+      if (currentUser && extractedData && !saveSuccess && !isSaving) {
+        setShowAuthModal(false);
+        saveToHistory(extractedData, currentUser.id);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [extractedData, saveSuccess, isSaving]);
+
+  const saveToHistory = async (dataToSave, userId) => {
+    if (isSaving || saveSuccess) return;
+    setIsSaving(true);
+    try {
+      const { error } = await supabase.from('extraction_history').insert([{
+         user_id: userId,
+         distributor: distributor,
+         artist_name: dataToSave.artistName || 'Unknown Artist',
+         total_revenue: parseFloat(dataToSave.totalRevenue || 0),
+         total_streams: parseInt(dataToSave.totalStreams || 0, 10),
+         total_tracks: parseInt(dataToSave.totalTracks || 0, 10)
+      }]);
+      if (error) {
+        console.error('Supabase insert error:', error);
+        throw error;
+      }
+      setSaveSuccess(true);
+      // Clean up all pending keys after successful save
+      window.localStorage.removeItem('cc_pending_save');
+      window.localStorage.removeItem('cc_pending_distributor');
+    } catch (err) {
+      console.error('Failed to save history:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDataReceived = async (data) => {
+      const formatted = {
+         artistName: data.artistName || 'Unknown Artist',
+         totalRevenue: data.totalRevenue || '0.00',
+         totalStreams: data.totalStreams || '0',
+         totalTracks: data.totalTracks || '0'
+      };
+      setExtractedData(formatted);
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+         setShowAuthModal(true);
+      } else {
+         await saveToHistory(formatted, session.user.id);
+      }
+  };
+
+  useEffect(() => {
     const checkInstallation = () => {
         if (document.body.hasAttribute('data-cc-ext-installed')) {
             setExtensionInstalled(true);
         }
     };
     
-    // Check immediately and then after a small delay in case extension script loads slightly after React
     checkInstallation();
     setTimeout(checkInstallation, 500);
 
-    // 1. ROBUST FALLBACK: Check if extension saved data to localStorage while this component was unmounted
     const storedData = window.localStorage.getItem('cc_pending_extraction');
     if (storedData) {
        try {
          const data = JSON.parse(storedData);
-         setExtractedData({
-           artistName: data.artistName || 'Unknown Artist',
-           totalRevenue: data.totalRevenue || '0.00',
-           totalStreams: data.totalStreams || '0',
-           totalTracks: data.totalTracks || '0'
-         });
+         handleDataReceived(data);
          window.localStorage.removeItem('cc_pending_extraction');
        } catch (err) {
          console.error("Failed to parse pending extraction data:", err);
        }
     }
     
-    // 2. LIVE LISTENER: Set up a listener for real-time messages from the extension's injected script
     const handleMessage = (event) => {
       if (event.data && event.data.type === 'CATALOG_CALCULATOR_DATA') {
-        const data = event.data.payload;
-        setExtractedData({
-           artistName: data.artistName || 'Unknown Artist',
-           totalRevenue: data.totalRevenue || '0.00',
-           totalStreams: data.totalStreams || '0',
-           totalTracks: data.totalTracks || '0'
-        });
+        handleDataReceived(event.data.payload);
       }
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [distributor]); // We intentionally leave saveToHistory dependencies out so it only triggers once per mount/message
 
+  // If they don't have the extension installed, remind them
   useEffect(() => {
-    // If they don't have the extension installed, remind them
     if (!extensionInstalled && !extractedData) {
-        // We delay it slightly so it doesn't flash if it loads instantly
         const timer = setTimeout(() => setShowExtensionModal(true), 1500);
         return () => clearTimeout(timer);
     } else {
@@ -86,6 +139,8 @@ export default function DataImport() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 pt-24 relative">
       
+      {/* Soft Save Banner - appears below data, not blocking */}
+
       {/* Extension Install Modal */}
       {showExtensionModal && !extractedData && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
@@ -156,12 +211,7 @@ export default function DataImport() {
              </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-               <div className="flex items-center justify-center gap-2 mb-8">
-                  <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center">
-                    <CheckCircle className="text-emerald-600 dark:text-emerald-400 w-5 h-5" />
-                  </div>
-                  <span className="text-emerald-700 dark:text-emerald-400 font-bold">Extraction Successful</span>
-               </div>
+               {/* Extraction Successful text has been removed as per client request */}
                
                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-8 shadow-inner">
                   <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-700">
@@ -201,9 +251,53 @@ export default function DataImport() {
                   </div>
                </div>
 
-               <p className="text-center text-sm text-slate-500 dark:text-slate-400">
-                 This is a one-time secure view. If you refresh the page, this data will be cleared from your screen.
-               </p>
+               {/* Save Banner */}
+               {user && saveSuccess ? (
+                  <div className="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+                     <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">✓ Saved to your account — find it anytime in the sidebar.</span>
+                  </div>
+               ) : user && isSaving ? (
+                  <div className="flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
+                     <span className="text-slate-500 dark:text-slate-400 text-sm animate-pulse">Saving to your account...</span>
+                  </div>
+               ) : !user && showAuthModal ? (
+                  <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl">
+                     <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Lock className="text-indigo-600 dark:text-indigo-400 w-5 h-5" />
+                     </div>
+                     <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-800 dark:text-white mb-0.5">Log in to save this dashboard</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                           Next time you visit, your <span className="font-semibold text-indigo-600 dark:text-indigo-400">{distributor}</span> data will load instantly from your history — no extraction needed.
+                        </p>
+                     </div>
+                     <div className="flex flex-col gap-2 flex-shrink-0">
+                        <button
+                           onClick={() => {
+                             // Preserve both data AND distributor name across auth redirect
+                             if (extractedData) {
+                               window.localStorage.setItem('cc_pending_extraction', JSON.stringify(extractedData));
+                               window.localStorage.setItem('cc_pending_distributor', distributor);
+                             }
+                             navigate('/auth');
+                           }}
+                           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm shadow-indigo-500/30 whitespace-nowrap"
+                        >
+                           Log In / Sign Up
+                        </button>
+                        <button
+                           onClick={() => setShowAuthModal(false)}
+                           className="px-4 py-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 text-xs font-semibold text-center transition-colors"
+                        >
+                           Not now
+                        </button>
+                     </div>
+                  </div>
+               ) : (
+                  <p className="text-center text-xs text-slate-400 dark:text-slate-500">
+                     This is a one-time secure view. Refresh the page to clear.
+                  </p>
+               )}
             </div>
           )}
 

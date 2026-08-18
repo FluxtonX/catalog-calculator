@@ -8,6 +8,10 @@ import {
   User,
   ChevronRight,
   FileText,
+  History,
+  Trash2,
+  Database,
+  Clock
 } from "lucide-react";
 import { supabase } from "../../utils/supabase";
 import ThemeToggle from "../ui/ThemeToggle";
@@ -16,6 +20,8 @@ import { useArtistStore } from "../../store/artistStore";
 const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
   const { platform } = useArtistStore();
 
   // ── Platform config ────────────────────────────────────────────────────────
@@ -51,19 +57,72 @@ const Sidebar = ({ isOpen, onClose }) => {
 
   const theme = platformConfig[platform] || platformConfig.spotify;
 
+  const fetchHistory = async (userId) => {
+    try {
+      setLoadingHistory(true);
+      const { data, error } = await supabase
+        .from('extraction_history')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+        
+      if (!error && data) {
+        setHistory(data);
+      }
+    } catch (err) {
+      console.error("Error fetching history:", err);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) fetchHistory(currentUser.id);
+      else setLoadingHistory(false);
     });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+         fetchHistory(currentUser.id);
+      } else {
+         setHistory([]);
+         setLoadingHistory(false);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleDeleteHistory = async (id, e) => {
+     e.stopPropagation();
+     e.preventDefault();
+     // Optimistic update
+     setHistory(prev => prev.filter(item => item.id !== id));
+     try {
+        await supabase.from('extraction_history').delete().eq('id', id);
+     } catch (err) {
+        console.error("Failed to delete:", err);
+     }
+  };
+
+  const loadHistoryItem = (item) => {
+     // Save to localStorage so DataImport picks it up as if the extension just sent it
+     window.localStorage.setItem('cc_pending_extraction', JSON.stringify({
+         artistName: item.artist_name,
+         totalRevenue: item.total_revenue,
+         totalStreams: item.total_streams,
+         totalTracks: item.total_tracks
+     }));
+     navigate('/import', { state: { distributor: item.distributor } });
+     if (window.innerWidth < 1024) onClose();
+  };
 
   const handleLogout = async () => {
     try {
@@ -89,12 +148,6 @@ const Sidebar = ({ isOpen, onClose }) => {
       icon: FileText,
       description: "View saved reports",
     },
-    // {
-    //   path: "/admin",
-    //   label: "Admin Panel",
-    //   icon: Users,
-    //   description: "Manage users",
-    // },
   ];
 
   const handleNavClick = () => {
@@ -228,6 +281,74 @@ const Sidebar = ({ isOpen, onClose }) => {
               )}
             </NavLink>
           ))}
+
+          {/* ── Distributor History Section ──────────────────────────── */}
+          <div className="mt-8 mb-2">
+             <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-3 flex items-center gap-2">
+               <Database size={12} />
+               Distributor History
+             </p>
+             
+             {!user ? (
+                <div className="px-4 py-3 text-xs text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/30 rounded-lg mx-2 border border-gray-100 dark:border-slate-800">
+                   Log in to view and save your extracted dashboards.
+                </div>
+             ) : loadingHistory ? (
+                <div className="px-4 py-3 text-xs text-gray-500 dark:text-slate-400 animate-pulse flex items-center gap-2">
+                   Loading history...
+                </div>
+             ) : history.length === 0 ? (
+                <div className="px-4 py-3 text-xs text-gray-500 dark:text-slate-400 bg-gray-50 dark:bg-slate-800/30 rounded-lg mx-2 border border-gray-100 dark:border-slate-800">
+                   No dashboards saved yet.
+                </div>
+             ) : (
+                <div className="space-y-1">
+                   {history.map((item) => {
+                      const isUnknownDistributor = !item.distributor || item.distributor === 'Your Distributor';
+                      const formattedDate = item.created_at 
+                        ? new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                        : null;
+                      
+                      return (
+                         <div 
+                            key={item.id}
+                            onClick={() => loadHistoryItem(item)}
+                            className="group flex items-start justify-between px-3 py-3 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-800 transition-all duration-200"
+                         >
+                            <div className="flex items-start gap-2 min-w-0 flex-1">
+                               <History size={14} className="flex-shrink-0 opacity-40 mt-1" />
+                               <div className="min-w-0">
+                                  <p className="text-sm font-semibold truncate leading-tight text-gray-800 dark:text-slate-200">{item.artist_name}</p>
+                                  {isUnknownDistributor ? (
+                                     <span className="inline-block mt-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                                        Unknown Company
+                                     </span>
+                                  ) : (
+                                     <span className="inline-block mt-1 px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                                        {item.distributor}
+                                     </span>
+                                  )}
+                                  {formattedDate && (
+                                     <div className="flex items-center gap-1 mt-1.5">
+                                        <Clock size={9} className="text-gray-400 dark:text-slate-500" />
+                                        <span className="text-[10px] text-gray-400 dark:text-slate-500">{formattedDate}</span>
+                                     </div>
+                                  )}
+                               </div>
+                            </div>
+                            <button 
+                               onClick={(e) => handleDeleteHistory(item.id, e)}
+                               className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 focus:opacity-100 flex-shrink-0 mt-0.5"
+                               title="Delete from history"
+                            >
+                               <Trash2 size={14} />
+                            </button>
+                         </div>
+                      );
+                   })}
+                </div>
+             )}
+          </div>
         </nav>
 
         {/* ── Bottom Section ────────────────────────────────────────── */}

@@ -26,9 +26,41 @@ export default function Auth() {
   ];
 
   useEffect(() => {
+    // Step 1: Manually extract tokens from URL hash (permanent fix for React Router race condition)
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+
+    console.log('🔍 Auth.jsx useEffect: hash=', hash ? 'EXISTS' : 'EMPTY');
+    console.log('🔍 access_token found:', !!accessToken);
+    console.log('🔍 refresh_token found:', !!refreshToken);
+
+    if (accessToken && refreshToken) {
+      console.log('🛠️ Calling setSession...');
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .then(({ data, error }) => {
+          console.log('setSession result - error:', error, 'session:', !!data?.session);
+          if (error) {
+            setError(`Auth failed: ${error.message}`);
+          } else if (data?.session) {
+            window.history.replaceState(null, '', window.location.pathname);
+            // If there's pending extraction data, go back to /import to save it
+            const hasPending = !!window.localStorage.getItem('cc_pending_extraction');
+            navigate(hasPending ? '/import' : '/valuation', { replace: true });
+          } else {
+            setError('Session could not be established. Please try again.');
+          }
+        });
+      return;
+    }
+
+    // Step 2: Normal auth state listener for already-logged-in users
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, !!session);
       if (session) {
-        navigate('/valuation', { replace: true });
+        const hasPending = !!window.localStorage.getItem('cc_pending_extraction');
+        navigate(hasPending ? '/import' : '/valuation', { replace: true });
       }
     });
 
@@ -50,7 +82,8 @@ export default function Auth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/valuation`,
+          // Redirect back to /auth so our token-extraction code fires before navigating
+          redirectTo: `${window.location.origin}/auth`,
         },
       });
       if (error) throw error;
@@ -67,7 +100,7 @@ export default function Auth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/valuation`,
+          redirectTo: `${window.location.origin}/auth`,
           scopes: 'email profile',
         },
       });
@@ -85,7 +118,7 @@ export default function Auth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'spotify',
         options: {
-          redirectTo: `${window.location.origin}/valuation`,
+          redirectTo: `${window.location.origin}/auth`,
           scopes: 'user-read-email user-read-private',
         },
       });
@@ -103,7 +136,7 @@ export default function Auth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: {
-          redirectTo: `${window.location.origin}/valuation`,
+          redirectTo: `${window.location.origin}/auth`,
         },
       });
       if (error) throw error;
