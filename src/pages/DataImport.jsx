@@ -1,8 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Papa from 'papaparse';
-import { UploadCloud, FileText, CheckCircle, AlertCircle, Edit3, ArrowRight, X, Info } from 'lucide-react';
-import { useArtistStore } from '../store/artistStore';
+import { UploadCloud, CheckCircle, ArrowLeft, Loader2, Music, DollarSign, ListMusic, User } from 'lucide-react';
 import { usePageTitle } from '../hooks/usePageTitle';
 
 export default function DataImport() {
@@ -10,299 +8,203 @@ export default function DataImport() {
   const navigate = useNavigate();
   const distributor = location.state?.distributor || 'Your Distributor';
   
-  usePageTitle(`Import from ${distributor} | FluxtonX`);
+  usePageTitle(`Data from ${distributor} | FluxtonX`);
 
-  const { setImportedData, setSelectedDistributor, clearArtist, setSearchQuery } = useArtistStore();
-  
-  const [activeTab, setActiveTab] = useState('upload'); // 'upload' or 'manual'
-  const [isDragging, setIsDragging] = useState(false);
-  const [file, setFile] = useState(null);
-  const [error, setError] = useState(null);
-  const [parsing, setParsing] = useState(false);
-  
-  // Manual form state
-  const [manualData, setManualData] = useState({
-    artistName: '',
-    totalStreams: '',
-    totalRevenue: '',
-    totalTracks: ''
-  });
+  const [extractedData, setExtractedData] = useState(null);
+  const [showExtensionModal, setShowExtensionModal] = useState(false);
+  const [extensionInstalled, setExtensionInstalled] = useState(false);
 
-  const fileInputRef = useRef(null);
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const droppedFile = e.dataTransfer.files[0];
-    if (droppedFile?.type === 'text/csv' || droppedFile?.name.endsWith('.csv')) {
-      setFile(droppedFile);
-      setError(null);
-    } else {
-      setError('Please upload a valid CSV file.');
-    }
-  };
-
-  const handleFileSelect = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      setError(null);
-    }
-  };
-
-  const processImport = (data) => {
-    clearArtist();
-    setSelectedDistributor(distributor);
-    setImportedData(data);
-    if (data.artistName) {
-      setSearchQuery(data.artistName);
-    }
-    navigate('/valuation');
-  };
-
-  const handleUploadSubmit = () => {
-    if (!file) return;
-    setParsing(true);
-    
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        try {
-          // A very basic generalized heuristic parser for demonstration
-          // Real-world would have specific mapping logic for TuneCore, DistroKid etc.
-          let totalStreams = 0;
-          let totalRevenue = 0;
-          let totalTracksSet = new Set();
-
-          results.data.forEach(row => {
-            // Try to find common column names
-            const streamKey = Object.keys(row).find(k => k.toLowerCase().includes('stream') || k.toLowerCase().includes('quantity') || k.toLowerCase().includes('plays'));
-            const revKey = Object.keys(row).find(k => k.toLowerCase().includes('revenue') || k.toLowerCase().includes('earning') || k.toLowerCase().includes('royalty') || k.toLowerCase().includes('usd'));
-            const trackKey = Object.keys(row).find(k => k.toLowerCase().includes('track') || k.toLowerCase().includes('title') || k.toLowerCase().includes('song'));
-
-            if (streamKey) totalStreams += parseInt(row[streamKey] || 0, 10);
-            if (revKey) totalRevenue += parseFloat(row[revKey] || 0);
-            if (trackKey && row[trackKey]) totalTracksSet.add(row[trackKey]);
-          });
-
-          // Fallback if parsing fails to find anything meaningful due to weird headers
-          if (totalStreams === 0 && totalRevenue === 0) {
-             throw new Error("Could not automatically identify Streams or Revenue columns in this CSV.");
-          }
-
-          processImport({
-            artistName: manualData.artistName,
-            totalStreams,
-            totalRevenue,
-            totalTracks: totalTracksSet.size > 0 ? totalTracksSet.size : 10 // fallback 10
-          });
-        } catch (err) {
-          setError(err.message || 'Error processing CSV file.');
-        } finally {
-          setParsing(false);
+  useEffect(() => {
+    // The extension content script will add this attribute
+    const checkInstallation = () => {
+        if (document.body.hasAttribute('data-cc-ext-installed')) {
+            setExtensionInstalled(true);
         }
-      },
-      error: () => {
-        setError('Failed to parse CSV file.');
-        setParsing(false);
-      }
-    });
-  };
+    };
+    
+    // Check immediately and then after a small delay in case extension script loads slightly after React
+    checkInstallation();
+    setTimeout(checkInstallation, 500);
 
-  const handleManualSubmit = (e) => {
-    e.preventDefault();
-    processImport({
-      artistName: manualData.artistName || 'Your Catalog',
-      totalStreams: parseInt(manualData.totalStreams, 10) || 0,
-      totalRevenue: parseFloat(manualData.totalRevenue) || 0,
-      totalTracks: parseInt(manualData.totalTracks, 10) || 1
-    });
+    // 1. ROBUST FALLBACK: Check if extension saved data to localStorage while this component was unmounted
+    const storedData = window.localStorage.getItem('cc_pending_extraction');
+    if (storedData) {
+       try {
+         const data = JSON.parse(storedData);
+         setExtractedData({
+           artistName: data.artistName || 'Unknown Artist',
+           totalRevenue: data.totalRevenue || '0.00',
+           totalStreams: data.totalStreams || '0',
+           totalTracks: data.totalTracks || '0'
+         });
+         window.localStorage.removeItem('cc_pending_extraction');
+       } catch (err) {
+         console.error("Failed to parse pending extraction data:", err);
+       }
+    }
+    
+    // 2. LIVE LISTENER: Set up a listener for real-time messages from the extension's injected script
+    const handleMessage = (event) => {
+      if (event.data && event.data.type === 'CATALOG_CALCULATOR_DATA') {
+        const data = event.data.payload;
+        setExtractedData({
+           artistName: data.artistName || 'Unknown Artist',
+           totalRevenue: data.totalRevenue || '0.00',
+           totalStreams: data.totalStreams || '0',
+           totalTracks: data.totalTracks || '0'
+        });
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  useEffect(() => {
+    // If they don't have the extension installed, remind them
+    if (!extensionInstalled && !extractedData) {
+        // We delay it slightly so it doesn't flash if it loads instantly
+        const timer = setTimeout(() => setShowExtensionModal(true), 1500);
+        return () => clearTimeout(timer);
+    } else {
+        setShowExtensionModal(false);
+    }
+  }, [extensionInstalled, extractedData]);
+
+  // Format helpers
+  const formatCurrency = (val) => {
+    const num = parseFloat(val);
+    if (isNaN(num)) return "$0.00";
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+  };
+  
+  const formatNumber = (val) => {
+    const num = parseInt(val, 10);
+    if (isNaN(num)) return "0";
+    return new Intl.NumberFormat('en-US').format(num);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 pt-24">
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 pt-24 relative">
+      
+      {/* Extension Install Modal */}
+      {showExtensionModal && !extractedData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border border-slate-200 dark:border-slate-800">
+            <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+               <UploadCloud className="text-indigo-600 dark:text-indigo-400 w-8 h-8" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Extension Required</h3>
+            <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
+              To use automated extraction for {distributor}, you must install the <b>Catalog Calculator Extractor</b> extension.
+            </p>
+            <div className="flex flex-col gap-3">
+              <a 
+                href="https://chromewebstore.google.com/detail/catalog-calculator-extractor/INSERT_ID_HERE" 
+                target="_blank" 
+                rel="noreferrer"
+                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30"
+                onClick={() => setShowExtensionModal(false)}
+              >
+                Install Extension
+              </a>
+              <button 
+                onClick={() => setShowExtensionModal(false)}
+                className="w-full py-3.5 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold"
+              >
+                I already installed it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button onClick={() => navigate('/')} className="absolute top-28 left-6 md:left-12 flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white font-semibold transition-colors">
+        <ArrowLeft size={18} /> Back
+      </button>
+
+      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden relative">
         
         {/* Header */}
         <div className="bg-gradient-to-br from-indigo-500 to-purple-600 p-8 text-center relative overflow-hidden">
            <div className="absolute inset-0 bg-black/10"></div>
            <div className="relative z-10">
-             <h1 className="text-3xl font-black text-white tracking-tight mb-2">Import from {distributor}</h1>
-             <p className="text-white/80 font-medium">Upload your earnings report to generate a valuation.</p>
+             <h1 className="text-3xl font-black text-white tracking-tight mb-2">{distributor} Dashboard</h1>
+             <p className="text-white/80 font-medium">
+               {extractedData ? 'Your catalog data has been successfully imported.' : 'Waiting for real-time extraction.'}
+             </p>
            </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-slate-200 dark:border-slate-800">
-          <button
-            onClick={() => setActiveTab('upload')}
-            className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors ${activeTab === 'upload' ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-          >
-            <UploadCloud size={18} />
-            CSV Upload
-          </button>
-          <button
-            onClick={() => setActiveTab('manual')}
-            className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-colors ${activeTab === 'manual' ? 'text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-600 dark:border-indigo-400' : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'}`}
-          >
-            <Edit3 size={18} />
-            Manual Entry
-          </button>
-        </div>
-
         <div className="p-8">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/30 rounded-xl flex items-start gap-3">
-              <AlertCircle className="text-red-600 dark:text-red-400 mt-0.5 shrink-0" size={18} />
-              <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>
-            </div>
-          )}
-
-          {activeTab === 'upload' && (
-            <div className="space-y-6">
-              {!file ? (
-                <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  className={`border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center transition-all cursor-pointer ${isDragging ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20' : 'border-slate-300 dark:border-slate-700 hover:border-indigo-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'}`}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center mb-4">
-                    <UploadCloud className="text-indigo-600 dark:text-indigo-400" size={28} />
+          
+          {!extractedData ? (
+             <div className="flex flex-col items-center justify-center py-12 text-center">
+                <div className="w-20 h-20 relative mb-8">
+                  <div className="absolute inset-0 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
+                  <div className="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                     <Loader2 className="text-indigo-500 animate-pulse w-8 h-8" />
                   </div>
-                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Drag & Drop your CSV</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 text-center max-w-xs">Upload your lifetime or monthly earnings report downloaded from {distributor}.</p>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    ref={fileInputRef}
-                    onChange={handleFileSelect}
-                  />
-                  <button className="mt-6 px-6 py-2 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold rounded-lg text-sm hover:scale-105 transition-transform">
-                    Browse Files
-                  </button>
                 </div>
-              ) : (
-                <div className="border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center shrink-0">
-                      <FileText className="text-emerald-600 dark:text-emerald-400" size={24} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-slate-800 dark:text-white truncate">{file.name}</p>
-                      <p className="text-xs text-slate-500">{(file.size / 1024).toFixed(1)} KB</p>
-                    </div>
-                    <button onClick={() => setFile(null)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full text-slate-500">
-                      <X size={18} />
-                    </button>
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Awaiting Data...</h3>
+                <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-6 leading-relaxed">
+                  Please open your <b>{distributor}</b> dashboard in a new tab. Our secure extension will automatically extract your data once the page fully loads.
+                </p>
+                <a href="https://pubroyalty.concord.com/" target="_blank" rel="noreferrer" className="px-6 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">
+                  Open {distributor}
+                </a>
+             </div>
+          ) : (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+               <div className="flex items-center justify-center gap-2 mb-8">
+                  <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/40 rounded-full flex items-center justify-center">
+                    <CheckCircle className="text-emerald-600 dark:text-emerald-400 w-5 h-5" />
                   </div>
-                  <div className="mb-4">
-                    <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Artist Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={manualData.artistName}
-                      onChange={e => setManualData({...manualData, artistName: e.target.value})}
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                      placeholder="e.g. The Beatles"
-                    />
-                    <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">We need this to match your private data with a public profile.</p>
-                  </div>
-                  <button
-                    onClick={handleUploadSubmit}
-                    disabled={parsing || !manualData.artistName}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-indigo-500/30"
-                  >
-                    {parsing ? 'Processing...' : 'Generate Valuation'}
-                    {!parsing && <ArrowRight size={18} />}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+                  <span className="text-emerald-700 dark:text-emerald-400 font-bold">Extraction Successful</span>
+               </div>
+               
+               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-8 shadow-inner">
+                  <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-700">
+                     
+                     <div className="p-6 flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
+                          <User size={16} />
+                          <span className="text-xs font-bold uppercase tracking-wider">Artist Name</span>
+                        </div>
+                        <p className="text-xl font-black text-slate-800 dark:text-white truncate">{extractedData.artistName}</p>
+                     </div>
 
-          {activeTab === 'manual' && (
-            <form onSubmit={handleManualSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Artist Name</label>
-                <input
-                  type="text"
-                  required
-                  value={manualData.artistName}
-                  onChange={e => setManualData({...manualData, artistName: e.target.value})}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder="e.g. The Beatles"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Total Lifetime Streams</label>
-                <input
-                  type="number"
-                  required
-                  min="0"
-                  value={manualData.totalStreams}
-                  onChange={e => setManualData({...manualData, totalStreams: e.target.value})}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder="e.g. 1500000"
-                />
-                <p className="mt-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <Info size={12} className="shrink-0" />
-                  Found in your {distributor} dashboard under 'Analytics' or 'Streaming Reports'.
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Total Lifetime Revenue (USD)</label>
-                <input
-                  type="number"
-                  required
-                  step="0.01"
-                  min="0"
-                  value={manualData.totalRevenue}
-                  onChange={e => setManualData({...manualData, totalRevenue: e.target.value})}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder="e.g. 4500.50"
-                />
-                <p className="mt-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <Info size={12} className="shrink-0" />
-                  Look for 'Lifetime Earnings' or 'Total Revenue' in the {distributor} bank/wallet section.
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5">Total Tracks in Catalog</label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  value={manualData.totalTracks}
-                  onChange={e => setManualData({...manualData, totalTracks: e.target.value})}
-                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
-                  placeholder="e.g. 15"
-                />
-                <p className="mt-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                  <Info size={12} className="shrink-0" />
-                  The total number of songs/tracks you have distributed through {distributor}.
-                </p>
-              </div>
-              <button
-                type="submit"
-                className="w-full mt-2 flex items-center justify-center gap-2 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30"
-              >
-                Generate Valuation
-                <ArrowRight size={18} />
-              </button>
-            </form>
+                     <div className="p-6 flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
+                          <DollarSign size={16} />
+                          <span className="text-xs font-bold uppercase tracking-wider">Lifetime Revenue</span>
+                        </div>
+                        <p className="text-xl font-black text-slate-800 dark:text-white text-emerald-600 dark:text-emerald-400">{formatCurrency(extractedData.totalRevenue)}</p>
+                     </div>
+
+                     <div className="p-6 flex flex-col gap-1 md:border-t border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
+                          <Music size={16} />
+                          <span className="text-xs font-bold uppercase tracking-wider">Total Streams</span>
+                        </div>
+                        <p className="text-xl font-black text-slate-800 dark:text-white">{formatNumber(extractedData.totalStreams)}</p>
+                     </div>
+
+                     <div className="p-6 flex flex-col gap-1 md:border-t border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
+                          <ListMusic size={16} />
+                          <span className="text-xs font-bold uppercase tracking-wider">Total Tracks</span>
+                        </div>
+                        <p className="text-xl font-black text-slate-800 dark:text-white">{formatNumber(extractedData.totalTracks)}</p>
+                     </div>
+
+                  </div>
+               </div>
+
+               <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+                 This is a one-time secure view. If you refresh the page, this data will be cleared from your screen.
+               </p>
+            </div>
           )}
 
         </div>

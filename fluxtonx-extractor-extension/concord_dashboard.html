@@ -1,0 +1,30 @@
+<!-- Please paste the HTML from pubroyalty.concord.com here and save the file -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <base href="./">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>Loading...</title>
+
+    <link rel="preload" href="./src/assets/fonts/Inter-roman.var.woff2" as="font" crossorigin="anonymous">
+    <link rel="preload" href="./src/assets/fonts/icomoon.ttf" as="font" crossorigin="anonymous">
+    <link rel="stylesheet" href="./src/assets/css/main.css">
+</head>
+
+<body>
+    <script src="./src/system.js"></script>
+                    <script src="./src/bundles/core-js-bundle.js"></script>
+                    <script src="./src/systemjs.config.prod.js"></script>
+                    <script src="./src/web-animations.min.js"></script>
+    <script>
+        SystemJS.import('@/services/Authentication');
+    </script>
+
+    <div id="app"></div>
+</body>
+
+</html>

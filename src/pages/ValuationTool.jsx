@@ -473,6 +473,10 @@ const ValuationTool = () => {
     setShowChannelSelector(false);
     setYoutubeChannels([]);
     let hasChannelList = false;
+    
+    // Professional Message State (we can use the error state but style it nicely if it's just a warning)
+    let publicArtistMissingWarning = null;
+
     try {
       const results = await Promise.allSettled(
         platforms.map(p => doSearchForPlatform(searchQuery, p))
@@ -480,16 +484,33 @@ const ValuationTool = () => {
       
       const newSelectedArtists = {};
       let youtubeChannelsData = [];
+      let foundValidPublicArtist = false;
+
+      // Helper function to check if the returned artist name is a reasonable match to the query
+      const isReasonableMatch = (query, resultName) => {
+         if (!resultName) return false;
+         const q = query.toLowerCase().replace(/[^a-z0-9]/g, '');
+         const r = resultName.toLowerCase().replace(/[^a-z0-9]/g, '');
+         return q.includes(r) || r.includes(q) || q.length === 0;
+      };
       
       results.forEach((res, i) => {
         const p = platforms[i];
         if (res.status === 'fulfilled') {
           const data = res.value;
           if (data?.type === "channel_list") {
+            // For channel lists, we assume the user will pick the right one, so we don't strict match yet
             youtubeChannelsData = data.channels;
             hasChannelList = true;
+            foundValidPublicArtist = true;
           } else if (data?.name) {
-            newSelectedArtists[p] = { ...data, platform: p };
+             // Strict matching algorithm to prevent showing unrelated artists
+             if (isReasonableMatch(searchQuery, data.name)) {
+                newSelectedArtists[p] = { ...data, platform: p };
+                foundValidPublicArtist = true;
+             } else {
+                console.warn(`Rejected ${data.name} from ${p} as it did not match query: ${searchQuery}`);
+             }
           }
         }
       });
@@ -500,17 +521,21 @@ const ValuationTool = () => {
         try {
           const bestChannel = youtubeChannelsData[0];
           const details = await getYouTubeChannelDetails(searchQuery, bestChannel.id);
-          newSelectedArtists["youtube"] = { ...details, platform: "youtube" };
+          if (isReasonableMatch(searchQuery, details.name)) {
+             newSelectedArtists["youtube"] = { ...details, platform: "youtube" };
+          }
         } catch (err) {
           console.error("Auto-fetch for top YouTube channel failed:", err);
         }
         setShowChannelSelector(true);
       }
       
-      if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList && !importedData) {
-        const rejected = results.find(res => res.status === 'rejected');
-        if (rejected) throw rejected.reason;
-        throw new Error("Failed to fetch data from selected platforms");
+      if (!foundValidPublicArtist && !importedData) {
+        throw new Error(`We couldn't find public catalog information for "${searchQuery}" in our databases. Please check the spelling or try another artist.`);
+      }
+      
+      if (!foundValidPublicArtist && importedData) {
+         publicArtistMissingWarning = `Public catalog information for "${searchQuery}" was not found in our databases. We have generated your valuation using your private dashboard data only.`;
       }
 
       if (importedData) {
@@ -529,7 +554,13 @@ const ValuationTool = () => {
       setSelectedArtists(newSelectedArtists);
       if (platforms.length === 1) setSelectedArtist(newSelectedArtists[platforms[0]]);
       
-      setError(null);
+      // If we only have custom data and no public data, show the professional warning
+      if (publicArtistMissingWarning) {
+         setError(publicArtistMissingWarning);
+      } else {
+         setError(null);
+      }
+      
       saveRecentSearch(searchQuery);
 
     } catch (err) {
