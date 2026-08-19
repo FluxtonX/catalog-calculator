@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark } from 'lucide-react';
+import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark, LineChart } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 import { searchApify, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation, formatCurrency } from '../utils/combinedValuation';
@@ -154,16 +154,10 @@ export default function LandingPage() {
       const val = getCombinedValuation(artistsMap);
       setEstimatedValue(val);
       
-      // ── KEY FIX ──────────────────────────────────────────────────────────────
-      // Save EXACTLY what was fetched into the global store — artistsMap, the
-      // search query, AND the active platform list. This means when the Valuation
-      // Tool loads it uses the SAME data and does NOT re-trigger API calls for
-      // platforms the user did not select on the Landing Page.
       clearImportedData();
       setStoreSearchQuery(searchQuery);
       setSelectedArtists(artistsMap);
-      setStorePlatforms(activePlatforms); // ← sync platform selection to store
-      // ─────────────────────────────────────────────────────────────────────────
+      setStorePlatforms(activePlatforms);
       
     } catch (err) {
       console.error(err);
@@ -252,7 +246,7 @@ export default function LandingPage() {
         <div className="absolute top-1/4 -right-[10%] w-[40%] h-[50%] bg-cyan-500/20 blur-[120px] rounded-full mix-blend-screen" />
       </div>
 
-      <div className="relative z-10 max-w-[960px] mx-auto px-4 md:px-6 pb-24">
+      <div className="relative z-10 max-w-[1100px] mx-auto px-4 md:px-6 pb-24">
         
         {/* Header */}
         <header className="relative py-8 flex items-center justify-center">
@@ -285,20 +279,20 @@ export default function LandingPage() {
         </header>
 
         {/* Hero */}
-        <div className="w-full flex flex-col items-center justify-center text-center mt-10 md:mt-12 mb-12 md:mb-16 space-y-4 pl-16 md:pl-48 lg:pl-72 pr-4">
-          <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold text-white tracking-tight">
+        <div className="w-full flex flex-col items-center justify-center text-center mt-10 md:mt-12 mb-12 md:mb-16 space-y-4 px-4 max-w-4xl mx-auto translate-x-[150px]">
+          <h2 className="text-3xl md:text-5xl lg:text-[3.5rem] font-bold text-white tracking-tight">
             What's Your Catalog Worth?
           </h2>
-          <p className="text-white/60 text-sm md:text-[15px] max-w-3xl mx-auto">
+          <p className="text-white/60 text-sm md:text-lg max-w-2xl mx-auto">
             Search for an artist and get an estimated catalog valuation based on Spotify, Apple Music, and YouTube.
           </p>
         </div>
 
         {/* Option 1 Row */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start mb-12">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-14 items-start mb-12">
           
           {/* Left Sidebar Option 1 */}
-          <div className="w-full lg:w-[220px] flex-shrink-0 pt-2 lg:pt-4">
+          <div className="w-full lg:w-[280px] flex-shrink-0 pt-2 lg:pt-4">
             <div className="inline-block px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold tracking-widest uppercase rounded border border-blue-500/20 mb-6">
               OPTION 1
             </div>
@@ -308,32 +302,31 @@ export default function LandingPage() {
               </div>
               <div>
                 <h3 className="text-xl lg:text-2xl font-bold mb-2 lg:mb-3 leading-tight">Get a quick<br/>estimate</h3>
-                <p className="text-xs text-white/40 leading-relaxed max-w-[200px]">
+                <p className="text-sm text-white/50 leading-relaxed max-w-[240px]">
                   Select one or multiple platforms to generate an overall estimated value.
                 </p>
               </div>
             </div>
 
-            {/* Added Login Section */}
-            <div className="mt-12 bg-white/5 border border-white/10 rounded-xl p-5 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-16 h-16 bg-blue-500/10 rounded-full blur-xl transform translate-x-1/2 -translate-y-1/2"></div>
-              <p className="text-xs text-white/80 font-medium mb-3 leading-relaxed relative z-10">
+            {/* Added Login Section - MADE LARGER */}
+            <div className="mt-12 bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-8 relative overflow-hidden flex flex-col items-center text-center group transition-colors hover:bg-white/10">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-blue-500/20 transition-colors"></div>
+              <p className="text-sm text-white/90 font-medium mb-6 leading-relaxed relative z-10">
                 Login for a detailed valuation report
               </p>
               <button 
                 onClick={() => navigate('/auth')}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-[13px] font-semibold text-white transition-all shadow-lg shadow-blue-500/20 relative z-10"
+                className="w-full flex items-center justify-center gap-2 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-bold text-white transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] relative z-10"
               >
-                <Lock className="w-3.5 h-3.5" />
-                Login
+                <Lock className="w-4 h-4" />
+                Login to Platform
               </button>
             </div>
           </div>
 
           {/* Right Main Box Option 1 */}
           <div className="flex-1 w-full">
-            <div className="bg-[#0B101A] border border-[#1A2333] rounded-[24px] p-6 lg:p-8 shadow-2xl relative">
-              
+            <div className="bg-[#0B101A] border border-[#1A2333] rounded-[24px] p-6 lg:p-10 shadow-2xl relative">
               {/* Search */}
               <div className="relative mb-8 z-50">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/30" />
@@ -544,10 +537,10 @@ export default function LandingPage() {
         </div>
 
         {/* Option 2 Row */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start" id="auth-section">
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-14 items-start mb-20" id="auth-section">
           
           {/* Left Sidebar Option 2 */}
-          <div className="w-full lg:w-[220px] flex-shrink-0 pt-2 lg:pt-4">
+          <div className="w-full lg:w-[280px] flex-shrink-0 pt-2 lg:pt-4">
             <div className="inline-block px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-bold tracking-widest uppercase rounded border border-purple-500/20 mb-6">
               OPTION 2
             </div>
@@ -557,7 +550,7 @@ export default function LandingPage() {
               </div>
               <div>
                 <h3 className="text-xl lg:text-2xl font-bold mb-2 lg:mb-3 leading-tight">Connect for<br/>actual valuation</h3>
-                <p className="text-xs text-white/40 leading-relaxed max-w-[200px]">
+                <p className="text-sm text-white/50 leading-relaxed max-w-[240px]">
                   Login via your preferred DSP to pull actual read-only account data for a more accurate valuation.
                 </p>
               </div>
@@ -607,7 +600,7 @@ export default function LandingPage() {
                   </button>
 
                   {showDistributors && (
-                    <div className="absolute top-full left-0 w-full mt-2 bg-[#0B101A] border border-[#1A2333] rounded-xl overflow-hidden z-20 py-2 shadow-2xl">
+                    <div className="absolute top-full left-0 w-full mt-2 bg-[#0B101A] border border-[#1A2333] rounded-xl overflow-hidden z-20 py-2 shadow-2xl max-h-64 overflow-y-auto">
                       {distributors.map((d, idx) => (
                         <button key={idx} onClick={() => navigate('/import', { state: { distributor: d.name } })} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left">
                           <div className="w-[18px] h-[18px] rounded-[4px] overflow-hidden flex-shrink-0 flex items-center justify-center">
@@ -673,6 +666,41 @@ export default function LandingPage() {
           </div>
 
         </div>
+
+        {/* Features Section - Moved from previous version */}
+        <div className="py-16 border-t border-white/5 relative">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Why Rights Holders Choose CFA</h2>
+            <p className="text-white/50 max-w-2xl mx-auto text-sm">Our platform offers an unmatched level of accuracy, privacy, and speed for valuing music catalogs.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-[#0B101A] border border-[#1A2333] p-6 rounded-2xl hover:border-cyan-500/30 transition-colors">
+              <div className="w-10 h-10 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-center justify-center mb-4">
+                <LineChart className="w-5 h-5 text-cyan-400" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Institutional Analytics</h3>
+              <p className="text-white/60 text-sm leading-relaxed">Advanced algorithms analyze historical streaming performance to generate accurate valuation multiples comparable to Wall Street standards.</p>
+            </div>
+
+            <div className="bg-[#0B101A] border border-[#1A2333] p-6 rounded-2xl hover:border-purple-500/30 transition-colors">
+              <div className="w-10 h-10 bg-purple-500/10 border border-purple-500/20 rounded-xl flex items-center justify-center mb-4">
+                <Lock className="w-5 h-5 text-purple-400" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Total Privacy</h3>
+              <p className="text-white/60 text-sm leading-relaxed">Your data remains yours. We use secure, read-only connections and never share or sell your catalog performance data to third parties.</p>
+            </div>
+
+            <div className="bg-[#0B101A] border border-[#1A2333] p-6 rounded-2xl hover:border-blue-500/30 transition-colors">
+              <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center mb-4">
+                <Zap className="w-5 h-5 text-blue-400" />
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">Instant Insights</h3>
+              <p className="text-white/60 text-sm leading-relaxed">Skip the weeks of back-and-forth. Connect your DSPs and receive a comprehensive valuation report and funding offer in seconds.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
