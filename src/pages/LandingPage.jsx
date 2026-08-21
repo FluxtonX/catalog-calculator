@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark, LineChart } from 'lucide-react';
 import { supabase } from '../utils/supabase';
+import { enableDistributionCompanies } from '../config/feature_flags';
 import { searchApify, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation, formatCurrency } from '../utils/combinedValuation';
 import { useArtistStore } from '../store/artistStore';
@@ -585,44 +586,46 @@ export default function LandingPage() {
 
               <div className="space-y-3">
                 {/* Distributor Dropdown */}
-                <div className="relative mb-6">
-                  <button 
-                    onClick={() => setShowDistributors(!showDistributors)}
-                    className="w-full flex items-center justify-between p-3.5 bg-[#05080F] border border-[#1A2333] rounded-xl hover:border-white/20 transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 flex items-center justify-center text-white/50">
-                        <Landmark className="w-4 h-4" />
+                {enableDistributionCompanies && (
+                  <div className="relative mb-6">
+                    <button 
+                      onClick={() => setShowDistributors(!showDistributors)}
+                      className="w-full flex items-center justify-between p-3.5 bg-[#05080F] border border-[#1A2333] rounded-xl hover:border-white/20 transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-5 h-5 flex items-center justify-center text-white/50">
+                          <Landmark className="w-4 h-4" />
+                        </div>
+                        <span className="text-sm font-medium text-white/80">Sign in to Distribution Company</span>
                       </div>
-                      <span className="text-sm font-medium text-white/80">Sign in to Distribution Company</span>
-                    </div>
-                    <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${showDistributors ? 'rotate-180' : ''}`} />
-                  </button>
+                      <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${showDistributors ? 'rotate-180' : ''}`} />
+                    </button>
 
-                  {showDistributors && (
-                    <div className="absolute top-full left-0 w-full mt-2 bg-[#0B101A] border border-[#1A2333] rounded-xl overflow-hidden z-20 py-2 shadow-2xl max-h-64 overflow-y-auto">
-                      {distributors.map((d, idx) => (
-                        <button key={idx} onClick={() => navigate('/import', { state: { distributor: d.name } })} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left">
-                          <div className="w-[18px] h-[18px] rounded-[4px] overflow-hidden flex-shrink-0 flex items-center justify-center">
-                            <img 
-                              src={d.img} 
-                              alt={d.name} 
-                              className={`w-full h-full object-cover ${d.name === 'Too Lost' ? 'scale-[1.4]' : ''}`}
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                if (e.target.parentElement.nextSibling) e.target.parentElement.nextSibling.style.display = 'flex';
-                              }}
-                            />
-                          </div>
-                          <div className="hidden w-[18px] h-[18px] rounded-[4px] items-center justify-center bg-gray-800 text-[10px] font-bold text-white uppercase">
-                            {d.name[0]}
-                          </div>
-                          <span className="text-[13px] text-white/90">{d.name}</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                    {showDistributors && (
+                      <div className="absolute top-full left-0 w-full mt-2 bg-[#0B101A] border border-[#1A2333] rounded-xl overflow-hidden z-20 py-2 shadow-2xl max-h-64 overflow-y-auto">
+                        {distributors.map((d, idx) => (
+                          <button key={idx} onClick={() => navigate('/import', { state: { distributor: d.name } })} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left">
+                            <div className="w-[18px] h-[18px] rounded-[4px] overflow-hidden flex-shrink-0 flex items-center justify-center">
+                              <img 
+                                src={d.img} 
+                                alt={d.name} 
+                                className={`w-full h-full object-cover ${d.name === 'Too Lost' ? 'scale-[1.4]' : ''}`}
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  if (e.target.parentElement.nextSibling) e.target.parentElement.nextSibling.style.display = 'flex';
+                                }}
+                              />
+                            </div>
+                            <div className="hidden w-[18px] h-[18px] rounded-[4px] items-center justify-center bg-gray-800 text-[10px] font-bold text-white uppercase">
+                              {d.name[0]}
+                            </div>
+                            <span className="text-[13px] text-white/90">{d.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* DSP Logins */}
                 <button

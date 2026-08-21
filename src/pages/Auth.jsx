@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2, AlertCircle } from 'lucide-react';
+import { enableDistributionCompanies } from '../config/feature_flags';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -183,45 +184,47 @@ export default function Auth() {
           <div className="space-y-4">
 
             {/* Distribution Company Dropdown Mockup */}
-            <div className="w-full">
-              <button
-                onClick={() => setShowDistributors(!showDistributors)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:outline-none"
-              >
-                <div className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1v1H9V7zm5 0h1v1h-1V7zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1z" />
-                  </svg>
-                  <span className="font-medium text-sm">Sign in to Distribution Company</span>
-                </div>
-                <svg 
-                  className={`w-4 h-4 transition-transform duration-200 ${showDistributors ? 'rotate-180' : ''}`} 
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            {enableDistributionCompanies && (
+              <div className="w-full">
+                <button
+                  onClick={() => setShowDistributors(!showDistributors)}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:outline-none"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {/* Dropdown Menu */}
-              {showDistributors && (
-                <div className="mt-2 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800/50">
-                  <div className="flex flex-col py-1 max-h-60 overflow-y-auto custom-scrollbar">
-                    {distributors.map((dist) => (
-                      <button
-                        key={dist.name}
-                        onClick={() => navigate('/import', { state: { distributor: dist.name } })}
-                        className="flex items-center gap-4 px-4 py-2.5 hover:bg-slate-200 dark:hover:bg-slate-700/50 transition-colors w-full text-left"
-                      >
-                        <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white ${dist.color}`}>
-                          {dist.icon}
-                        </div>
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{dist.name}</span>
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <svg className="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1v1H9V7zm5 0h1v1h-1V7zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1zm-5 4h1v1H9v-1zm5 0h1v1h-1v-1z" />
+                    </svg>
+                    <span className="font-medium text-sm">Sign in to Distribution Company</span>
                   </div>
-                </div>
-              )}
-            </div>
+                  <svg 
+                    className={`w-4 h-4 transition-transform duration-200 ${showDistributors ? 'rotate-180' : ''}`} 
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown Menu */}
+                {showDistributors && (
+                  <div className="mt-2 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800/50">
+                    <div className="flex flex-col py-1 max-h-60 overflow-y-auto custom-scrollbar">
+                      {distributors.map((dist) => (
+                        <button
+                          key={dist.name}
+                          onClick={() => navigate('/import', { state: { distributor: dist.name } })}
+                          className="flex items-center gap-4 px-4 py-2.5 hover:bg-slate-200 dark:hover:bg-slate-700/50 transition-colors w-full text-left"
+                        >
+                          <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white ${dist.color}`}>
+                            {dist.icon}
+                          </div>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{dist.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Google */}
             <button
