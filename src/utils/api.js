@@ -188,9 +188,50 @@ export const getYouTubeChannelDetails = async (query, channelId) => {
   }
 };
 
-// Apify
-export async function searchApify(query) {
-  return await invokeEdgeFunction('apify', { query });
+// Chartmetric + Apify
+export async function searchChartmetric(query) {
+  try {
+    const [cmResult, apifyResult] = await Promise.allSettled([
+      invokeEdgeFunction('chartmetric', { query }),
+      invokeEdgeFunction('apify', { query })
+    ]);
+    
+    let result = {};
+    if (apifyResult.status === 'fulfilled' && apifyResult.value) {
+      result = { ...apifyResult.value };
+    }
+    
+    if (cmResult.status === 'fulfilled' && cmResult.value) {
+      const cm = cmResult.value;
+      result = {
+        ...result,
+        ...cm,
+        platform: 'spotify', // Important: keeping as 'spotify' so UI components behave correctly
+        stats: {
+          ...(result.stats || {}),
+          ...(cm.stats || {}),
+        }
+      };
+      
+      // Prefer Chartmetric's highly accurate followers/listeners data
+      if (cm.monthlyListeners) {
+        result.monthlyListeners = cm.monthlyListeners;
+        result.monthlyListenersFormatted = cm.monthlyListenersFormatted;
+      }
+      if (cm.followers) {
+        result.followers = cm.followersFormatted || cm.followers;
+      }
+    }
+    
+    if (Object.keys(result).length === 0) {
+      throw new Error("Could not find artist on Chartmetric or Apify.");
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('Chartmetric/Apify search error:', error);
+    throw error;
+  }
 }
 
 // Fetch album images from Spotify by searching for albums

@@ -21,7 +21,7 @@ import ArtistCard from "../components/ui/ArtistCard";
 import { usePageTitle } from "../hooks/usePageTitle";
 import {
   searchYouTube,
-  searchApify,
+  searchChartmetric,
   getArtistSuggestions,
   getYouTubeChannelDetails,
   searchAppleMusic,
@@ -419,7 +419,7 @@ const ValuationTool = () => {
   const doSearchForPlatform = async (query, plt) => {
     switch (plt) {
       case "spotify":
-        return await searchApify(query);
+        return await searchChartmetric(query);
       case "youtube": {
         const result = await searchYouTube(query);
         if (result.type === "channel_list")
