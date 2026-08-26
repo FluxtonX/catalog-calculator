@@ -1122,6 +1122,7 @@ const ValuationTool = () => {
                     ...artistData.stats,
                     scoring: artistData.scoring,
                     catalogScore: artistData.scoring?.catalogScore,
+                    chartmetricRank: artistData.chartmetricRank,
                   }}
                   spotifyUrl={artistData.spotifyUrl}
                   youtubeUrl={artistData.youtubeUrl}

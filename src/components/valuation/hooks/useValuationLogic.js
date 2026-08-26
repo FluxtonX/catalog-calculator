@@ -28,16 +28,33 @@ export {
 
 // Formatters
 export const formatNumber = (num) => {
-  if (num === null || num === undefined) return "0";
-  const str = Math.round(num).toString();
+  if (num === null || num === undefined || num === '') return "0";
+  if (typeof num === "string" && (num.includes("M") || num.includes("K") || num.includes(","))) return num;
+  const parsed = Number(num);
+  if (isNaN(parsed)) return num;
+  const str = Math.round(parsed).toString();
   return str.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 export const formatToMillions = (num) => {
-  if (num === null || num === undefined) return "0M";
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + "M";
+  if (num === null || num === undefined || num === '') return "0";
+  if (typeof num === "string" && (num.includes("M") || num.includes("K") || num.includes("B") || num.includes(","))) return num;
+  const parsed = Number(num);
+  if (isNaN(parsed)) return num;
+  
+  if (parsed >= 1000000000) {
+    let formatted = (parsed / 1000000000).toFixed(1);
+    if (formatted.endsWith(".0")) formatted = formatted.slice(0, -2);
+    return formatted + "B";
+  } else if (parsed >= 1000000) {
+    let formatted = (parsed / 1000000).toFixed(1);
+    if (formatted.endsWith(".0")) formatted = formatted.slice(0, -2);
+    return formatted + "M";
+  } else if (parsed >= 1000) {
+    let formatted = (parsed / 1000).toFixed(1);
+    if (formatted.endsWith(".0")) formatted = formatted.slice(0, -2);
+    return formatted + "K";
   }
-  return formatNumber(num);
+  return formatNumber(parsed);
 };
 export const formatCurrency = (num) => {
   if (num === null || num === undefined) return "$0";

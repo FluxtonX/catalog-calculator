@@ -92,16 +92,32 @@ serve(async (req) => {
     const artistMatch = artists[0];
     const artistId = artistMatch.id;
 
-    // 2. Get artist detailed stats (to get cm_artist_rank etc.)
-    const detailRes = await fetch(
-      `https://api.chartmetric.com/api/artist/${artistId}`,
-      { headers: authHeader }
-    );
+    // 2. Get artist detailed stats and Facebook stats in parallel
+    const [detailRes, fbRes] = await Promise.all([
+      fetch(`https://api.chartmetric.com/api/artist/${artistId}`, { headers: authHeader }),
+      fetch(`https://api.chartmetric.com/api/artist/${artistId}/stat/facebook`, { headers: authHeader })
+    ]);
     
-    let cm_artist_rank = null;
+    let detailObj = null;
+    let cmStats = null;
     if (detailRes.ok) {
       const detailData = await detailRes.json();
-      cm_artist_rank = detailData.obj?.cm_artist_rank || null;
+      detailObj = detailData.obj || null;
+      cmStats = detailObj?.cm_statistics || {};
+    }
+
+    let fbFollowers = 0;
+    if (fbRes.ok) {
+      try {
+        const fbData = await fbRes.json();
+        const likes = fbData.obj?.likes || [];
+        if (likes.length > 0) {
+          // Chartmetric returns time series, so last item is the most recent
+          fbFollowers = likes[likes.length - 1].value || 0;
+        }
+      } catch (e) {
+        console.error("Error parsing facebook stats:", e);
+      }
     }
 
     // Combine data to match the expected format used in the app
@@ -114,12 +130,23 @@ serve(async (req) => {
       followers: artistMatch.sp_followers || 0,
       monthlyListeners: artistMatch.sp_monthly_listeners || 0,
       chartmetricScore: artistMatch.cm_artist_score || 0,
-      chartmetricRank: cm_artist_rank,
+      chartmetricRank: detailObj?.cm_artist_rank || null,
       primaryGenre: artistMatch.primary_genre_smart,
       // Format strings for UI compatibility
       followersFormatted: formatNumber(artistMatch.sp_followers || 0),
       monthlyListenersFormatted: formatNumber(artistMatch.sp_monthly_listeners || 0),
-      worldRankFormatted: cm_artist_rank ? `#${cm_artist_rank}` : "N/A",
+      worldRankFormatted: detailObj?.cm_artist_rank ? `#${detailObj.cm_artist_rank}` : "N/A",
+      
+      // Full Social Stats extracted from cm_statistics and direct endpoint
+      stats: {
+        ig_followers: cmStats?.ins_followers || detailObj?.instagram_followers || artistMatch.instagram_followers || artistMatch.ig_followers || 0,
+        tiktok_followers: cmStats?.tiktok_followers || detailObj?.tiktok_followers || artistMatch.tiktok_followers || 0,
+        youtube_subscribers: cmStats?.ycs_subscribers || detailObj?.youtube_channel_subscribers || artistMatch.youtube_subscribers || 0,
+        twitter_followers: cmStats?.twitter_followers || detailObj?.twitter_followers || artistMatch.twitter_followers || 0,
+        facebook_fans: fbFollowers || cmStats?.facebook_fans || detailObj?.facebook_fans || artistMatch.facebook_fans || 0,
+        sp_followers: cmStats?.sp_followers || detailObj?.sp_followers || artistMatch.sp_followers || 0,
+        sp_playlists: cmStats?.num_sp_playlists || detailObj?.sp_playlists || artistMatch.sp_playlists || 0,
+      },
     };
 
     console.log(`[Chartmetric] Found data for: ${result.name}`);

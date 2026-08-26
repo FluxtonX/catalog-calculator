@@ -203,24 +203,34 @@ export async function searchChartmetric(query) {
     
     if (cmResult.status === 'fulfilled' && cmResult.value) {
       const cm = cmResult.value;
+      const apifyStats = result.stats || {};
       result = {
         ...result,
         ...cm,
+        stats: apifyStats, // Temporarily preserve Apify stats, we merge them properly below
         platform: 'spotify', // Important: keeping as 'spotify' so UI components behave correctly
-        stats: {
-          ...(result.stats || {}),
-          ...(cm.stats || {}),
-        }
       };
-      
-      // Prefer Chartmetric's highly accurate followers/listeners data
-      if (cm.monthlyListeners) {
+
+      // Prefer Chartmetric's highly accurate exact numerical data
+      if (cm.monthlyListeners !== undefined && cm.monthlyListeners !== null) {
         result.monthlyListeners = cm.monthlyListeners;
-        result.monthlyListenersFormatted = cm.monthlyListenersFormatted;
       }
-      if (cm.followers) {
-        result.followers = cm.followersFormatted || cm.followers;
+      if (cm.followers !== undefined && cm.followers !== null) {
+        result.followers = cm.followers;
       }
+      
+      // Intelligent stats merge: Prefer Chartmetric stats, fallback to Apify only if Chartmetric is 0 or missing
+      const mergedStats = { ...(result.stats || {}) };
+      if (cm.stats) {
+        for (const [key, value] of Object.entries(cm.stats)) {
+          if (value !== undefined && value !== null && value !== 0) {
+            mergedStats[key] = value;
+          } else if (mergedStats[key] === undefined) {
+             mergedStats[key] = value; // keep the 0 if Apify also doesn't have it
+          }
+        }
+      }
+      result.stats = mergedStats;
     }
     
     if (Object.keys(result).length === 0) {

@@ -25,6 +25,7 @@ import RevenueStreams from "./sections/RevenueStreams";
 import ValuationScenarios from "./sections/ValuationScenarios";
 import YoutubeSaveButton from "./sections/YoutubeSaveButton";
 
+
 const YouTubeValuationTab = ({ artistData }) => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -172,6 +173,7 @@ const YouTubeValuationTab = ({ artistData }) => {
     }
   />
 )}
+
 
 
       <ValuationAssumptions

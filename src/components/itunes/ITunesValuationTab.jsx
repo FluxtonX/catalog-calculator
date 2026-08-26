@@ -18,6 +18,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../../utils/supabase";
 import ITunesMetricCard from "./ITunesMetricCard";
 import ITunesScenarioCard from "./ITunesScenarioCard";
+
 import {
   APPLE_MUSIC_RATE,
   formatCurrency,
@@ -403,6 +404,9 @@ const catalogBonus = Math.min(
     ))}
   </div>
 </div>
+
+
+
       {/* ── Detailed metrics ─────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <div className="relative group">
