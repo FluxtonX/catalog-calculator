@@ -92,10 +92,11 @@ serve(async (req) => {
     const artistMatch = artists[0];
     const artistId = artistMatch.id;
 
-    // 2. Get artist detailed stats and Facebook stats in parallel
-    const [detailRes, fbRes] = await Promise.all([
+    // 2. Get artist detailed stats, Facebook stats, and Audience stats in parallel
+    const [detailRes, fbRes, audRes] = await Promise.all([
       fetch(`https://api.chartmetric.com/api/artist/${artistId}`, { headers: authHeader }),
-      fetch(`https://api.chartmetric.com/api/artist/${artistId}/stat/facebook`, { headers: authHeader })
+      fetch(`https://api.chartmetric.com/api/artist/${artistId}/stat/facebook`, { headers: authHeader }),
+      fetch(`https://api.chartmetric.com/api/artist/${artistId}/where-people-listen`, { headers: authHeader })
     ]);
     
     let detailObj = null;
@@ -112,11 +113,37 @@ serve(async (req) => {
         const fbData = await fbRes.json();
         const likes = fbData.obj?.likes || [];
         if (likes.length > 0) {
-          // Chartmetric returns time series, so last item is the most recent
           fbFollowers = likes[likes.length - 1].value || 0;
         }
       } catch (e) {
         console.error("Error parsing facebook stats:", e);
+      }
+    }
+
+    let primaryMarket = null;
+    let secondaryMarket = null;
+    if (audRes.ok) {
+      try {
+        const audData = await audRes.json();
+        const countries = audData.obj?.countries || {};
+        
+        const countryStats: {name: string, listeners: number}[] = [];
+        for (const [countryName, dataPoints] of Object.entries(countries)) {
+           const points = dataPoints as any[];
+           if (points && points.length > 0) {
+              const latest = points[points.length - 1];
+              if (latest && latest.listeners) {
+                 countryStats.push({ name: countryName, listeners: latest.listeners });
+              }
+           }
+        }
+        
+        countryStats.sort((a, b) => b.listeners - a.listeners);
+        
+        if (countryStats.length > 0) primaryMarket = countryStats[0].name.toUpperCase();
+        if (countryStats.length > 1) secondaryMarket = countryStats[1].name.toUpperCase();
+      } catch (e) {
+        console.error("Error parsing audience stats:", e);
       }
     }
 
@@ -132,6 +159,8 @@ serve(async (req) => {
       chartmetricScore: artistMatch.cm_artist_score || 0,
       chartmetricRank: detailObj?.cm_artist_rank || null,
       primaryGenre: artistMatch.primary_genre_smart,
+      primaryMarket,
+      secondaryMarket,
       // Format strings for UI compatibility
       followersFormatted: formatNumber(artistMatch.sp_followers || 0),
       monthlyListenersFormatted: formatNumber(artistMatch.sp_monthly_listeners || 0),

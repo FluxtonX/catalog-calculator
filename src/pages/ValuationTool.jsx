@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import ArtistCard from "../components/ui/ArtistCard";
+import SocialStatsSection from "../components/valuation/sections/SocialStatsSection";
 import { usePageTitle } from "../hooks/usePageTitle";
 import {
   searchYouTube,
@@ -1070,6 +1071,13 @@ const ValuationTool = () => {
                 </div>
               );
             })()}
+            {Object.values(selectedArtists).length > 0 && (
+              <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8 rounded-3xl shadow-xl mt-6">
+                <SocialStatsSection 
+                  artistData={selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || selectedArtists.apify || Object.values(selectedArtists)[0]} 
+                />
+              </div>
+            )}
             {Object.values(selectedArtists)
               .filter(artistData => artistData.platform !== "custom")
               .map((artistData, idx) => {

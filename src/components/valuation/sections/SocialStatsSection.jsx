@@ -16,13 +16,13 @@ import { formatNumber, formatToMillions } from "../hooks/useValuationLogic";
 
 const SocialStatCard = ({ icon: Icon, label, value, colorClass, iconColorClass, showExact }) => (
   <div 
-    className="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-2 min-w-[140px] flex-1 transition-all"
+    className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center gap-2.5 min-w-[140px] flex-1 transition-all text-center hover:border-slate-300 dark:hover:border-slate-700"
     title={value !== undefined && value !== null && value !== '' ? formatNumber(value) : "N/A"}
   >
-    <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">{label}</p>
-    <div className="flex items-center gap-2">
-      <Icon size={20} className={iconColorClass} />
-      <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-none">
+    <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest w-full truncate">{label}</p>
+    <div className="flex items-center justify-center gap-2">
+      <Icon size={22} className={iconColorClass} />
+      <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight">
         {value !== undefined && value !== null && value !== '' ? (showExact ? formatNumber(value) : formatToMillions(value)) : "N/A"}
       </p>
     </div>
@@ -133,6 +133,7 @@ const SocialStatsSection = ({ artistData }) => {
     </svg>
   );
 
+
   return (
     <div className="flex flex-col gap-6 mt-6">
       {/* Top Cards Row */}
@@ -144,12 +145,12 @@ const SocialStatsSection = ({ artistData }) => {
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Most Popular Track</p>
             <div>
               <h3 className="text-2xl font-black text-slate-900 dark:text-white truncate max-w-[200px] sm:max-w-[250px] mb-2">
-                {mostPopularTrack ? (mostPopularTrack.title || mostPopularTrack.name) : "Unknown Track"}
+                {(mostPopularTrack && (mostPopularTrack.title || mostPopularTrack.name)) ? (mostPopularTrack.title || mostPopularTrack.name) : "Unknown Track"}
               </h3>
               <div className="flex items-center gap-2">
                 <SpotifyLogo size={24} className="text-[#1DB954]" />
                 <span className="text-2xl font-black text-slate-900 dark:text-white" title={mostPopularTrack ? formatNumber(popularTrackStreams) : "0"}>
-                  {mostPopularTrack ? (showExact ? formatNumber(popularTrackStreams) : formatToMillions(popularTrackStreams)) : "0"}
+                  {mostPopularTrack && popularTrackStreams > 0 ? (showExact ? formatNumber(popularTrackStreams) : formatToMillions(popularTrackStreams)) : "0"}
                 </span>
                 <span className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mt-1">Streams</span>
               </div>

@@ -33,7 +33,6 @@ import PopularReleaseCard from "../artist/PopularReleaseCard";
 import SingleCard from "../artist/SingleCard";
 import YouTubeValuationTab from "../youtube/YouTubeValuationTab";
 import ITunesValuationTab from "../itunes/ITunesValuationTab";
-import SocialStatsSection from "../valuation/sections/SocialStatsSection";
 import {
   ArtistTabTrigger,
   MediaGrid,
@@ -385,18 +384,6 @@ setEnhancedAlbums(
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
-          <SocialStatsSection
-            artistData={{
-              name,
-              image,
-              topTracks,
-              stats,
-              monthlyListeners,
-              platform,
-              followers,
-              popularity
-            }}
-          />
           <div className="mt-8">
             <ArtistStats
               stats={stats}
