@@ -89,7 +89,7 @@ serve(async (req) => {
     }
 
     // Get the first matching artist
-    const artistMatch = artists[0];
+    const artistMatch: any = artists[0];
     const artistId = artistMatch.id;
 
     // 2. Get artist detailed stats, Facebook stats, and Audience stats in parallel
@@ -99,8 +99,8 @@ serve(async (req) => {
       fetch(`https://api.chartmetric.com/api/artist/${artistId}/where-people-listen`, { headers: authHeader })
     ]);
     
-    let detailObj = null;
-    let cmStats = null;
+    let detailObj: any = null;
+    let cmStats: any = null;
     if (detailRes.ok) {
       const detailData = await detailRes.json();
       detailObj = detailData.obj || null;
