@@ -10,7 +10,8 @@ import {
   ListMusic,
   Play,
   Pause,
-  Loader2
+  Loader2,
+  Radio
 } from "lucide-react";
 import { formatNumber, formatToMillions } from "../hooks/useValuationLogic";
 
@@ -118,6 +119,7 @@ const SocialStatsSection = ({ artistData }) => {
   const youtubeSubscribers = stats?.youtube_subscribers || stats?.youtubeSubscribers || stats?.totalSubscribers || 0;
   const xFollowers = stats?.twitter_followers || stats?.twitterFollowers || stats?.xFollowers || 0;
   const facebookFollowers = stats?.facebook_fans || stats?.facebookFollowers || stats?.facebookLikes || 0;
+  const radioSpins = stats?.radio_spins || 0;
 
   // Render Spotify Logo SVG
   const SpotifyLogo = ({ size = 20, className = "" }) => (
@@ -245,6 +247,15 @@ const SocialStatsSection = ({ artistData }) => {
         </div>
         
         <div className="flex overflow-x-auto pb-4 gap-4 hide-scrollbar">
+          {radioSpins > 0 && (
+            <SocialStatCard 
+              icon={Radio} 
+              label="Radio Spins (Soundcharts)" 
+              value={radioSpins} 
+              iconColorClass="text-[#8B5CF6]" 
+              showExact={showExact}
+            />
+          )}
           <SocialStatCard 
             icon={Instagram} 
             label="IG Followers" 

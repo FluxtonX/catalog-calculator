@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark, LineChart } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 import { enableDistributionCompanies } from '../config/feature_flags';
-import { searchChartmetric, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
+import { getNormalizedArtistData, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation, formatCurrency } from '../utils/combinedValuation';
 import { useArtistStore } from '../store/artistStore';
 
@@ -123,7 +123,7 @@ export default function LandingPage() {
       const activePlatforms = Object.entries(platforms).filter(([_, active]) => active).map(([p]) => p === 'apple' ? 'itunes' : p);
       
       const promises = activePlatforms.map(p => {
-        if (p === 'spotify') return searchChartmetric(searchQuery).then(d => ({...d, platform: 'spotify'}));
+        if (p === 'spotify') return getNormalizedArtistData(searchQuery).then(d => ({...d, platform: 'spotify'}));
         if (p === 'youtube') return searchYouTube(searchQuery).then(async (d) => {
           if (d.type === 'channel_list' && d.channels?.length > 0) {
             const details = await getYouTubeChannelDetails(searchQuery, d.channels[0].id);

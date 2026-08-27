@@ -22,7 +22,7 @@ import SocialStatsSection from "../components/valuation/sections/SocialStatsSect
 import { usePageTitle } from "../hooks/usePageTitle";
 import {
   searchYouTube,
-  searchChartmetric,
+  getNormalizedArtistData,
   getArtistSuggestions,
   getYouTubeChannelDetails,
   searchAppleMusic,
@@ -420,7 +420,7 @@ const ValuationTool = () => {
   const doSearchForPlatform = async (query, plt) => {
     switch (plt) {
       case "spotify":
-        return await searchChartmetric(query);
+        return await getNormalizedArtistData(query);
       case "youtube": {
         const result = await searchYouTube(query);
         if (result.type === "channel_list")
