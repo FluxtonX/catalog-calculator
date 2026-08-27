@@ -19,6 +19,7 @@ import {
 
 import ArtistCard from "../components/ui/ArtistCard";
 import SocialStatsSection from "../components/valuation/sections/SocialStatsSection";
+import StreamingStatsSection from "../components/valuation/sections/StreamingStatsSection";
 import { usePageTitle } from "../hooks/usePageTitle";
 import {
   searchYouTube,
@@ -1072,8 +1073,11 @@ const ValuationTool = () => {
               );
             })()}
             {Object.values(selectedArtists).length > 0 && (
-              <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8 rounded-3xl shadow-xl mt-6">
+              <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8 rounded-3xl shadow-xl mt-6 flex flex-col gap-6">
                 <SocialStatsSection 
+                  artistData={selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || selectedArtists.apify || Object.values(selectedArtists)[0]} 
+                />
+                <StreamingStatsSection 
                   artistData={selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || selectedArtists.apify || Object.values(selectedArtists)[0]} 
                 />
               </div>

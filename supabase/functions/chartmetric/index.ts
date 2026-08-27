@@ -175,6 +175,23 @@ serve(async (req) => {
         facebook_fans: fbFollowers || cmStats?.facebook_fans || detailObj?.facebook_fans || artistMatch.facebook_fans || 0,
         sp_followers: cmStats?.sp_followers || detailObj?.sp_followers || artistMatch.sp_followers || 0,
         sp_playlists: cmStats?.num_sp_playlists || detailObj?.sp_playlists || artistMatch.sp_playlists || 0,
+        
+        // Streaming Stats Section Data
+        sp_monthly_listeners: cmStats?.sp_monthly_listeners || detailObj?.sp_monthly_listeners || artistMatch.sp_monthly_listeners || 0,
+        sp_playlist_total_reach: cmStats?.sp_playlist_total_reach || 0,
+        
+        tiktok_likes: cmStats?.tiktok_likes || 0,
+        tiktok_top_video_views: cmStats?.tiktok_top_video_views || 0,
+        tiktok_track_posts: cmStats?.tiktok_track_posts || 0,
+        
+        pandora_listeners_28_day: cmStats?.pandora_listeners_28_day || 0,
+        pandora_lifetime_streams: cmStats?.pandora_lifetime_streams || 0,
+        
+        ycs_views: cmStats?.ycs_views || 0,
+        youtube_daily_video_views: cmStats?.youtube_daily_video_views || 0,
+        youtube_monthly_video_views: cmStats?.youtube_monthly_video_views || 0,
+        
+        shazam_count: cmStats?.shazam_count || 0,
       },
     };
 
