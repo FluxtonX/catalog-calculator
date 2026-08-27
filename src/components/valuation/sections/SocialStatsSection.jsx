@@ -17,13 +17,13 @@ import { formatNumber, formatToMillions } from "../hooks/useValuationLogic";
 
 const SocialStatCard = ({ icon: Icon, label, value, colorClass, iconColorClass, showExact }) => (
   <div 
-    className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center gap-2.5 min-w-[140px] flex-1 transition-all text-center hover:border-slate-300 dark:hover:border-slate-700"
+    className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center gap-2.5 min-w-[150px] shrink-0 transition-all text-center hover:border-slate-300 dark:hover:border-slate-700"
     title={value !== undefined && value !== null && value !== '' ? formatNumber(value) : "N/A"}
   >
     <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest w-full truncate">{label}</p>
-    <div className="flex items-center justify-center gap-2">
-      <Icon size={22} className={iconColorClass} />
-      <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight">
+    <div className="flex items-center justify-center gap-2 w-full">
+      <Icon size={22} className={`shrink-0 ${iconColorClass}`} />
+      <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight truncate">
         {value !== undefined && value !== null && value !== '' ? (showExact ? formatNumber(value) : formatToMillions(value)) : "N/A"}
       </p>
     </div>
