@@ -71,7 +71,7 @@ serve(async (req) => {
     }
 
     // Get the first matching artist
-    const artistMatch = artists[0];
+    const artistMatch: any = artists[0];
     const artistUuid = artistMatch.uuid;
 
     // 2. Fetch specific Soundcharts data if needed (e.g., Radio stats)
