@@ -161,7 +161,7 @@ const SocialStatsSection = ({ artistData }) => {
           
           {/* Track Image Collage / Artwork */}
           <div 
-            className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden shadow-lg border-2 border-white dark:border-slate-800 group cursor-pointer"
+            className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden shadow-lg border-2 border-white dark:border-slate-800 group cursor-pointer"
             onClick={handlePlayPreview}
             title={isPlaying ? "Pause Preview" : "Play Preview"}
           >
