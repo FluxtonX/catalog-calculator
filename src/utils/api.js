@@ -98,13 +98,28 @@ export const searchYouTube = async (query) => {
       body: JSON.stringify({ query }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to search YouTube');
+    if (response.ok) {
+      return await response.json();
     }
-
-    const data = await response.json();
-    return data;
+    
+    // Fallback if edge function fails
+    if (YOUTUBE_API_KEY) {
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=5&key=${YOUTUBE_API_KEY}`;
+      const fallbackRes = await fetch(url);
+      if (fallbackRes.ok) {
+        const data = await fallbackRes.json();
+        if (data.items && data.items.length > 0) {
+          const channels = data.items.map(item => ({
+            id: item.id.channelId,
+            title: item.snippet.channelTitle || item.snippet.title,
+            thumbnail: item.snippet.thumbnails?.default?.url
+          }));
+          return { type: 'channel_list', channels };
+        }
+      }
+    }
+    
+    throw new Error('No channels found for this artist');
   } catch (error) {
     console.error('YouTube search error:', error);
     throw error;
@@ -142,6 +157,7 @@ async function fetchYouTubeChannelStats(channelId) {
 }
 
 export const getYouTubeChannelDetails = async (query, channelId) => {
+  let data = { name: query };
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube`, {
       method: 'POST',
@@ -152,12 +168,12 @@ export const getYouTubeChannelDetails = async (query, channelId) => {
       body: JSON.stringify({ query, channelId }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to get channel details');
+    if (response.ok) {
+      data = await response.json();
     }
-
-    const data = await response.json();
+  } catch (err) {
+    console.warn("Edge function failed for details, falling back to direct API stats only", err);
+  }
 
     // ── Authentic Data Enrichment ─────────────────────────────────────────────
     // The Supabase Edge Function may not return totalViews (viewCount).
@@ -182,10 +198,6 @@ export const getYouTubeChannelDetails = async (query, channelId) => {
     // ─────────────────────────────────────────────────────────────────────────
 
     return data;
-  } catch (error) {
-    console.error('YouTube channel details error:', error);
-    throw error;
-  }
 };
 
 export async function searchSoundcharts(query) {

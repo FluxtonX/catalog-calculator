@@ -122,6 +122,10 @@ export default function LandingPage() {
     try {
       const activePlatforms = Object.entries(platforms).filter(([_, active]) => active).map(([p]) => p === 'apple' ? 'itunes' : p);
       
+      if (activePlatforms.length === 0) {
+        throw new Error("Please select at least one platform to calculate the valuation.");
+      }
+      
       const promises = activePlatforms.map(p => {
         if (p === 'spotify') return getNormalizedArtistData(searchQuery).then(d => ({...d, platform: 'spotify'}));
         if (p === 'youtube') return searchYouTube(searchQuery).then(async (d) => {
@@ -153,7 +157,12 @@ export default function LandingPage() {
       });
       
       if (Object.keys(artistsMap).length === 0) {
-        throw new Error("Could not find artist data.");
+        // Find the first rejection to show a meaningful error
+        const rejected = results.find(res => res.status === 'rejected');
+        if (rejected && rejected.reason) {
+          throw new Error(rejected.reason.message || "Could not find catalog data for this artist on the selected platforms.");
+        }
+        throw new Error("Could not find catalog data for this artist on the selected platforms.");
       }
       
       const val = getCombinedValuation(artistsMap);
@@ -166,7 +175,7 @@ export default function LandingPage() {
       
     } catch (err) {
       console.error(err);
-      setError("Failed to calculate valuation.");
+      setError(err.message || "Failed to calculate valuation.");
     } finally {
       setIsSearching(false);
     }
