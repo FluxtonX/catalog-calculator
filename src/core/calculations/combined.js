@@ -35,11 +35,15 @@ export const getPlatformValuation = (artistData) => {
     const top10 = (topTracks ?? []).slice(0, 10);
     const top10Popularities = top10.map((t, i) => {
       const real = t.popularity ?? t.trackPopularity ?? 0;
-      if (real > 0) return real;
+      if (real > 0) return real; // Use official Apple popularity if present
+      
       const catalogSize = totalAlbums * 3 + totalSingles + totalTracks;
-      const catalogMultiplier = Math.min(1 + (catalogSize / 30), 2.5);
-      const baseScore = Math.round(60 - (i * 3));
-      return Math.min(Math.round(baseScore * catalogMultiplier), 100);
+      // Base score of 30, add up to 65 points based on catalog size
+      const catalogBonus = Math.min((catalogSize / 150) * 65, 65);
+      const trackDecay = i * 2; // rank 1 = 0 decay, rank 10 = -18 decay
+      
+      const rawScore = 30 + catalogBonus - trackDecay;
+      return Math.min(Math.max(Math.round(rawScore), 5), 100);
     });
 
     const avgTop10Popularity =
