@@ -2,7 +2,7 @@
 
 export const estimateMonthlyStreams = (popularityScore) => {
   if (!popularityScore) return 0;
-  return Math.round(Math.pow(popularityScore / 100, 2.5) * 6_000_000);
+  return Math.round(Math.pow(popularityScore / 100, 2.5) * 60_000_000);
 };
 
 export const formatRange = (min, max, formatter) => {

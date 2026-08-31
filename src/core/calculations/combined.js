@@ -37,8 +37,8 @@ export const getPlatformValuation = (artistData) => {
       const real = t.popularity ?? t.trackPopularity ?? 0;
       if (real > 0) return real;
       const catalogSize = totalAlbums * 3 + totalSingles + totalTracks;
-      const catalogMultiplier = Math.min(catalogSize / 50, 1.2);
-      const baseScore = Math.round(45 - (i * 4));
+      const catalogMultiplier = Math.min(1 + (catalogSize / 30), 2.5);
+      const baseScore = Math.round(60 - (i * 3));
       return Math.min(Math.round(baseScore * catalogMultiplier), 100);
     });
 
