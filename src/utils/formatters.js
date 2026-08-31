@@ -80,3 +80,11 @@ export const parseStreamCount = (streamsStr) => {
     return parseFloat(str.replace(/,/g, "")) || 0;
   }
 };
+
+export const formatNumberAbbrev = (n) => {
+  if (!n || isNaN(n)) return "0";
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return `${Math.round(n)}`;
+};

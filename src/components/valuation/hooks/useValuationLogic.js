@@ -1,5 +1,5 @@
 // All calculation logic extracted — zero changes to original logic
-import { useMemo } from "react";
+
 
 export const RATE_BY_REGION = {
   US_CA_UK_AU: 0.0042,
@@ -16,7 +16,7 @@ import {
   getAverageReleaseDate,
   getDecayFactor,
   getMonthsBetween
-} from "../../../utils/calculations";
+} from "../../../core/calculations";
 
 export {
   calculateGeoWeightedRate,

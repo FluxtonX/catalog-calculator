@@ -4,7 +4,7 @@ import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckC
 import { supabase } from '../utils/supabase';
 import { enableDistributionCompanies } from '../config/feature_flags';
 import { getNormalizedArtistData, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
-import { getCombinedValuation, formatCurrency } from '../utils/combinedValuation';
+import { getCombinedValuation } from '../core/calculations';
 import { useArtistStore } from '../store/artistStore';
 
 import imgTuneCore from '../assets/distribution logos/tunecore.png';
@@ -143,8 +143,12 @@ export default function LandingPage() {
       const artistsMap = {};
       
       results.forEach(res => {
-        if (res.status === 'fulfilled' && res.value && res.value.name) {
-          artistsMap[res.value.platform] = res.value;
+        if (res.status === 'fulfilled' && res.value) {
+          const name = res.value.name || res.value.channelTitle || res.value.artistName || res.value.title;
+          if (name) {
+            res.value.name = name;
+            artistsMap[res.value.platform] = res.value;
+          }
         }
       });
       

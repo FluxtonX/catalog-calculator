@@ -32,7 +32,7 @@ import {
 import { supabase } from "../utils/supabase";
 import { useArtistStore } from "../store/artistStore";
 import ChannelSelector from "../components/youtube/ChannelSelector";
-import { getCombinedMetrics, formatCurrency, formatNumberAbbrev } from "../utils/combinedValuation";
+import { getCombinedMetrics, formatCurrency, formatNumberAbbrev } from "../core/calculations";
 const SpotifyIcon = ({ size = 24, className = "" }) => (
   <svg
     width={size}

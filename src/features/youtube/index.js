@@ -6,4 +6,4 @@ export { default as RevenueStreams } from "../../components/youtube/sections/Rev
 export { default as ValuationAssumptions } from "../../components/youtube/sections/ValuationAssumptions";
 export { default as ValuationScenarios } from "../../components/youtube/sections/ValuationScenarios";
 export { default as YoutubeSaveButton } from "../../components/youtube/sections/YoutubeSaveButton";
-export { default as useYouTubeValuationLogic } from "../../components/youtube/hooks/useYouTubeValuationLogic";
+export * as useYouTubeValuationLogic from "../../core/calculations";

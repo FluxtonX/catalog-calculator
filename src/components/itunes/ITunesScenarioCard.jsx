@@ -1,5 +1,5 @@
 import React from "react";
-import { formatCurrency } from "./valuationHelpers";
+import { formatCurrency } from "../../core/calculations";
 
 const ITunesScenarioCard = ({
   label,

@@ -12,7 +12,7 @@ import {
   formatNumber,
   formatCurrency,
   CONTENT_ID_MULTIPLIER,
-} from "./hooks/useYouTubeValuationLogic";
+} from "../../core/calculations";
 
 // Reuse valuation UI components
 import AlertBanner from "../valuation/ui/AlertBanner";

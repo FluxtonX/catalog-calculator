@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { calculateMonthlyStreamsAndRevenue } from "../../utils/calculations";
+import { calculateMonthlyStreamsAndRevenue, calculateDollarAge } from "../../core/calculations";
 import { generateValuationPDF } from "../../utils/pdfGenerator";
 import { AlertTriangle, LogIn } from "lucide-react";
 import { useArtistStore } from "../../store/artistStore";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../utils/supabase";
-import { calculateDollarAge } from "../../utils/calculations";
 
 // Logic helpers
 import {

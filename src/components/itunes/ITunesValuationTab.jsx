@@ -25,7 +25,7 @@ import {
   formatNumber,
   estimateMonthlyStreams,
   formatRange,
-} from "./valuationHelpers";
+} from "../../core/calculations";
 
 import { Download } from "lucide-react";
 

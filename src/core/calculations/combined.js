@@ -1,6 +1,7 @@
-import { calculateValuations, getLifetimeStreams, getAverageReleaseDate } from "./calculations";
-import { parseViewCount, calculateYouTubeMetrics } from "../components/youtube/hooks/useYouTubeValuationLogic";
-import { estimateMonthlyStreams, APPLE_MUSIC_RATE } from "../components/itunes/valuationHelpers";
+import { calculateValuations, getLifetimeStreams, getAverageReleaseDate } from "./spotify";
+import { parseViewCount, calculateYouTubeMetrics } from "./youtube";
+import { estimateMonthlyStreams } from "./itunes";
+import { APPLE_MUSIC_RATE } from "./constants";
 
 export const getPlatformValuation = (artistData) => {
   if (!artistData) return 0;
@@ -79,7 +80,9 @@ export const getCombinedValuation = (selectedArtists) => {
   if (!selectedArtists || Object.keys(selectedArtists).length === 0) return 0;
   
   return Object.values(selectedArtists).reduce((sum, artist) => {
-    return sum + getPlatformValuation(artist);
+    const val = getPlatformValuation(artist);
+    console.log(`[Summation Debug] Platform: ${artist.platform}, Name: ${artist.name}, Valuation: ${val}`);
+    return sum + val;
   }, 0);
 };
 
@@ -201,18 +204,4 @@ export const getCombinedMetrics = (selectedArtists) => {
   };
 };
 
-export const formatCurrency = (n) => {
-  if (!n || isNaN(n)) return "$0";
-  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${n.toFixed(0)}`;
-};
 
-export const formatNumberAbbrev = (n) => {
-  if (!n || isNaN(n)) return "0";
-  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-  return `${Math.round(n)}`;
-};

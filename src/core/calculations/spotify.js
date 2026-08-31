@@ -1,6 +1,6 @@
 // src/utils/calculations.js
 import { RATE_BY_REGION, DEFAULT_SPOTIFY_RATE, DECAY_FACTORS, VALUATION_MULTIPLES } from "./constants";
-import { parseStreamCount } from "./formatters";
+import { parseStreamCount } from "../../utils/formatters";
 import { getRevenueMultiplier, calculateTrackRevenue } from './featuredTrackUtils';
 
 /**
@@ -166,7 +166,7 @@ export const calculateGeoWeightedRate = (topCities) => {
 export const getLifetimeStreams = (artistData) => {
   if (!artistData) return 0;
 
-  if (artistData.platform === "apify" && artistData.stats?.totalStreams) {
+  if (artistData.stats?.totalStreams) {
     return parseStreamCount(artistData.stats.totalStreams);
   }
 
