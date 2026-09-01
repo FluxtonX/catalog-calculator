@@ -1,66 +1,14 @@
-import { calculateValuations, getLifetimeStreams, getAverageReleaseDate } from "./spotify";
-import { parseViewCount, calculateYouTubeMetrics } from "./youtube";
-import { estimateMonthlyStreams } from "./itunes";
-import { APPLE_MUSIC_RATE } from "./constants";
+import { calculateCfaPhase1 } from "./cfaPhase1";
 
 export const getPlatformValuation = (artistData) => {
   if (!artistData) return 0;
   
-  if (artistData.platform === "spotify" || artistData.platform === "apify") {
-    const lifetimeStreams = getLifetimeStreams(artistData);
-    const releaseDate = getAverageReleaseDate(artistData);
-    const result = calculateValuations(artistData, lifetimeStreams, releaseDate, artistData.topCities);
-    return result.marketValuation || 0;
-  }
-  
-  if (artistData.platform === "youtube") {
-    const totalViews = parseViewCount(artistData.totalViews || artistData.stats?.totalViews);
-    const metrics = calculateYouTubeMetrics({
-      totalViews,
-      annualViewPercentage: 25,
-      monetizationRate: 50,
-      avgCpm: 2.0,
-      creatorCut: 55,
-      streamingRate: 0.0054,
-    });
-    return metrics.marketValuation || 0;
-  }
-  
-  if (artistData.platform === "itunes") {
-    const { topTracks, stats, albums, singles, popularity } = artistData;
-    const totalAlbums  = stats?.totalAlbums ?? albums?.length ?? 0;
-    const totalSingles = singles?.length ?? 0;
-    const totalTracks  = stats?.totalTopTracks ?? topTracks?.length ?? 0;
-
-    const top10 = (topTracks ?? []).slice(0, 10);
-    const top10Popularities = top10.map((t, i) => {
-      const real = t.popularity ?? t.trackPopularity ?? 0;
-      if (real > 0) return real; // Use official Apple popularity if present
-      
-      const catalogSize = totalAlbums * 3 + totalSingles + totalTracks;
-      // Base score of 30, add up to 65 points based on catalog size
-      const catalogBonus = Math.min((catalogSize / 150) * 65, 65);
-      const trackDecay = i * 2; // rank 1 = 0 decay, rank 10 = -18 decay
-      
-      const rawScore = 30 + catalogBonus - trackDecay;
-      return Math.min(Math.max(Math.round(rawScore), 5), 100);
-    });
-
-    const avgTop10Popularity =
-      top10Popularities.length > 0
-        ? top10Popularities.reduce((a, b) => a + b, 0) / top10Popularities.length
-        : popularity ?? 50;
-
-    const estimatedMonthlyStreams = estimateMonthlyStreams(avgTop10Popularity);
-    const monthlyRevenue = estimatedMonthlyStreams * APPLE_MUSIC_RATE;
-    const annualRevenue = monthlyRevenue * 12;
-
-    const catalogBonus = Math.min(
-      totalAlbums * 0.08 + totalSingles * 0.005,
-      0.5
-    );
-    const ltmRevenue = annualRevenue * (1 + catalogBonus);
-    return ltmRevenue * 8 || 0;
+  if (["spotify", "apify", "youtube", "itunes"].includes(artistData.platform)) {
+    // For these platforms, we now use the CFA Phase 1 logic
+    const platformStr = artistData.platform === "apify" ? "spotify" : artistData.platform;
+    const result = calculateCfaPhase1(artistData, platformStr);
+    // Previously returned marketValuation, now midEstimate maps to 8x
+    return result.midEstimate || 0;
   }
   
   if (artistData.platform === "custom") {
@@ -88,6 +36,67 @@ export const getCombinedValuation = (selectedArtists) => {
     console.log(`[Summation Debug] Platform: ${artist.platform}, Name: ${artist.name}, Valuation: ${val}`);
     return sum + val;
   }, 0);
+};
+
+export const getCombinedCfaValuations = (selectedArtists) => {
+  if (!selectedArtists || Object.keys(selectedArtists).length === 0) return null;
+
+  const result = {
+    monthlyRevenue: 0,
+    annualRevenue: 0,
+    lowEstimate: 0,
+    midEstimate: 0,
+    highEstimate: 0,
+    breakdown: {}
+  };
+
+  const artists = Object.values(selectedArtists);
+  const proxyArtist = artists.find(a => a.platform === 'spotify' || a.platform === 'apify' || (a.topTracks && a.topTracks.length > 0));
+
+  artists.forEach(originalArtist => {
+    if (!["spotify", "apify", "youtube", "itunes", "apple"].includes(originalArtist.platform)) return;
+
+    // Create a mutable copy
+    const artist = { ...originalArtist };
+    const platformStr = artist.platform === "apify" ? "spotify" : (artist.platform === "apple" ? "itunes" : artist.platform);
+
+    // Check if the artist actually has valid stream numbers on their tracks
+    const hasValidStreams = artist.topTracks && artist.topTracks.length > 0 && 
+      artist.topTracks.some(t => t.playcount || t.playCount || t.streams || t.streamCount || t.viewCount || t.streams_last_30_days || t.last30Days || t.streams_last_28_days || t.last28Days);
+
+    // If missing topTracks OR missing stream counts on those tracks, use proxy
+    if (!hasValidStreams && proxyArtist && proxyArtist.topTracks) {
+      let scaleFactor = 1.0;
+      if (platformStr === 'itunes') scaleFactor = 0.40;
+      if (platformStr === 'youtube') scaleFactor = 1.20;
+
+      artist.topTracks = proxyArtist.topTracks.map(track => {
+        // Parse the stream value from any of the known properties
+        const rawStreams = track.playcount || track.playCount || track.streams || track.streamCount || track.viewCount || 0;
+        const scaledStreams = Math.round(rawStreams * scaleFactor);
+        
+        return {
+          ...track,
+          playcount: scaledStreams,
+          playCount: scaledStreams,
+          streams: scaledStreams,
+          streamCount: scaledStreams
+        };
+      });
+    }
+
+    const cfaResult = calculateCfaPhase1(artist, platformStr);
+    
+    result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
+    result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
+    result.lowEstimate += cfaResult.lowEstimate || 0;
+    result.midEstimate += cfaResult.midEstimate || 0;
+    result.highEstimate += cfaResult.highEstimate || 0;
+    
+    result.breakdown[platformStr] = cfaResult;
+  });
+
+  return result;
 };
 
 export const parseNumber = (str) => {
@@ -138,8 +147,8 @@ export const getCombinedMetrics = (selectedArtists) => {
       breakdown[platform].followers += parsedFollowers;
     }
     
-    // Parse streams/views/monthly listeners
-    if (artist.platform === "youtube") {
+    // Fallbacks for tracks, albums, singles
+    if (platform === "youtube") {
       const streams = parseNumber(artist.totalViews || artist.stats?.totalViews);
       if (!hasCustomData) totalStreams += streams;
       breakdown[platform].streams += streams;
@@ -147,14 +156,16 @@ export const getCombinedMetrics = (selectedArtists) => {
       const tracks = parseNumber(artist.stats?.totalVideos || 0);
       if (!hasCustomData) totalTracks += tracks;
       breakdown[platform].tracks += tracks;
-    } else if (artist.platform === "spotify" || artist.platform === "apify") {
+    } else if (platform === "spotify" || platform === "itunes") {
+      // In CFA Phase 1 we calculate Streams based on top 10 tracks or use lifetime directly.
+      // Here we just use the raw parsed string for UI total stream count metric.
       let streams = 0;
-      const lifetime = getLifetimeStreams(artist);
-      if (lifetime > 0) {
-        streams = lifetime;
-      } else {
-        streams = parseNumber(artist.monthlyListeners);
+      if (artist.stats?.totalStreams) {
+        streams = parseNumber(artist.stats.totalStreams);
+      } else if (artist.monthlyListeners) {
+         streams = parseNumber(artist.monthlyListeners) * 12 * 15;
       }
+      
       if (!hasCustomData) totalStreams += streams;
       breakdown[platform].streams += streams;
       
@@ -169,24 +180,7 @@ export const getCombinedMetrics = (selectedArtists) => {
       const tracks = artist.stats?.totalTopTracks || artist.topTracks?.length || 0;
       if (!hasCustomData) totalTracks += tracks;
       breakdown[platform].tracks += tracks;
-    } else if (artist.platform === "itunes") {
-      const avgPop = artist.popularity ?? 50;
-      const streams = estimateMonthlyStreams(avgPop);
-      if (!hasCustomData) totalStreams += streams;
-      breakdown[platform].streams += streams;
-      
-      const albums = artist.stats?.totalAlbums || artist.albums?.length || 0;
-      if (!hasCustomData) totalAlbums += albums;
-      breakdown[platform].albums += albums;
-      
-      const singles = artist.stats?.totalSingles || artist.singles?.length || 0;
-      if (!hasCustomData) totalSingles += singles;
-      breakdown[platform].singles += singles;
-      
-      const tracks = artist.stats?.totalTopTracks || artist.topTracks?.length || 0;
-      if (!hasCustomData) totalTracks += tracks;
-      breakdown[platform].tracks += tracks;
-    } else if (artist.platform === "custom") {
+    } else if (platform === "custom") {
       const streams = parseNumber(artist.stats?.totalStreams || 0);
       totalStreams += streams;
       breakdown[platform].streams += streams;

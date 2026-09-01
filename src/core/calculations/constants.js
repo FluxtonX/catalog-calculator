@@ -99,3 +99,56 @@ export const VALUATION_MULTIPLES = {
   MARKET: 8,
   PREMIUM: 10,
 };
+
+// --- CFA PHASE 1 CONSTANTS ---
+
+export const CFA_RATES = {
+  spotify: {
+    US_CA_UK_AU: 0.0042,
+    EU_WEST: 0.0036,
+    LATAM: 0.0018,
+    ASIA: 0.0022,
+    ROW: 0.0016,
+  },
+  itunes: {
+    US_CA_UK_AU: 0.0120,
+    EU_WEST: 0.0090,
+    LATAM: 0.0050,
+    ASIA: 0.0060,
+    ROW: 0.0050,
+  },
+  youtube: {
+    US_CA_UK_AU: 0.0025,
+    EU_WEST: 0.0020,
+    LATAM: 0.0008,
+    ASIA: 0.0010,
+    ROW: 0.0008,
+  }
+};
+
+export const CFA_MATURITY = {
+  FRESH: 1.00,
+  RECENT: 0.85,
+  MATURE: 0.65,
+  LEGACY: 0.50,
+};
+
+export const CFA_MULTIPLIERS = {
+  LOW: 6,
+  MID: 8,
+  HIGH: 10,
+  ACCELERATOR: 1.30, // applied to high estimate
+};
+
+export const CFA_GEO_CONFIDENCE = {
+  ACTUAL_TRACK_GEO: "ACTUAL_TRACK_GEO",
+  ARTIST_SAME_PLATFORM_INFERENCE: "ARTIST_SAME_PLATFORM_INFERENCE",
+  ARTIST_CROSS_PLATFORM_INFERENCE: "ARTIST_CROSS_PLATFORM_INFERENCE",
+  CFA_COMPARABLE_CATALOG_MODEL: "CFA_COMPARABLE_CATALOG_MODEL",
+  PLATFORM_DEFAULT: "PLATFORM_DEFAULT",
+};
+
+export const CFA_ATTRIBUTION = {
+  PRIMARY: 1.00,
+  FEATURED: 0.25,
+};

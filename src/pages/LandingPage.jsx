@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark, LineChart } from 'lucide-react';
 import { supabase } from '../utils/supabase';
@@ -6,6 +6,7 @@ import { enableDistributionCompanies } from '../config/feature_flags';
 import { getNormalizedArtistData, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation } from '../core/calculations';
 import { useArtistStore } from '../store/artistStore';
+import CfaMasterValuation from '../components/valuation/CfaMasterValuation';
 
 import imgTuneCore from '../assets/distribution logos/tunecore.png';
 import imgDistroKid from '../assets/distribution logos/distrokid.png';
@@ -32,6 +33,7 @@ export default function LandingPage() {
     youtube: true
   });
   const [estimatedValue, setEstimatedValue] = useState(null);
+  const [searchedArtists, setSearchedArtists] = useState(null);
   
   // Results Options State
   const [currency, setCurrency] = useState('USD');
@@ -56,6 +58,9 @@ export default function LandingPage() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSuggesting, setIsSuggesting] = useState(false);
+
+  // Scroll ref for results
+  const resultsRef = useRef(null);
 
   // Option 2 Auth State
   const [loading, setLoading] = useState({ youtube: false, spotify: false, apple: false });
@@ -167,11 +172,17 @@ export default function LandingPage() {
       
       const val = getCombinedValuation(artistsMap);
       setEstimatedValue(val);
+      setSearchedArtists(artistsMap);
       
       clearImportedData();
       setStoreSearchQuery(searchQuery);
       setSelectedArtists(artistsMap);
       setStorePlatforms(activePlatforms);
+      
+      // Scroll down to results after successful calculation
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
       
     } catch (err) {
       console.error(err);
@@ -447,14 +458,26 @@ export default function LandingPage() {
               )}
 
               {/* Results */}
-              <div className={`transition-all duration-500 overflow-hidden ${estimatedValue !== null ? 'max-h-[500px] opacity-100 mt-10 pt-8 border-t border-[#1A2333]' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
-                <p className="text-[10px] text-[#00E5FF] font-bold tracking-widest uppercase text-center mb-2">ESTIMATED CATALOG VALUE</p>
-                <p className="text-[3.5rem] font-bold text-center tracking-tight mb-2 leading-none text-white">
-                  {formatLocalCurrency(estimatedValue)}
-                </p>
-                <p className="text-[11px] text-white/40 text-center mb-6 max-w-sm mx-auto">
-                  This estimate is based on their top 10 songs only
-                </p>
+              <div ref={resultsRef} className={`transition-all duration-1000 ease-in-out overflow-hidden ${estimatedValue !== null ? 'max-h-[2500px] opacity-100 mt-10 pt-8 border-t border-[#1A2333]' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
+                {searchedArtists && Object.keys(searchedArtists).length > 0 ? (
+                  <CfaMasterValuation 
+                    selectedArtists={searchedArtists} 
+                    compact={true} 
+                    royaltyShare={royaltyShare} 
+                    currency={currency} 
+                    exchangeRates={exchangeRates} 
+                  />
+                ) : (
+                  <>
+                    <p className="text-[10px] text-[#00E5FF] font-bold tracking-widest uppercase text-center mb-2">ESTIMATED CATALOG VALUE</p>
+                    <p className="text-[3.5rem] font-bold text-center tracking-tight mb-2 leading-none text-white">
+                      {formatLocalCurrency(estimatedValue)}
+                    </p>
+                    <p className="text-[11px] text-white/40 text-center mb-6 max-w-sm mx-auto">
+                      This estimate is based on their top 10 songs only
+                    </p>
+                  </>
+                )}
                 
                 {/* Custom Inputs */}
                 <div className="flex flex-col gap-4 max-w-[320px] mx-auto mb-8 bg-[#0B101A] border border-[#1A2333] p-4 rounded-xl shadow-lg">

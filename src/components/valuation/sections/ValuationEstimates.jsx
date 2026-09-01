@@ -19,18 +19,21 @@ const ValuationCard = ({ icon: Icon, title, multiple, value, accent, featured })
   </div>
 );
 
-const ValuationEstimates = ({ conservativeValuation, marketValuation, premiumValuation, formatCurrency }) => (
+const ValuationEstimates = ({ lowEstimate, midEstimate, highEstimate, acceleratorValue, formatCurrency }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
-<SectionHeader icon={BarChart3} title="Catalog Valuation Estimates" subtitle="Based on LTM revenue × multiple • Top 10 Spotify Tracks" gradient="from-emerald-500 to-teal-600" />
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <ValuationCard icon={Shield} title="Conservative" multiple="6×" value={formatCurrency(conservativeValuation)}
+<SectionHeader icon={BarChart3} title="CFA Estimated Catalog Valuation" subtitle="Based on publicly available streaming data" gradient="from-emerald-500 to-teal-600" />
+    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <ValuationCard icon={Shield} title="Low Estimate" multiple="6×" value={formatCurrency(lowEstimate)}
         accent={{ border: "border-blue-300 dark:border-blue-500/30", bg: "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/10", iconBg: "bg-gradient-to-br from-blue-500 to-blue-700", text: "text-blue-600 dark:text-blue-400", sep: "bg-blue-300 dark:bg-blue-500/50", ring: "", badge: "" }}
       />
-      <ValuationCard icon={TrendingUp} title="Market" multiple="8×" value={formatCurrency(marketValuation)} featured
+      <ValuationCard icon={TrendingUp} title="Mid Estimate" multiple="8×" value={formatCurrency(midEstimate)} featured
         accent={{ border: "border-emerald-400 dark:border-emerald-500/50", bg: "bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/30 dark:to-emerald-800/10", iconBg: "bg-gradient-to-br from-emerald-500 to-emerald-700", text: "text-emerald-600 dark:text-emerald-400", sep: "bg-emerald-400", ring: "ring-emerald-400 dark:ring-emerald-500", badge: "bg-emerald-500" }}
       />
-      <ValuationCard icon={Star} title="Premium" multiple="10×" value={formatCurrency(premiumValuation)}
+      <ValuationCard icon={Star} title="High Estimate" multiple="10×" value={formatCurrency(highEstimate)}
         accent={{ border: "border-purple-300 dark:border-purple-500/30", bg: "bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/10", iconBg: "bg-gradient-to-br from-purple-500 to-purple-700", text: "text-purple-600 dark:text-purple-400", sep: "bg-purple-300 dark:bg-purple-500/50", ring: "", badge: "" }}
+      />
+      <ValuationCard icon={TrendingUp} title="Catalog Accelerator" multiple="+30%" value={formatCurrency(acceleratorValue)}
+        accent={{ border: "border-amber-300 dark:border-amber-500/30", bg: "bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/10", iconBg: "bg-gradient-to-br from-amber-500 to-amber-700", text: "text-amber-600 dark:text-amber-400", sep: "bg-amber-300 dark:bg-amber-500/50", ring: "", badge: "" }}
       />
     </div>
   </div>

@@ -5,4 +5,5 @@ export * from './spotify';
 export * from './youtube';
 export * from './itunes';
 export * from './combined';
+export * from './cfaPhase1';
 export * from '../../utils/formatters';

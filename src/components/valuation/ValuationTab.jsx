@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { calculateMonthlyStreamsAndRevenue, calculateDollarAge } from "../../core/calculations";
+import { calculateCfaPhase1 } from "../../core/calculations";
 import { generateValuationPDF } from "../../utils/pdfGenerator";
 import { AlertTriangle, LogIn } from "lucide-react";
 import { useArtistStore } from "../../store/artistStore";
@@ -83,36 +83,55 @@ useEffect(() => {
   const currentDate = new Date();
   const monthsLive = getMonthsBetween(releaseDate, currentDate);
   const geoRateData = calculateGeoWeightedRate(artistData.topCities);
-  const effectiveSpotifyRate = geoRateData.rate;
-  const geoMethodUsed = geoRateData.method;
+  const oldEffectiveSpotifyRate = geoRateData.rate;
+  const oldGeoMethodUsed = geoRateData.method;
 
 
 
-const {
-  monthlyStreamsEst,
-  monthlyRevenue,
-  methodUsed,
-  featuredTrackCount,
-  totalTrackCount,
-} = calculateMonthlyStreamsAndRevenue(
-  artistData,
-  lifetimeStreams,
-  monthsLive,
-  effectiveSpotifyRate,
-);
+  const cfaResult = useMemo(
+    () => calculateCfaPhase1(artistData, "spotify"),
+    [artistData]
+  );
 
-const monthlySpotifyRevenue = monthlyRevenue;
-const ltmSpotifyRevenue = monthlyRevenue * 12;
+  const {
+    lowEstimate,
+    midEstimate,
+    highEstimate,
+    acceleratorValue,
+    totalAnnualRevenue,
+    averageDollarAge,
+    cfaConfidence,
+    trackDetails
+  } = cfaResult;
 
-// ✅ Now ltmSpotifyRevenue is defined — pass it in so Dollar Age LTM matches
-const dollarAgeData = useMemo(
-  () => calculateDollarAge(artistData, effectiveSpotifyRate, currentDate, ltmSpotifyRevenue),
-  [artistData, effectiveSpotifyRate, ltmSpotifyRevenue],
-);
-  const conservativeValuation = ltmSpotifyRevenue * 6;
-  const marketValuation = ltmSpotifyRevenue * 8;
-  const premiumValuation = ltmSpotifyRevenue * 10;
-  const hasValidData = lifetimeStreams > 0;
+  // We map the first track's info or aggregated info for display where appropriate
+  // However, the CFA logic is top 10 track based.
+  const monthlyStreamsEst = trackDetails.reduce((sum, t) => sum + t.estimatedMonthlyStreams, 0);
+  const monthlyRevenue = totalAnnualRevenue / 12;
+  const ltmSpotifyRevenue = totalAnnualRevenue;
+  const effectiveSpotifyRate = monthlyStreamsEst > 0 ? monthlyRevenue / monthlyStreamsEst : 0;
+  const methodUsed = "CFA_PHASE_1";
+  const geoMethodUsed = cfaConfidence;
+  const featuredTrackCount = trackDetails.filter(t => t.artistRole === "FEATURED").length;
+  const totalTrackCount = trackDetails.length;
+  
+  const dollarAgeData = {
+    dollarAge: averageDollarAge,
+    totalWeightedAge: 0,
+    totalLTMEarnings: totalAnnualRevenue,
+    trackBreakdown: trackDetails.map(t => ({
+       name: t.title,
+       ageInYears: t.ageInYears,
+       ltmEarnings: t.artistAttributedAnnualRev,
+       weightedAge: 0,
+       releaseDate: ""
+    }))
+  };
+
+  const conservativeValuation = lowEstimate;
+  const marketValuation = midEstimate;
+  const premiumValuation = highEstimate;
+  const hasValidData = trackDetails.length > 0;
 
   const methodLabel =
     {
@@ -252,11 +271,12 @@ const dollarAgeData = useMemo(
         {/* Artist Header — 4 metric cards */}
         <ArtistHeader
           artistName={artistData.name}
-          marketValuation={marketValuation}
+          marketValuation={midEstimate}
           monthlyStreamsEst={monthlyStreamsEst}
           ltmSpotifyRevenue={ltmSpotifyRevenue}
           effectiveSpotifyRate={effectiveSpotifyRate}
           geoMethodUsed={geoMethodUsed}
+          cfaConfidence={cfaConfidence}
           {...fmt}
         />
 
@@ -301,9 +321,10 @@ const dollarAgeData = useMemo(
 
         {/* Valuation Tiers */}
         <ValuationEstimates
-          conservativeValuation={conservativeValuation}
-          marketValuation={marketValuation}
-          premiumValuation={premiumValuation}
+          lowEstimate={lowEstimate}
+          midEstimate={midEstimate}
+          highEstimate={highEstimate}
+          acceleratorValue={acceleratorValue}
           formatCurrency={formatCurrency}
         />
 
