@@ -24,6 +24,7 @@ export default function Auth() {
     { name: 'Amuse', icon: 'a', color: 'bg-yellow-400' },
     { name: 'Record Union', icon: 'ru', color: 'bg-black' },
     { name: 'Too Lost', icon: 'TL', color: 'bg-purple-500' },
+    { name: 'Concord', icon: 'C', color: 'bg-red-600' },
   ];
 
   useEffect(() => {

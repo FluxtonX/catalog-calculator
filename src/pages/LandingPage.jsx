@@ -79,6 +79,7 @@ export default function LandingPage() {
     { name: 'Amuse', img: imgAmuse },
     { name: 'Record Union', img: imgRecordUnion },
     { name: 'Too Lost', img: imgTooLost },
+    { name: 'Concord', img: null },
   ];
 
   useEffect(() => {

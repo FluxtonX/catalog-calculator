@@ -1,2 +1,2 @@
 // TODO: Temporarily disabled due to backend limitations.
-export const enableDistributionCompanies = false;
+export const enableDistributionCompanies = true;

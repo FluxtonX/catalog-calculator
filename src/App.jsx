@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ThemeProvider } from './context/ThemeContext';
 import MainLayout from './components/layout/MainLayout';
 import { supabase } from './utils/supabase';
+import { Toaster } from 'react-hot-toast';
 
 import Auth from './pages/Auth';
 import AdminPanel from './pages/AdminPanel';
@@ -106,6 +107,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
+      <Toaster position="bottom-right" toastOptions={{ className: 'dark:bg-slate-800 dark:text-white', duration: 4000 }} />
     </ThemeProvider>
   );
 }

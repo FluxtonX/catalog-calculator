@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { UploadCloud, ArrowLeft, Loader2, Music, DollarSign, ListMusic, User, Lock } from 'lucide-react';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { supabase } from '../utils/supabase';
+import toast from 'react-hot-toast';
 
 export default function DataImport() {
   const location = useLocation();
@@ -15,12 +16,103 @@ export default function DataImport() {
   usePageTitle(`Data from ${distributor} | FluxtonX`);
 
   const [extractedData, setExtractedData] = useState(null);
-  const [showExtensionModal, setShowExtensionModal] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [extensionInstalled, setExtensionInstalled] = useState(false);
   const [user, setUser] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [isExtracting, setIsExtracting] = useState(false);
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [extractionStatusText, setExtractionStatusText] = useState('Extracting...');
+
+  const handleExtractWithAI = async (e) => {
+    if (e) e.preventDefault();
+    if (!email || !password) {
+      toast.error('Please enter both email and password.');
+      return;
+    }
+    if (isExtracting) return;
+    
+    setIsExtracting(true);
+    setExtractionStatusText('Initializing AI connection...');
+    const toastId = toast.loading(`Connecting to Deck.co...`);
+    
+    try {
+      // Step 1: Start the extraction
+      const startRes = await supabase.functions.invoke('fetch-distributor-catalog', {
+        body: { action: 'start', distributor, credentials: { email, password } }
+      });
+      
+      if (startRes.error) throw startRes.error;
+      const { taskRunId } = startRes.data;
+
+      // Start cycling fun progress messages
+      const messages = [
+        "Connecting to Concord securely...",
+        "Agent navigating dashboard...",
+        "Extracting royalty tables...",
+        "Compiling final catalog data...",
+        "Almost done, wrapping up..."
+      ];
+      let msgIndex = 0;
+      const msgInterval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % messages.length;
+        setExtractionStatusText(messages[msgIndex]);
+      }, 5000);
+
+      // Step 2: Poll for completion
+      const pollInterval = setInterval(async () => {
+        try {
+           const pollRes = await supabase.functions.invoke('fetch-distributor-catalog', {
+             body: { action: 'poll', distributor, taskRunId }
+           });
+           
+           if (pollRes.error) {
+              clearInterval(pollInterval);
+              clearInterval(msgInterval);
+              setIsExtracting(false);
+              throw pollRes.error;
+           }
+
+           const status = pollRes.data.status;
+           
+           if (status === 'completed') {
+              clearInterval(pollInterval);
+              clearInterval(msgInterval);
+              setIsExtracting(false);
+              
+              toast.success(`Successfully extracted catalog from ${distributor}!`, { id: toastId });
+              if (pollRes.data.data) {
+                handleDataReceived(pollRes.data.data);
+              }
+           }
+        } catch (pollErr) {
+           clearInterval(pollInterval);
+           clearInterval(msgInterval);
+           setIsExtracting(false);
+           console.error(pollErr);
+           toast.error(pollErr.message || "An error occurred while polling.", { id: toastId, duration: 5000 });
+        }
+      }, 5000);
+
+    } catch (err) {
+      console.error(err);
+      
+      // Make errors user-friendly instead of technical jargon
+      let friendlyError = "We couldn't extract your data right now. Please try again.";
+      if (err.message?.includes('non-2xx status code') || err.message?.includes('Failed to send a request')) {
+        friendlyError = "Our extraction server is currently busy or unavailable. Please try again in a moment.";
+      } else if (err.message) {
+        // Only show message if it's likely a custom API error from our backend, otherwise fallback to generic
+        friendlyError = err.message.length < 50 ? err.message : friendlyError;
+      }
+
+      toast.error(friendlyError, { id: toastId, duration: 5000 });
+    } finally {
+      setIsExtracting(false);
+    }
+  };
 
   useEffect(() => {
     // Use getSession() not getUser() to avoid 401 race conditions
@@ -84,15 +176,6 @@ export default function DataImport() {
   };
 
   useEffect(() => {
-    const checkInstallation = () => {
-        if (document.body.hasAttribute('data-cc-ext-installed')) {
-            setExtensionInstalled(true);
-        }
-    };
-    
-    checkInstallation();
-    setTimeout(checkInstallation, 500);
-
     const storedData = window.localStorage.getItem('cc_pending_extraction');
     if (storedData) {
        try {
@@ -103,25 +186,7 @@ export default function DataImport() {
          console.error("Failed to parse pending extraction data:", err);
        }
     }
-    
-    const handleMessage = (event) => {
-      if (event.data && event.data.type === 'CATALOG_CALCULATOR_DATA') {
-        handleDataReceived(event.data.payload);
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [distributor]); // We intentionally leave saveToHistory dependencies out so it only triggers once per mount/message
-
-  // If they don't have the extension installed, remind them
-  useEffect(() => {
-    if (!extensionInstalled && !extractedData) {
-        const timer = setTimeout(() => setShowExtensionModal(true), 1500);
-        return () => clearTimeout(timer);
-    } else {
-        setShowExtensionModal(false);
-    }
-  }, [extensionInstalled, extractedData]);
+  }, [distributor]);
 
   // Format helpers
   const formatCurrency = (val) => {
@@ -140,38 +205,6 @@ export default function DataImport() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 pt-24 relative">
       
       {/* Soft Save Banner - appears below data, not blocking */}
-
-      {/* Extension Install Modal */}
-      {showExtensionModal && !extractedData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-md w-full p-8 text-center shadow-2xl border border-slate-200 dark:border-slate-800">
-            <div className="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-               <UploadCloud className="text-indigo-600 dark:text-indigo-400 w-8 h-8" />
-            </div>
-            <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Extension Required</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-              To use automated extraction for {distributor}, you must install the <b>Catalog Calculator Extractor</b> extension.
-            </p>
-            <div className="flex flex-col gap-3">
-              <a 
-                href="https://chromewebstore.google.com/detail/catalog-calculator-extractor/INSERT_ID_HERE" 
-                target="_blank" 
-                rel="noreferrer"
-                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30"
-                onClick={() => setShowExtensionModal(false)}
-              >
-                Install Extension
-              </a>
-              <button 
-                onClick={() => setShowExtensionModal(false)}
-                className="w-full py-3.5 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold"
-              >
-                I already installed it
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <button onClick={() => navigate('/')} className="absolute top-28 left-6 md:left-12 flex items-center gap-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white font-semibold transition-colors">
         <ArrowLeft size={18} /> Back
@@ -201,51 +234,94 @@ export default function DataImport() {
                      <Loader2 className="text-indigo-500 animate-pulse w-8 h-8" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Awaiting Data...</h3>
+                <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Connect your account</h3>
                 <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-6 leading-relaxed">
-                  Please open your <b>{distributor}</b> dashboard in a new tab. Our secure extension will automatically extract your data once the page fully loads.
+                  Enter your {distributor} credentials so our Deck.co AI can securely extract your catalog data.
                 </p>
-                <a href="https://pubroyalty.concord.com/" target="_blank" rel="noreferrer" className="px-6 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 font-bold rounded-xl hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors">
-                  Open {distributor}
-                </a>
+                <form onSubmit={handleExtractWithAI} className="w-full max-w-sm flex flex-col gap-4">
+                  <div className="flex flex-col text-left">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                    <input 
+                      type="email" 
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
+                      placeholder="artist@example.com"
+                    />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                    <input 
+                      type="password" 
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    disabled={isExtracting}
+                    className="w-full mt-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isExtracting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        {extractionStatusText}
+                      </>
+                    ) : (
+                      'Extract with AI'
+                    )}
+                  </button>
+                </form>
              </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                {/* Extraction Successful text has been removed as per client request */}
                
-               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-8 shadow-inner">
-                  <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-700">
+               <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden mb-8 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all hover:shadow-xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-700/50">
                      
-                     <div className="p-6 flex flex-col gap-1">
-                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
-                          <User size={16} />
-                          <span className="text-xs font-bold uppercase tracking-wider">Artist Name</span>
+                     <div className="p-6 md:p-8 flex flex-col justify-center bg-slate-50/50 dark:bg-transparent group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors min-w-0">
+                        <div className="flex items-center gap-2 text-indigo-500 dark:text-indigo-400 mb-2">
+                          <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0">
+                            <User size={16} />
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Artist Profile</span>
                         </div>
-                        <p className="text-xl font-black text-slate-800 dark:text-white truncate">{extractedData.artistName}</p>
+                        <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white leading-tight mt-1 break-words line-clamp-3" title={extractedData.artistName}>{extractedData.artistName}</p>
                      </div>
 
-                     <div className="p-6 flex flex-col gap-1">
-                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
-                          <DollarSign size={16} />
-                          <span className="text-xs font-bold uppercase tracking-wider">Lifetime Revenue</span>
+                     <div className="p-6 md:p-8 flex flex-col justify-center group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
+                        <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 mb-2">
+                          <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                            <DollarSign size={16} />
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Lifetime Revenue</span>
                         </div>
-                        <p className="text-xl font-black text-slate-800 dark:text-white text-emerald-600 dark:text-emerald-400">{formatCurrency(extractedData.totalRevenue)}</p>
+                        <p className="text-3xl md:text-4xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight mt-1">{formatCurrency(extractedData.totalRevenue)}</p>
                      </div>
 
-                     <div className="p-6 flex flex-col gap-1 md:border-t border-slate-200 dark:border-slate-700">
-                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
-                          <Music size={16} />
-                          <span className="text-xs font-bold uppercase tracking-wider">Total Streams</span>
+                     <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
+                        <div className="flex items-center gap-2 text-blue-500 dark:text-blue-400 mb-2">
+                          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                            <Music size={16} />
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Total Streams</span>
                         </div>
-                        <p className="text-xl font-black text-slate-800 dark:text-white">{formatNumber(extractedData.totalStreams)}</p>
+                        <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight mt-1">{formatNumber(extractedData.totalStreams)}</p>
                      </div>
 
-                     <div className="p-6 flex flex-col gap-1 md:border-t border-slate-200 dark:border-slate-700">
-                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-1">
-                          <ListMusic size={16} />
-                          <span className="text-xs font-bold uppercase tracking-wider">Total Tracks</span>
+                     <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
+                        <div className="flex items-center gap-2 text-purple-500 dark:text-purple-400 mb-2">
+                          <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                            <ListMusic size={16} />
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Total Tracks</span>
                         </div>
-                        <p className="text-xl font-black text-slate-800 dark:text-white">{formatNumber(extractedData.totalTracks)}</p>
+                        <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight mt-1">{formatNumber(extractedData.totalTracks)}</p>
                      </div>
 
                   </div>
