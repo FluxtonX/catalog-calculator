@@ -120,6 +120,8 @@ Deno.serve(async (req: Request) => {
       if (!pollResponse.ok) throw new Error(`Polling error: ${pollResponse.status}`);
       const pollData = await pollResponse.json();
       
+      const activeStatuses = ['running', 'queued', 'starting', 'in_progress', 'dispatched'];
+      
       if (pollData.status === 'completed') {
          const resultOutput = pollData.output;
          
@@ -127,9 +129,9 @@ Deno.serve(async (req: Request) => {
          let totalStreams = 0;
          let totalRevenue = 0;
          let totalTracks = 0;
-
          let extractedArtistName = "Concord Creator";
 
+         // Fallback manual calculation
          const arrayKey = Object.keys(resultOutput).find(k => Array.isArray(resultOutput[k]));
          if (arrayKey && resultOutput[arrayKey].length > 0) {
             const tracks = resultOutput[arrayKey];
@@ -148,6 +150,62 @@ Deno.serve(async (req: Request) => {
             });
          }
 
+         // Override with explicit summary fields if they exist
+         const possibleRevenueKeys = ['total_royalties', 'total_revenue', 'totalRevenue', 'royalties_earned', 'lifetimeRevenue', 'revenue', 'earnings', 'balance_payable', 'closing_balance', 'royalties', 'Royalties Earned This Period', 'Balance Payable This Period'];
+         const possibleStreamsKeys = ['total_streams', 'totalStreams', 'streams', 'plays'];
+         const possibleTracksKeys = ['total_tracks', 'totalTracks', 'tracks_count'];
+         const possibleArtistKeys = ['artist', 'artist_name', 'artistName'];
+
+         // Check root level
+         possibleRevenueKeys.forEach(key => {
+            if (resultOutput[key] !== undefined) {
+               const val = typeof resultOutput[key] === 'string' ? parseFloat(resultOutput[key].replace(/[^0-9.-]+/g,"")) : parseFloat(resultOutput[key]);
+               if (!isNaN(val)) totalRevenue = val;
+            }
+         });
+         possibleStreamsKeys.forEach(key => {
+            if (resultOutput[key] !== undefined) {
+               const val = parseInt(resultOutput[key]);
+               if (!isNaN(val)) totalStreams = val;
+            }
+         });
+         possibleTracksKeys.forEach(key => {
+            if (resultOutput[key] !== undefined) {
+               const val = parseInt(resultOutput[key]);
+               if (!isNaN(val)) totalTracks = val;
+            }
+         });
+         possibleArtistKeys.forEach(key => {
+            if (resultOutput[key] !== undefined && typeof resultOutput[key] === 'string') {
+               extractedArtistName = resultOutput[key];
+            }
+         });
+         
+         // Also check inside a 'summary' or 'totals' object if it exists
+         ['summary', 'totals', 'royalties'].forEach(objKey => {
+            const obj = resultOutput[objKey];
+            if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+               possibleRevenueKeys.forEach(key => {
+                  if (obj[key] !== undefined) {
+                     const val = typeof obj[key] === 'string' ? parseFloat(obj[key].replace(/[^0-9.-]+/g,"")) : parseFloat(obj[key]);
+                     if (!isNaN(val)) totalRevenue = val;
+                  }
+               });
+               possibleStreamsKeys.forEach(key => {
+                  if (obj[key] !== undefined) {
+                     const val = parseInt(obj[key]);
+                     if (!isNaN(val)) totalStreams = val;
+                  }
+               });
+               possibleTracksKeys.forEach(key => {
+                  if (obj[key] !== undefined) {
+                     const val = parseInt(obj[key]);
+                     if (!isNaN(val)) totalTracks = val;
+                  }
+               });
+            }
+         });
+
          const formattedData = {
            artistName: extractedArtistName,
            totalRevenue: totalRevenue.toFixed(2),
@@ -161,16 +219,13 @@ Deno.serve(async (req: Request) => {
            data: formattedData
          }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
          
-      } else if (pollData.status === 'failed') {
-         throw new Error(`Agent task failed: ${JSON.stringify(pollData.errors)}`);
-      } else if (pollData.status === 'interaction_required') {
-         throw new Error(`Agent requires manual interaction (e.g., 2FA/MFA).`);
       }
 
-      // If still running/queued
+      // If not completed, return the status to the frontend
       return new Response(JSON.stringify({
          success: true,
-         status: pollData.status
+         status: pollData.status,
+         errors: pollData.errors
       }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 

@@ -25,6 +25,7 @@ export default function DataImport() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [extractionStatusText, setExtractionStatusText] = useState('Extracting...');
+  const [progress, setProgress] = useState(0);
 
   const handleExtractWithAI = async (e) => {
     if (e) e.preventDefault();
@@ -35,34 +36,43 @@ export default function DataImport() {
     if (isExtracting) return;
     
     setIsExtracting(true);
-    setExtractionStatusText('Initializing AI connection...');
+    setProgress(0);
+    setExtractionStatusText('Connecting to Concord securely...');
     const toastId = toast.loading(`Connecting to Deck.co...`);
     
-    try {
-      // Step 1: Start the extraction
-      const startRes = await supabase.functions.invoke('fetch-distributor-catalog', {
-        body: { action: 'start', distributor, credentials: { email, password } }
+    // Start progress immediately so it doesn't hang at 0%
+    const progressInterval = setInterval(() => {
+      setProgress(p => {
+         if (p >= 98) return 98;
+         const increment = p < 50 ? 5 : (p < 80 ? 2 : 1);
+         return p + increment;
       });
-      
-      if (startRes.error) throw startRes.error;
-      const { taskRunId } = startRes.data;
+    }, 1500);
 
-      // Start cycling fun progress messages
-      const messages = [
-        "Connecting to Concord securely...",
-        "Agent navigating dashboard...",
-        "Extracting royalty tables...",
-        "Compiling final catalog data...",
-        "Almost done, wrapping up..."
-      ];
-      let msgIndex = 0;
-      const msgInterval = setInterval(() => {
-        msgIndex = (msgIndex + 1) % messages.length;
-        setExtractionStatusText(messages[msgIndex]);
-      }, 5000);
+    const messages = [
+      "Agent navigating dashboard...",
+      "Extracting royalty tables...",
+      "Compiling final catalog data...",
+      "Almost done, wrapping up..."
+    ];
+    let msgIndex = 0;
+    const msgInterval = setInterval(() => {
+      setExtractionStatusText(messages[msgIndex]);
+      msgIndex = (msgIndex + 1) % messages.length;
+    }, 5000);
 
-      // Step 2: Poll for completion
-      const pollInterval = setInterval(async () => {
+    const attemptExtraction = async (attempt) => {
+      try {
+        // Step 1: Start the extraction
+        const startRes = await supabase.functions.invoke('fetch-distributor-catalog', {
+          body: { action: 'start', distributor, credentials: { email, password } }
+        });
+        
+        if (startRes.error) throw startRes.error;
+        const { taskRunId } = startRes.data;
+
+        // Step 2: Poll for completion
+        const pollInterval = setInterval(async () => {
         try {
            const pollRes = await supabase.functions.invoke('fetch-distributor-catalog', {
              body: { action: 'poll', distributor, taskRunId }
@@ -71,48 +81,89 @@ export default function DataImport() {
            if (pollRes.error) {
               clearInterval(pollInterval);
               clearInterval(msgInterval);
+              clearInterval(progressInterval);
               setIsExtracting(false);
               throw pollRes.error;
            }
 
            const status = pollRes.data.status;
-           
+
            if (status === 'completed') {
               clearInterval(pollInterval);
               clearInterval(msgInterval);
+              clearInterval(progressInterval);
+              setProgress(100);
               setIsExtracting(false);
               
               toast.success(`Successfully extracted catalog from ${distributor}!`, { id: toastId });
               if (pollRes.data.data) {
                 handleDataReceived(pollRes.data.data);
               }
+           } else if (status === 'queued') {
+              setExtractionStatusText('Waiting in line for AI server...');
+           } else if (status === 'running' || status === 'in_progress') {
+              // Just let the rotating messages handle it
+           } else if (status === 'failed' || status === 'canceled' || status === 'timeout') {
+              clearInterval(pollInterval);
+              if (attempt < 3) {
+                 setExtractionStatusText(`AI hiccup, retrying safely... (Attempt ${attempt + 1} of 3)`);
+                 setProgress(10);
+                 attemptExtraction(attempt + 1);
+              } else {
+                 clearInterval(msgInterval);
+                 clearInterval(progressInterval);
+                 setIsExtracting(false);
+                 toast.error(`Extraction ${status} after 3 attempts. Please try again.`, { id: toastId });
+              }
+           } else if (status === 'interaction_required') {
+              clearInterval(pollInterval);
+              clearInterval(msgInterval);
+              clearInterval(progressInterval);
+              setIsExtracting(false);
+              toast.error(`Security check required. Please login manually first.`, { id: toastId });
            }
         } catch (pollErr) {
            clearInterval(pollInterval);
-           clearInterval(msgInterval);
-           setIsExtracting(false);
-           console.error(pollErr);
-           toast.error(pollErr.message || "An error occurred while polling.", { id: toastId, duration: 5000 });
+           if (attempt < 3) {
+              setExtractionStatusText(`Network hiccup, retrying safely... (Attempt ${attempt + 1} of 3)`);
+              setProgress(10);
+              attemptExtraction(attempt + 1);
+           } else {
+              clearInterval(msgInterval);
+              clearInterval(progressInterval);
+              setIsExtracting(false);
+              console.error(pollErr);
+              toast.error(pollErr.message || "An error occurred while polling.", { id: toastId, duration: 5000 });
+           }
         }
       }, 5000);
 
     } catch (err) {
       console.error(err);
-      
-      // Make errors user-friendly instead of technical jargon
-      let friendlyError = "We couldn't extract your data right now. Please try again.";
-      if (err.message?.includes('non-2xx status code') || err.message?.includes('Failed to send a request')) {
-        friendlyError = "Our extraction server is currently busy or unavailable. Please try again in a moment.";
-      } else if (err.message) {
-        // Only show message if it's likely a custom API error from our backend, otherwise fallback to generic
-        friendlyError = err.message.length < 50 ? err.message : friendlyError;
-      }
+      if (attempt < 3) {
+         setExtractionStatusText(`Startup hiccup, retrying safely... (Attempt ${attempt + 1} of 3)`);
+         setProgress(10);
+         setTimeout(() => attemptExtraction(attempt + 1), 2000);
+      } else {
+         clearInterval(msgInterval);
+         clearInterval(progressInterval);
+         
+         // Make errors user-friendly instead of technical jargon
+         let friendlyError = "We couldn't extract your data right now. Please try again.";
+         if (err.message?.includes('non-2xx status code') || err.message?.includes('Failed to send a request')) {
+           friendlyError = "Our extraction server is currently busy or unavailable. Please try again in a moment.";
+         } else if (err.message) {
+           friendlyError = err.message.length < 50 ? err.message : friendlyError;
+         }
 
-      toast.error(friendlyError, { id: toastId, duration: 5000 });
-    } finally {
-      setIsExtracting(false);
-    }
+         toast.error(friendlyError, { id: toastId, duration: 5000 });
+         setIsExtracting(false);
+      }
+    } 
   };
+
+  attemptExtraction(1);
+};
 
   useEffect(() => {
     // Use getSession() not getUser() to avoid 401 race conditions
@@ -227,12 +278,8 @@ export default function DataImport() {
           
           {!extractedData ? (
              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="w-20 h-20 relative mb-8">
-                  <div className="absolute inset-0 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
-                  <div className="absolute inset-0 border-4 border-indigo-500 rounded-full border-t-transparent animate-spin"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                     <Loader2 className="text-indigo-500 animate-pulse w-8 h-8" />
-                  </div>
+                <div className="w-16 h-16 relative mb-8 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 rounded-full border border-indigo-100 dark:border-indigo-800">
+                   <Lock className="text-indigo-500 w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Connect your account</h3>
                 <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-6 leading-relaxed">
@@ -264,16 +311,26 @@ export default function DataImport() {
                   <button 
                     type="submit"
                     disabled={isExtracting}
-                    className="w-full mt-2 px-6 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full mt-2 relative overflow-hidden bg-indigo-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30 disabled:opacity-90 disabled:cursor-not-allowed group h-12"
                   >
-                    {isExtracting ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        {extractionStatusText}
-                      </>
-                    ) : (
-                      'Extract with AI'
+                    {/* Progress Bar Background */}
+                    {isExtracting && (
+                      <div 
+                        className="absolute top-0 left-0 h-full bg-indigo-500/50 transition-all duration-1000 ease-out"
+                        style={{ width: `${progress}%` }}
+                      ></div>
                     )}
+                    
+                    <div className="relative z-10 flex items-center justify-center gap-2 h-full">
+                      {isExtracting ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span>{extractionStatusText} ({progress}%)</span>
+                        </>
+                      ) : (
+                        'Extract with AI'
+                      )}
+                    </div>
                   </button>
                 </form>
              </div>
