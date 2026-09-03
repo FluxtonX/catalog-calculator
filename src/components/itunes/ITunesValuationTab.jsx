@@ -62,12 +62,6 @@ const ITunesValuationTab = ({ artistData }) => {
       return;
     }
 
-    const isProEnabled = false;
-    if (!isProEnabled) {
-      navigate("/pro-plan");
-      return;
-    }
-
     try {
       setIsSaving(true);
       const reportData = {
