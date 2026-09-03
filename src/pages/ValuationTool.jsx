@@ -449,9 +449,11 @@ const ValuationTool = () => {
   };
 
   useEffect(() => {
-    // Only auto-trigger if we have imported data and no artists selected yet
-    if (importedData && searchQuery.trim() && Object.keys(selectedArtists).length === 0 && !isLoading && !error) {
-      handleSearch();
+    // Auto-trigger if we have imported data OR a persisted search query, and no artists selected yet
+    if ((importedData || searchQuery.trim()) && Object.keys(selectedArtists).length === 0 && !isLoading && !error) {
+      if (searchQuery.trim()) {
+        handleSearch();
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [importedData, searchQuery, isLoading, error]); // Re-run if searchQuery updates after mount
@@ -528,10 +530,16 @@ const ValuationTool = () => {
       });
       
       if (hasChannelList && youtubeChannelsData.length > 0) {
-        setYoutubeChannels(youtubeChannelsData);
-        // Automatically fetch the top/official channel (first in list) to instantly populate combined metrics
+        // Sort and pick only the highest subscribed official channel to show in the UI
+        const sortedChannels = [...youtubeChannelsData].sort((a, b) => (b.subscribers || 0) - (a.subscribers || 0));
+        const bestChannel = sortedChannels[0];
+        
+        // Show only the 1 top channel in the ChannelSelector UI
+        setYoutubeChannels([bestChannel]);
+        
+        // Optional: auto-fetch behind the scenes so the combined metrics populate faster, 
+        // but user still must click it to proceed (which handles the rest)
         try {
-          const bestChannel = youtubeChannelsData[0];
           const details = await getYouTubeChannelDetails(searchQuery, bestChannel.id);
           if (isReasonableMatch(searchQuery, details.name)) {
              newSelectedArtists["youtube"] = { ...details, platform: "youtube" };
@@ -539,6 +547,7 @@ const ValuationTool = () => {
         } catch (err) {
           console.error("Auto-fetch for top YouTube channel failed:", err);
         }
+        
         setShowChannelSelector(true);
       }
       
@@ -600,6 +609,7 @@ const ValuationTool = () => {
     setShowChannelSelector(false);
     setYoutubeChannels([]);
     let hasChannelList = false;
+    let historyYoutubeChannelsData = [];
     try {
       const results = await Promise.allSettled(
         platforms.map(p => doSearchForPlatform(artist, p))
@@ -612,7 +622,7 @@ const ValuationTool = () => {
         if (res.status === 'fulfilled') {
           const data = res.value;
           if (data?.type === "channel_list") {
-            setYoutubeChannels(data.channels);
+            historyYoutubeChannelsData = data.channels;
             hasChannelList = true;
           } else if (data?.name) {
             newSelectedArtists[p] = { ...data, platform: p };
@@ -620,8 +630,21 @@ const ValuationTool = () => {
         }
       });
       
-      if (hasChannelList) {
+      if (hasChannelList && historyYoutubeChannelsData.length > 0) {
+        const sortedChannels = [...historyYoutubeChannelsData].sort((a, b) => (b.subscribers || 0) - (a.subscribers || 0));
+        const bestChannel = sortedChannels[0];
+        
+        setYoutubeChannels([bestChannel]);
         setShowChannelSelector(true);
+        
+        try {
+          const details = await getYouTubeChannelDetails(artist, bestChannel.id);
+          if (isReasonableMatch(artist, details.name)) {
+             newSelectedArtists["youtube"] = { ...details, platform: "youtube" };
+          }
+        } catch (err) {
+          console.error("History auto-fetch failed:", err);
+        }
       }
       
       if (Object.keys(newSelectedArtists).length === 0 && !hasChannelList) {
@@ -1040,6 +1063,7 @@ const ValuationTool = () => {
                 </div>
 
                 <ArtistCard
+                  hideHeader={idx > 0}
                   name={artistData.name}
                   image={artistData.image}
                   followers={artistData.followers}

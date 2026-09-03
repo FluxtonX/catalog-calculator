@@ -315,19 +315,6 @@ const ArtistHeader = ({
 
        {/* Action buttons */}
 <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-  <button
-    onClick={onCalculateRoyalties}
-    className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg ${
-      isItunes
-        ? "bg-white/20 hover:bg-white/30 border border-white/30"
-        : isYoutube
-        ? "bg-red-500/80 hover:bg-red-500 border border-red-400/50"
-        : "bg-emerald-500/80 hover:bg-emerald-500 border border-emerald-400/50"
-    }`}
-  >
-    <BarChart3 size={15} />
-    Calculate Royalties
-  </button>
   {isYoutube && youtubeUrl && (
                 <a
                   href={youtubeUrl}

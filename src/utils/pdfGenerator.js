@@ -81,6 +81,10 @@ export const generateValuationPDF = (reportData) => {
       ['Average Release Date', reportData.inputs.releaseDate],
       ['Months Live', reportData.calculations.monthsLive.toString()],
     ];
+
+    if (reportData.chartmetricRank) {
+      inputData.push(['Chartmetric Rank', formatNumber(reportData.chartmetricRank)]);
+    }
     
     // Draw table (with or without autoTable)
     if (hasAutoTable && typeof doc.autoTable === 'function') {

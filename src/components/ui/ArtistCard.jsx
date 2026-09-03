@@ -62,11 +62,12 @@ const ArtistCard = ({
   topCities,
   externalLinks,
   importedDistributor,
+  hideHeader = false,
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("tracks");
   const [enhancedAlbums, setEnhancedAlbums] = useState([]);
-  const [showValuation, setShowValuation] = useState(false);
+  const [showValuation, setShowValuation] = useState(true);
   const valuationSectionRef = useRef(null);
 
   const isItunes = platform === "itunes";
@@ -294,24 +295,26 @@ setEnhancedAlbums(
     <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
       {/* ── Artist Info Card ─────────────────────────────── */}
       <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
-        <ArtistHeader
-          name={name}
-          image={image}
-          followers={followers}
-          monthlyListeners={monthlyListeners}
-          popularity={popularity}
-          genres={genres}
-          platform={platform}
-          spotifyUrl={spotifyUrl}
-          youtubeUrl={youtubeUrl}
-          appleUrl={appleUrl}
-          externalLinks={externalLinks}
-          onLaunchValuation={handleLaunchValuation}
-          getSocialIcon={getSocialIcon}
-          onCalculateRoyalties={() => setShowValuation(true)}
-        />
+        {!hideHeader && (
+          <ArtistHeader
+            name={name}
+            image={image}
+            followers={followers}
+            monthlyListeners={monthlyListeners}
+            popularity={popularity}
+            genres={genres}
+            platform={platform}
+            spotifyUrl={spotifyUrl}
+            youtubeUrl={youtubeUrl}
+            appleUrl={appleUrl}
+            externalLinks={externalLinks}
+            onLaunchValuation={handleLaunchValuation}
+            getSocialIcon={getSocialIcon}
+            onCalculateRoyalties={() => setShowValuation(true)}
+          />
+        )}
 
-        {/* ── Valuation Toggle (primary CTA) ──────────────── */}
+        {/* ── Valuation Auto-Render ──────────────── */}
         <div
           ref={valuationSectionRef}
           className={`relative overflow-hidden border-t-2 border-b-2 ${valuationBorderColor} ${valuationGlowRing} bg-gradient-to-br ${valuationBgColor} transition-all duration-300`}
@@ -319,70 +322,9 @@ setEnhancedAlbums(
           {/* Accent bar at top */}
           <div className={`h-1.5 w-full ${valuationAccentBar}`} />
 
-          {/* Decorative glow blob */}
-          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full blur-3xl opacity-20 pointer-events-none bg-current" />
-
-          <button
-            onClick={() => setShowValuation((v) => !v)}
-            className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5 sm:gap-6 px-6 sm:px-10 py-7 sm:py-9 group"
-          >
-            {/* Left: icon + text */}
-            <div className="flex items-center gap-5">
-              <div
-                className={`p-4 sm:p-5 bg-gradient-to-br ${valuationIconBg} rounded-2xl shadow-xl ring-4 ring-white/20 flex-shrink-0 transition-transform duration-200 group-hover:scale-110`}
-              >
-                <BarChart3 size={28} className="sm:w-8 sm:h-8 text-white" />
-              </div>
-              <div className="text-left">
-                <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                  Artist Valuation
-                </p>
-                <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
-                  {isItunes
-                    ? "Apple Music revenue estimate & catalog analysis"
-                    : isYouTube
-                      ? "YouTube Revenue Estimates and Catalog Valuation"
-                      : "Revenue estimate, deal score & market breakdown"}
-                </p>
-              </div>
-            </div>
-
-            {/* Right: CTA button */}
-            <Tooltip.Provider delayDuration={200}>
-              <Tooltip.Root>
-                <Tooltip.Trigger asChild>
-                  <div
-                    className={`flex-shrink-0 flex items-center gap-3 px-6 sm:px-8 py-3.5 sm:py-4 rounded-2xl font-black text-base sm:text-lg transition-all duration-200 ${
-                      showValuation
-                        ? "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 shadow-md"
-                        : valuationBtnActive
-                    }`}
-                  >
-                    <BarChart3 size={20} className="sm:w-6 sm:h-6" />
-                    <span>{showValuation ? "Hide Results" : "Calculate Royalties"}</span>
-                  </div>
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Content
-                    className="z-50 px-3 py-2 bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 text-sm font-semibold rounded-lg shadow-xl animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200"
-                    sideOffset={10}
-                    side="top"
-                  >
-                    Click here to calculate royalties
-                    <Tooltip.Arrow className="fill-slate-900 dark:fill-slate-50" />
-                  </Tooltip.Content>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-            </Tooltip.Provider>
-          </button>
-
-          {showValuation && (
-            <div
-              className={`border-t-2 ${valuationBorderColor} p-5 sm:p-8 lg:p-10 bg-white dark:bg-slate-900`}
-            >
-              {renderValuation()}
-            </div>
-          )}
+          <div className={`p-5 sm:p-8 lg:p-10 bg-white dark:bg-slate-900`}>
+            {renderValuation()}
+          </div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8">

@@ -195,6 +195,8 @@ useEffect(() => {
           market: marketValuation,
           premium: premiumValuation,
         },
+        chartmetricRank: artistData.chartmetricRank || artistData.stats?.chartmetricRank || 0,
+        socialStats: artistData.stats || {},
       };
       generateValuationPDF(reportData);
       const { error: saveError } = await supabase
