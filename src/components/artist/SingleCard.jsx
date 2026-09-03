@@ -4,11 +4,13 @@ import { Calendar, ExternalLink, Music } from "lucide-react";
 import Badge from "../common/Badge";
 import SpotifyEmbed from "./SpotifyEmbed";
 
+// eslint-disable-next-line no-unused-vars
 const SingleCard = ({ single, index, platform }) => {
   const isItunes = platform === "itunes";
 
   const extractSpotifyId = (url) => {
     if (!url) return null;
+    // eslint-disable-next-line no-useless-escape
     const match = url.match(/track[\/:]([a-zA-Z0-9]+)/);
     return match ? match[1] : null;
   };

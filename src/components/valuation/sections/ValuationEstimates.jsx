@@ -2,6 +2,7 @@ import { BarChart3, Shield, TrendingUp, Star } from "lucide-react";
 import * as Separator from "@radix-ui/react-separator";
 import SectionHeader from "../ui/SectionHeader";
 
+// eslint-disable-next-line no-unused-vars
 const ValuationCard = ({ icon: Icon, title, multiple, value, accent, featured }) => (
   <div className={`relative flex flex-col items-center text-center rounded-2xl p-5 sm:p-7 border-2 ${accent.border} ${accent.bg} shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 overflow-hidden ${featured ? `ring-4 ${accent.ring} ring-offset-2 ring-offset-white dark:ring-offset-slate-950` : ""}`}>
     {featured && (

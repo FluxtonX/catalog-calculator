@@ -4,9 +4,10 @@ import { jsPDF } from 'jspdf';
 // Try to import autoTable, but don't fail if it's not available
 let hasAutoTable = false;
 try {
+  // eslint-disable-next-line no-undef
   require('jspdf-autotable');
   hasAutoTable = true;
-} catch (e) {
+} catch {
   console.warn('jspdf-autotable not available, using fallback table drawing');
 }
 

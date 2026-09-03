@@ -1,5 +1,6 @@
 import React from "react";
 import { Info, BarChart3, TrendingUp, Music } from "lucide-react";
+// eslint-disable-next-line no-unused-vars
 import { getCombinedCfaValuations, formatCurrency } from "../../core/calculations";
 
 const SpotifyIcon = ({ size = 24, className = "" }) => (

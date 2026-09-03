@@ -170,6 +170,7 @@ export const calculateCfaPhase1 = (artistData, platform) => {
     if (geoInfo.confidence === "HIGH") highConfidenceCount++;
     if (geoInfo.confidence === "MEDIUM") medConfidenceCount++;
   });
+  let cfaConfidence = "LOW";
 
   // --- PLATFORM LEVEL FALLBACK ---
   // If no topTracks were found (like for YouTube and Apple Music), fallback to channel/platform level stats
@@ -201,7 +202,6 @@ export const calculateCfaPhase1 = (artistData, platform) => {
   const averageDollarAge = tracksWithAge > 0 ? totalTrackAge / tracksWithAge : 0;
   
   // Confidence determination
-  let cfaConfidence = "LOW";
   if (highConfidenceCount > topTracks.length / 2) cfaConfidence = "HIGH";
   else if (medConfidenceCount > topTracks.length / 2) cfaConfidence = "MEDIUM";
 

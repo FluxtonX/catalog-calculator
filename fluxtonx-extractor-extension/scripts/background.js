@@ -1,5 +1,6 @@
 // Background service worker
 
+// eslint-disable-next-line no-undef, no-unused-vars
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'download_csv') {
     handleCsvDownload(request.data, request.platform);
@@ -39,12 +40,15 @@ function handleCsvDownload(data, platform) {
   const dateStr = new Date().toISOString().split('T')[0];
   const filename = `fluxtonx_catalog_${platform.toLowerCase()}_${dateStr}.csv`;
   
+  // eslint-disable-next-line no-undef
   chrome.downloads.download({
     url: dataUri,
     filename: filename,
     saveAs: true // Prompts the user where to save
   }, (downloadId) => {
+    // eslint-disable-next-line no-undef
     if (chrome.runtime.lastError) {
+      // eslint-disable-next-line no-undef
       console.error('Download failed:', chrome.runtime.lastError);
     } else {
       console.log('Download started with ID:', downloadId);

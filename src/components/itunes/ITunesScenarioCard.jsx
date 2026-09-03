@@ -7,6 +7,7 @@ const ITunesScenarioCard = ({
   value,
   color,
   gradient,
+  // eslint-disable-next-line no-unused-vars
   icon: Icon,
   isHighlighted,
 }) => (

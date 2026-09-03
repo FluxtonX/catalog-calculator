@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,10 +9,12 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '.env') });
 
 async function run() {
+  // eslint-disable-next-line no-undef
   const res = await fetch(`${process.env.VITE_SUPABASE_URL}/functions/v1/chartmetric`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      // eslint-disable-next-line no-undef
       'Authorization': `Bearer ${process.env.VITE_SUPABASE_ANON_KEY}`
     },
     body: JSON.stringify({ query: 'Billie Eilish' })

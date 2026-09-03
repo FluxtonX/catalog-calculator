@@ -62,6 +62,7 @@ async function invokeEdgeFunction(functionName, body) {
     try {
       const errorData = await response.json();
       rawError = errorData.error || errorData.message || rawError;
+    // eslint-disable-next-line no-unused-vars
     } catch (err) {
       // Ignored
     }

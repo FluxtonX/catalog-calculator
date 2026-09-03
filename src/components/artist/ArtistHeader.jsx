@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import AnimatedBackground from "../common/AnimatedBackground";
 
+// eslint-disable-next-line no-unused-vars
 const SocialLink = ({ href, label, Icon }) => (
   <Tooltip.Provider delayDuration={150}>
     <Tooltip.Root>
@@ -54,6 +55,7 @@ const SocialLink = ({ href, label, Icon }) => (
   </Tooltip.Provider>
 );
 
+// eslint-disable-next-line no-unused-vars
 const StatPill = ({ icon: Icon, value, label, gradient, title }) => (
   <Tooltip.Provider delayDuration={150}>
     <Tooltip.Root>
@@ -90,8 +92,10 @@ const StatPill = ({ icon: Icon, value, label, gradient, title }) => (
 );
 
 const ArtistHeader = ({
+  // eslint-disable-next-line no-unused-vars
   name, image, followers, monthlyListeners, popularity, genres,
   platform, spotifyUrl, youtubeUrl, appleUrl, externalLinks,
+  // eslint-disable-next-line no-unused-vars
   onLaunchValuation, getSocialIcon, onCalculateRoyalties,
 }) => {
   const isApify = platform === "apify" || platform === "spotify";

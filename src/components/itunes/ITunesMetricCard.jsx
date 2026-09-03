@@ -1,6 +1,7 @@
 import React from "react";
 
 const ITunesMetricCard = ({
+  // eslint-disable-next-line no-unused-vars
   icon: Icon,
   label,
   value,

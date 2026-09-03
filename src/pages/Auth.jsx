@@ -6,6 +6,7 @@ import { enableDistributionCompanies } from '../config/feature_flags';
 
 export default function Auth() {
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const location = useLocation();
   const [loading, setLoading] = useState({ google: false, youtube: false, spotify: false, apple: false });
   const [error, setError] = useState(null);

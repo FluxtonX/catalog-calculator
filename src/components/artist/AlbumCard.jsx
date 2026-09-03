@@ -2,6 +2,7 @@
 import React from "react";
 import { Music, Calendar, Disc3, ExternalLink } from "lucide-react";
 
+// eslint-disable-next-line no-unused-vars
 const AlbumCard = ({ album, index, platform }) => {
   const isItunes = platform === "itunes";
 

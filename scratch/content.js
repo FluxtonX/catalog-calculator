@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'extract_catalog') {
     try {

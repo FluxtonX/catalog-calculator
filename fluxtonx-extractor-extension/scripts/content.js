@@ -3,19 +3,23 @@ if (window.location.hostname === 'localhost' || window.location.hostname.include
     document.body.setAttribute('data-cc-ext-installed', 'true');
     
     // Check if we have extracted data pending on load
+    // eslint-disable-next-line no-undef
     chrome.storage.local.get(['pendingExtractionData'], (result) => {
         if (result.pendingExtractionData) {
             window.localStorage.setItem('cc_pending_extraction', JSON.stringify(result.pendingExtractionData));
             window.postMessage({ type: 'CATALOG_CALCULATOR_DATA', payload: result.pendingExtractionData }, '*');
+            // eslint-disable-next-line no-undef
             chrome.storage.local.remove('pendingExtractionData');
         }
     });
 
     // Listen for real-time changes across tabs
+    // eslint-disable-next-line no-undef
     chrome.storage.onChanged.addListener((changes, namespace) => {
         if (namespace === 'local' && changes.pendingExtractionData && changes.pendingExtractionData.newValue) {
             window.localStorage.setItem('cc_pending_extraction', JSON.stringify(changes.pendingExtractionData.newValue));
             window.postMessage({ type: 'CATALOG_CALCULATOR_DATA', payload: changes.pendingExtractionData.newValue }, '*');
+            // eslint-disable-next-line no-undef
             chrome.storage.local.remove('pendingExtractionData');
         }
     });
@@ -54,6 +58,7 @@ if (window.location.hostname.includes('pubroyalty.concord.com') || window.locati
                 // since they don't exist on the Concord dashboard.
                 const finalData = magicalExtraction(true);
                 
+                // eslint-disable-next-line no-undef
                 chrome.storage.local.set({ pendingExtractionData: finalData });
                 
                 // Tell the user so they know it worked
@@ -68,6 +73,7 @@ if (window.location.hostname.includes('pubroyalty.concord.com') || window.locati
 }
 
 // 3. Manual Extraction Fallback (Popup)
+// eslint-disable-next-line no-undef
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'extract_catalog') {
     try {

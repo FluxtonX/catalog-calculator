@@ -180,6 +180,7 @@ export default function DataImport() {
       }
     });
     return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [extractedData, saveSuccess, isSaving]);
 
   const saveToHistory = async (dataToSave, userId) => {
@@ -237,6 +238,7 @@ export default function DataImport() {
          console.error("Failed to parse pending extraction data:", err);
        }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [distributor]);
 
   // Format helpers

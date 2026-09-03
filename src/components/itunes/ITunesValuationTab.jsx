@@ -38,6 +38,7 @@ const ITunesValuationTab = ({ artistData }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [user, setUser] = useState(undefined);
+  // eslint-disable-next-line no-unused-vars
   const [authLoading, setAuthLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -248,6 +249,7 @@ const catalogBonus = Math.min(
     catalogBonus: catalogBonus * 100,
   };
 }, [stats, popularity, albums, singles, topTracks]);
+  // eslint-disable-next-line no-unused-vars
   const dealScoreColor =
     calculations.dealScore >= 70
       ? "text-emerald-600 dark:text-emerald-400"

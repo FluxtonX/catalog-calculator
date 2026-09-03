@@ -8,6 +8,7 @@ import React from "react";
  * @param {string} props.message - Empty state message
  * @param {string} props.iconColor - Icon color class
  */
+// eslint-disable-next-line no-unused-vars
 const EmptyState = ({ icon: Icon, message, iconColor = "text-slate-400" }) => {
   return (
     <div className="text-center py-12 sm:py-16">

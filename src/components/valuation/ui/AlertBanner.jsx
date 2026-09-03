@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 const AlertBanner = ({ icon: Icon, title, message, accent, action }) => (
   <div className={`flex items-start gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl border-2 ${accent.border} ${accent.bg} shadow-sm`}>
     <div className={`p-2 sm:p-2.5 rounded-xl ${accent.iconBg} flex-shrink-0`}>

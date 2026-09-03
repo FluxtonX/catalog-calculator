@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 const SectionHeader = ({ icon: Icon, title, subtitle, gradient }) => (
   <div className="flex items-center gap-3 mb-5 sm:mb-6">
     <div className={`p-2.5 sm:p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-md flex-shrink-0`}>

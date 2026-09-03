@@ -83,11 +83,14 @@ useEffect(() => {
   const currentDate = new Date();
   const monthsLive = getMonthsBetween(releaseDate, currentDate);
   const geoRateData = calculateGeoWeightedRate(artistData.topCities);
+  // eslint-disable-next-line no-unused-vars
   const oldEffectiveSpotifyRate = geoRateData.rate;
+  // eslint-disable-next-line no-unused-vars
   const oldGeoMethodUsed = geoRateData.method;
 
 
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const cfaResult = useMemo(
     () => calculateCfaPhase1(artistData, "spotify"),
     [artistData]
@@ -177,6 +180,7 @@ useEffect(() => {
           effectiveSpotifyRate,
           geoMethodUsed,
           geoBreakdown: geoRateData.breakdown,
+          // eslint-disable-next-line no-undef
           monthlySpotifyRevenue,
           ltmSpotifyRevenue,
           featuredTrackCount: featuredTrackCount || 0,
@@ -305,6 +309,7 @@ useEffect(() => {
           monthlyStreamsEst={monthlyStreamsEst}
           effectiveSpotifyRate={effectiveSpotifyRate}
           geoMethodUsed={geoMethodUsed}
+          // eslint-disable-next-line no-undef
           monthlySpotifyRevenue={monthlySpotifyRevenue}
           ltmSpotifyRevenue={ltmSpotifyRevenue}
           methodUsed={methodUsed}

@@ -1,6 +1,7 @@
 import { DollarSign, Music, TrendingUp, Globe } from "lucide-react";
 import InfoTooltip from "../ui/InfoTooltip";
 
+// eslint-disable-next-line no-unused-vars
 const MetricCard = ({ icon: Icon, label, value, sub, accent, tooltip, badge }) => (
   <div className={`group relative bg-white dark:bg-slate-900 rounded-2xl p-3.5 sm:p-5 border-2 ${accent.border} shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 overflow-hidden cursor-default`}>
     <div className="flex items-start justify-between mb-3">
@@ -16,6 +17,7 @@ const MetricCard = ({ icon: Icon, label, value, sub, accent, tooltip, badge }) =
   </div>
 );
 
+// eslint-disable-next-line no-unused-vars
 const ArtistHeader = ({ artistName, marketValuation, monthlyStreamsEst, ltmSpotifyRevenue, effectiveSpotifyRate, geoMethodUsed, cfaConfidence, formatCurrency, formatToMillions, formatNumber }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
     {/* Title strip */}

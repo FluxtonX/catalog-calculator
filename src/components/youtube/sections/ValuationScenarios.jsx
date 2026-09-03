@@ -3,6 +3,7 @@ import { Calculator, TrendingUp, DollarSign, Info } from "lucide-react";
 
 import * as Separator from "@radix-ui/react-separator";
 
+// eslint-disable-next-line no-unused-vars
 const ScenarioCard = ({ icon: Icon, title, subtitle, value, color, featured }) => (
   <div className={`relative flex flex-col items-center text-center rounded-2xl p-4 sm:p-6 border-2 ${color.border} ${color.bg} shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 ${featured ? `ring-4 ${color.ring} ring-offset-2 ring-offset-white dark:ring-offset-slate-950` : ""}`}>
     {featured && (

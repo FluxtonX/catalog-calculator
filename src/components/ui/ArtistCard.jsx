@@ -50,6 +50,7 @@ const ArtistCard = ({
   albums,
   singles,
   popularReleases,
+  // eslint-disable-next-line no-unused-vars
   totalViews,
   stats,
   spotifyUrl,
@@ -76,6 +77,7 @@ const ArtistCard = ({
   // ── Helpers ───────────────────────────────────────────
   const extractSpotifyId = useCallback((url) => {
     if (!url) return null;
+    // eslint-disable-next-line no-useless-escape
     const match = url.match(/track[\/:]([a-zA-Z0-9]+)/);
     return match ? match[1] : null;
   }, []);

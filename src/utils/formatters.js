@@ -55,6 +55,7 @@ export const cleanHtmlText = (text) => {
   try {
     const doc = new DOMParser().parseFromString(stripped, "text/html");
     stripped = doc.documentElement.textContent;
+  // eslint-disable-next-line no-unused-vars
   } catch (e) {
     // Fallback if DOMParser is unavailable
   }

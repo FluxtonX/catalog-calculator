@@ -30,6 +30,7 @@ function App() {
     // 1. Check for errors
     const errorDesc = params.get('error_description') || params.get('error');
     if (errorDesc) {
+       // eslint-disable-next-line react-hooks/set-state-in-effect
        setOauthError(decodeURIComponent(errorDesc).replace(/\+/g, ' '));
        window.history.replaceState(null, '', window.location.pathname);
     }

@@ -45,6 +45,7 @@ const PLATFORM_META = {
   },
 };
 
+// eslint-disable-next-line no-unused-vars
 const Header = ({ onMenuClick, isSidebarOpen }) => {
   const location = useLocation();
   const { platform } = useArtistStore();

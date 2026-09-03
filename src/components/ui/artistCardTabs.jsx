@@ -2,6 +2,7 @@ import React from "react";
 import * as Tabs from "@radix-ui/react-tabs";
 import { ListMusic, Disc3, Disc, Star, Heart, Map } from "lucide-react";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const buildArtistTabs = ({
   platform,
   hasRelated,
@@ -30,6 +31,7 @@ export const buildArtistTabs = ({
   return tabs.filter((t) => t.always || t.show);
 };
 
+// eslint-disable-next-line no-unused-vars
 export const ArtistTabTrigger = ({ id, label, Icon, platform }) => {
   const isItunes = platform === "itunes";
   return (

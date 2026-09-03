@@ -12,9 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     extractBtn.style.opacity = '0.7';
 
     try {
+      // eslint-disable-next-line no-undef
       let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
       
       try {
+        // eslint-disable-next-line no-undef
         await chrome.scripting.executeScript({
           target: { tabId: tab.id },
           files: ['scripts/content.js']
@@ -24,10 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       setTimeout(() => {
+        // eslint-disable-next-line no-undef
         chrome.tabs.sendMessage(tab.id, { action: 'extract_catalog' }, (response) => {
           extractBtn.disabled = false;
           extractBtn.style.opacity = '1';
 
+          // eslint-disable-next-line no-undef
           if (chrome.runtime.lastError) {
             statusBox.textContent = 'Error: Cannot extract from this page. Make sure you are on a real dashboard page.';
             return;
@@ -52,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }, 150);
 
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       statusBox.textContent = 'An error occurred while connecting to the page.';
       extractBtn.disabled = false;
