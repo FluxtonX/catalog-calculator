@@ -32,7 +32,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
             Official YouTube Channel Found
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Click 'Calculate Royalties' to proceed with the highest-subscribed official channel. If this is incorrect, please verify the artist's name and try again.
+            Click on the channel to proceed with the highest-subscribed official channel. If this is incorrect, please verify the artist's name and try again.
           </p>
         </div>
       </div>
@@ -101,13 +101,6 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
               )}
             </div>
 
-            {/* Select Button */}
-            <div className="mt-4 md:mt-0 flex items-center justify-center shrink-0 w-full md:w-auto">
-               <div className="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-8 rounded-full shadow-lg hover:shadow-red-500/30 transition-all flex items-center justify-center gap-2 whitespace-nowrap">
-                 <ExternalLink size={18} />
-                 Calculate Royalties
-               </div>
-            </div>
           </button>
         ))}
       </div>
