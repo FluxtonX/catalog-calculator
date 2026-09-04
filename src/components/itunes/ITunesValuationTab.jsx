@@ -266,13 +266,6 @@ const catalogBonus = Math.min(
   <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none" />
 
   <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-    {image && (
-      <img
-        src={image}
-        alt={name}
-        className="w-14 h-14 sm:w-20 sm:h-20 rounded-xl object-cover shadow-xl ring-2 ring-white/30 flex-shrink-0"
-      />
-    )}
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-2 mb-1">
         <span className="text-white/70 text-xs font-bold uppercase tracking-widest">

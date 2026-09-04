@@ -106,7 +106,14 @@ const SocialStatsSection = ({ artistData }) => {
   
   // Extract most popular track
   const mostPopularTrack = topTracks && topTracks.length > 0 ? topTracks[0] : null;
-  const popularTrackImage = mostPopularTrack?.album?.images?.[0]?.url || image;
+  const popularTrackImage = 
+    mostPopularTrack?.artworkUrl100 ?? 
+    mostPopularTrack?.artworkUrl60 ?? 
+    mostPopularTrack?.album?.images?.[0]?.url ?? 
+    mostPopularTrack?.image ?? 
+    mostPopularTrack?.thumbnail ?? 
+    mostPopularTrack?.artwork ?? 
+    null;
   const popularTrackStreams = mostPopularTrack?.streamCount || mostPopularTrack?.playcount || mostPopularTrack?.streams || 0;
   
   // Extract stats
@@ -143,6 +150,7 @@ const SocialStatsSection = ({ artistData }) => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
         {/* Most Popular Track Card */}
+        {mostPopularTrack && (
         <div className="lg:col-span-5 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-between relative overflow-hidden">
           <div className="z-10 flex flex-col justify-between h-full">
             <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Most Popular Track</p>
@@ -193,9 +201,10 @@ const SocialStatsSection = ({ artistData }) => {
           {/* Background decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 dark:bg-white/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
         </div>
+        )}
 
         {/* Stats Grid */}
-        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className={`${mostPopularTrack ? "lg:col-span-7" : "lg:col-span-12"} grid grid-cols-1 sm:grid-cols-3 gap-4`}>
           {/* Chartmetric Rank */}
           <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-md flex flex-col justify-center items-center text-center group hover:-translate-y-1 transition-all duration-300">
             <div className="mb-3 p-2 bg-[#48D3B4]/10 rounded-full">
