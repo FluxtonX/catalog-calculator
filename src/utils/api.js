@@ -90,40 +90,133 @@ const YOUTUBE_API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
 export const searchYouTube = async (query) => {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      },
-      body: JSON.stringify({ query }),
-    });
+    let rawChannels = [];
 
-    if (response.ok) {
-      return await response.json();
+    // 1. Try Edge Function first
+    try {
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/youtube`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ query }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.channels && data.channels.length > 0) {
+          rawChannels = data.channels;
+        }
+      }
+    } catch (e) {
+      console.warn('Edge function youtube failed, falling back to direct API', e);
     }
-    
-    // Fallback if edge function fails
-    if (YOUTUBE_API_KEY) {
+
+    // 2. Fallback to direct API if edge function returned nothing
+    if (rawChannels.length === 0 && YOUTUBE_API_KEY) {
       const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=5&key=${YOUTUBE_API_KEY}`;
       const fallbackRes = await fetch(url);
       if (fallbackRes.ok) {
         const data = await fallbackRes.json();
         if (data.items && data.items.length > 0) {
-          const channels = data.items.map(item => ({
+          rawChannels = data.items.map(item => ({
             id: item.id.channelId,
             title: item.snippet.channelTitle || item.snippet.title,
             thumbnail: item.snippet.thumbnails?.default?.url
           }));
-          return { type: 'channel_list', channels };
         }
       }
     }
-    
-    throw new Error('No channels found for this artist');
+
+    if (rawChannels.length === 0) {
+      throw new Error('Official channel not found — please check the artist name');
+    }
+
+    // 3. Fetch full statistics for all returned channels to find the real official one
+    if (YOUTUBE_API_KEY) {
+      const channelIds = rawChannels.map(c => c.id).join(',');
+      const statsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet,topicDetails&id=${channelIds}&key=${YOUTUBE_API_KEY}`;
+      const statsRes = await fetch(statsUrl);
+      
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        const enrichedChannels = rawChannels.map(rc => {
+          const stats = statsData.items?.find(item => item.id === rc.id);
+          const bestImage = stats?.snippet?.thumbnails?.high?.url || stats?.snippet?.thumbnails?.default?.url || rc.thumbnail || rc.image;
+          return {
+            ...rc,
+            title: rc.title || rc.name || stats?.snippet?.title,
+            image: bestImage,
+            subscribers: parseInt(stats?.statistics?.subscriberCount || 0, 10),
+            totalViews: parseInt(stats?.statistics?.viewCount || 0, 10),
+            videoCount: parseInt(stats?.statistics?.videoCount || 0, 10),
+            isOfficialMusicChannel: stats?.topicDetails?.topicCategories?.some(tc => tc.includes('Music')) || false
+          };
+        });
+
+        // 4. Ranking Algorithm
+        const cleanQuery = query.toLowerCase().replace(/[^a-z0-9]/g, '');
+        
+        let bestChannel = null;
+        let highestScore = -1;
+
+        for (const channel of enrichedChannels) {
+          // Ignore completely empty/fake channels unless it's literally the only one
+          if (channel.subscribers === 0 && channel.videoCount === 0 && enrichedChannels.length > 1) {
+            continue; 
+          }
+
+          let score = 0;
+          const cleanTitle = (channel.title || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+          
+          // Exact name match gets a massive boost
+          if (cleanTitle === cleanQuery) {
+            score += 1000000000; // 1 Billion points
+          } else if (cleanTitle.includes(cleanQuery) || cleanQuery.includes(cleanTitle)) {
+            score += 500000000; // 500M points for partial match
+          }
+          
+          // Add subscriber count as the tie-breaker/secondary weight
+          score += channel.subscribers;
+
+          // Slight boost for music channels
+          if (channel.isOfficialMusicChannel) score += 100000;
+
+          if (score > highestScore) {
+            highestScore = score;
+            bestChannel = channel;
+          }
+        }
+
+        if (bestChannel) {
+          return { 
+            type: 'single_channel', 
+            channel: {
+              id: bestChannel.id,
+              name: bestChannel.title || bestChannel.name,
+              image: bestChannel.image || bestChannel.thumbnail,
+              subscribers: bestChannel.subscribers,
+              totalViews: bestChannel.totalViews
+            } 
+          };
+        }
+      }
+    }
+
+    // Fallback if stats fail but we have a raw channel
+    return { 
+      type: 'single_channel', 
+      channel: {
+        id: rawChannels[0].id,
+        name: rawChannels[0].title || rawChannels[0].name,
+        image: rawChannels[0].image || rawChannels[0].thumbnail
+      }
+    };
+
   } catch (error) {
     console.error('YouTube search error:', error);
-    throw error;
+    throw new Error('Official channel not found — please check the artist name');
   }
 };
 

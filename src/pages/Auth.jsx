@@ -3,6 +3,7 @@ import { supabase } from '../utils/supabase';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { enableDistributionCompanies } from '../config/feature_flags';
+import imgConcord from '../assets/distribution logos/Concord-LogoBlack-CMYK.png';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function Auth() {
   const [showDistributors, setShowDistributors] = useState(false);
 
   const distributors = [
+    { name: 'Concord', img: imgConcord },
     { name: 'TuneCore', icon: 'T', color: 'bg-yellow-500' },
     { name: 'DistroKid', icon: 'D', color: 'bg-blue-500' },
     { name: 'CD Baby', icon: 'C', color: 'bg-orange-500' },
@@ -25,7 +27,6 @@ export default function Auth() {
     { name: 'Amuse', icon: 'a', color: 'bg-yellow-400' },
     { name: 'Record Union', icon: 'ru', color: 'bg-black' },
     { name: 'Too Lost', icon: 'TL', color: 'bg-purple-500' },
-    { name: 'Concord', icon: 'C', color: 'bg-red-600' },
   ];
 
   useEffect(() => {
@@ -216,9 +217,13 @@ export default function Auth() {
                           onClick={() => navigate('/import', { state: { distributor: dist.name } })}
                           className="flex items-center gap-4 px-4 py-2.5 hover:bg-slate-200 dark:hover:bg-slate-700/50 transition-colors w-full text-left"
                         >
-                          <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white ${dist.color}`}>
-                            {dist.icon}
-                          </div>
+                          {dist.img ? (
+                            <img src={dist.img} alt={dist.name} className="w-6 h-6 object-contain" />
+                          ) : (
+                            <div className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white ${dist.color}`}>
+                              {dist.icon}
+                            </div>
+                          )}
                           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{dist.name}</span>
                         </button>
                       ))}

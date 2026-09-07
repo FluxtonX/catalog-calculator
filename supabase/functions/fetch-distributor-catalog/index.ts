@@ -124,20 +124,85 @@ Deno.serve(async (req: Request) => {
       
       if (pollData.status === 'completed') {
          const resultOutput = pollData.output;
-         
-         // Format output for UI
+
+         // ─── CONCORD-STYLE: statements[] array ───────────────────
+         // Concord returns bi-annual royalty statements. We detect this
+         // pattern and compute LTM, lifetime, unrecouped balance, and growth.
+         if (resultOutput.statements && Array.isArray(resultOutput.statements) && resultOutput.statements.length > 0) {
+            const statements = resultOutput.statements;
+            
+            // Artist name: from the extraction payload or fallback
+            const artistName = resultOutput.artist_name 
+               || resultOutput.artist 
+               || resultOutput.artistName 
+               || "Concord Creator";
+
+            // Parse a numeric value from a potentially formatted string like "$9,163.72"
+            const parseNum = (v: any): number => {
+               if (v === null || v === undefined) return 0;
+               if (typeof v === 'number') return v;
+               return parseFloat(String(v).replace(/[^0-9.\-]+/g, '')) || 0;
+            };
+
+            // LTM Revenue = sum of the 2 most recent bi-annual periods (= ~12 months)
+            const ltmRevenue = statements
+               .slice(0, 2)
+               .reduce((sum: number, s: any) => sum + parseNum(s.royalties || s.total_credits), 0);
+
+            // Lifetime Revenue = sum of ALL period royalties
+            const lifetimeRevenue = statements
+               .reduce((sum: number, s: any) => sum + parseNum(s.royalties || s.total_credits), 0);
+
+            // Unrecouped balance = closing balance of the most recent period
+            // Negative means the artist still owes money against their advance
+            const unrecoupedBalance = parseNum(statements[0]?.closing_balance);
+
+            // Period-over-period growth rate (latest vs. previous period)
+            const latestRoyalties = parseNum(statements[0]?.royalties || statements[0]?.total_credits);
+            const previousRoyalties = parseNum(statements[1]?.royalties || statements[1]?.total_credits);
+            const growthRate = previousRoyalties > 0
+               ? ((latestRoyalties - previousRoyalties) / previousRoyalties * 100)
+               : 0;
+
+            // Currency (from payload or first statement)
+            const currency = resultOutput.currency || statements[0]?.currency || "USD";
+
+            console.log(`[Concord Parse] Artist: ${artistName}, LTM: $${ltmRevenue.toFixed(2)}, Lifetime: $${lifetimeRevenue.toFixed(2)}, Balance: $${unrecoupedBalance.toFixed(2)}, Growth: ${growthRate.toFixed(1)}%`);
+
+            const formattedData = {
+               artistName,
+               totalRevenue: ltmRevenue.toFixed(2),           // LTM — used for valuation
+               lifetimeRevenue: lifetimeRevenue.toFixed(2),    // For display context
+               unrecoupedBalance: unrecoupedBalance.toFixed(2),// Advance balance
+               growthRate: growthRate.toFixed(1),              // Period growth %
+               currency,
+               statementCount: statements.length.toString(),
+               statements,                                     // Full history for charts
+               totalStreams: '0',                              // Concord doesn't provide streams
+               totalTracks: '0',                               // Would need Songs tab scrape
+            };
+
+            return new Response(JSON.stringify({
+               success: true,
+               status: 'completed',
+               data: formattedData
+            }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+         }
+
+         // ─── FLAT STRUCTURE FALLBACK: TuneCore, DistroKid, etc. ──
+         // For distributors that return a flat object or a tracks array
+         // without the Concord-style statements pattern.
          let totalStreams = 0;
          let totalRevenue = 0;
          let totalTracks = 0;
-         let extractedArtistName = "Concord Creator";
+         let extractedArtistName = "Unknown Artist";
 
-         // Fallback manual calculation
+         // Try to find and sum a tracks-like array
          const arrayKey = Object.keys(resultOutput).find(k => Array.isArray(resultOutput[k]));
          if (arrayKey && resultOutput[arrayKey].length > 0) {
             const tracks = resultOutput[arrayKey];
             totalTracks = tracks.length;
             
-            // Try to extract the artist name from the first track
             if (tracks[0].artist) {
                extractedArtistName = tracks[0].artist;
             }
@@ -151,7 +216,7 @@ Deno.serve(async (req: Request) => {
          }
 
          // Override with explicit summary fields if they exist
-         const possibleRevenueKeys = ['total_royalties', 'total_revenue', 'totalRevenue', 'royalties_earned', 'lifetimeRevenue', 'revenue', 'earnings', 'balance_payable', 'closing_balance', 'royalties', 'Royalties Earned This Period', 'Balance Payable This Period'];
+         const possibleRevenueKeys = ['total_royalties', 'total_revenue', 'totalRevenue', 'royalties_earned', 'lifetimeRevenue', 'revenue', 'earnings'];
          const possibleStreamsKeys = ['total_streams', 'totalStreams', 'streams', 'plays'];
          const possibleTracksKeys = ['total_tracks', 'totalTracks', 'tracks_count'];
          const possibleArtistKeys = ['artist', 'artist_name', 'artistName'];
@@ -182,7 +247,7 @@ Deno.serve(async (req: Request) => {
          });
          
          // Also check inside a 'summary' or 'totals' object if it exists
-         ['summary', 'totals', 'royalties'].forEach(objKey => {
+         ['summary', 'totals'].forEach(objKey => {
             const obj = resultOutput[objKey];
             if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
                possibleRevenueKeys.forEach(key => {

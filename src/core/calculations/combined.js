@@ -1,4 +1,5 @@
 import { calculateCfaPhase1 } from "./cfaPhase1";
+import { CFA_MULTIPLIERS } from "./constants";
 
 export const getPlatformValuation = (artistData) => {
   if (!artistData) return 0;
@@ -12,15 +13,15 @@ export const getPlatformValuation = (artistData) => {
   }
   
   if (artistData.platform === "custom") {
-    // Treat the manually entered revenue as the LTM revenue, or use streams if revenue is missing
+    // Revenue from edge function is already LTM (last 12 months)
     const revenue = artistData.stats?.totalRevenue || 0;
     const streams = artistData.stats?.totalStreams || 0;
     
     if (revenue > 0) {
-      return revenue * 8; // standard 8x multiple on LTM
+      return revenue * CFA_MULTIPLIERS.MID; // 8x multiple on LTM
     } else if (streams > 0) {
       // average blended rate
-      return streams * 0.004 * 8;
+      return streams * 0.004 * CFA_MULTIPLIERS.MID;
     }
     return 0;
   }
@@ -54,6 +55,41 @@ export const getCombinedCfaValuations = (selectedArtists) => {
   const proxyArtist = artists.find(a => a.platform === 'spotify' || a.platform === 'apify' || (a.topTracks && a.topTracks.length > 0));
 
   artists.forEach(originalArtist => {
+    // ── Handle custom/distributor data (Concord, TuneCore, etc.) ──
+    if (originalArtist.platform === "custom") {
+      const revenue = originalArtist.stats?.totalRevenue || 0;
+      if (revenue > 0) {
+        const unrecoupedBalance = originalArtist.stats?.unrecoupedBalance || 0;
+        const absUnrecouped = Math.abs(unrecoupedBalance);
+        
+        result.annualRevenue += revenue;
+        result.monthlyRevenue += revenue / 12;
+        result.lowEstimate  += revenue * CFA_MULTIPLIERS.LOW;   // 6x
+        result.midEstimate  += revenue * CFA_MULTIPLIERS.MID;   // 8x
+        result.highEstimate += revenue * CFA_MULTIPLIERS.HIGH;  // 10x
+        
+        result.breakdown["custom"] = {
+          platform: "custom",
+          totalAnnualRevenue: revenue,
+          lowEstimate:  revenue * CFA_MULTIPLIERS.LOW,
+          midEstimate:  revenue * CFA_MULTIPLIERS.MID,
+          highEstimate: revenue * CFA_MULTIPLIERS.HIGH,
+          acceleratorValue: revenue * CFA_MULTIPLIERS.HIGH * (CFA_MULTIPLIERS.ACCELERATOR || 1.30),
+          unrecoupedBalance,
+          // Net valuations: subtract unrecouped advance if negative balance exists
+          netLowEstimate:  (revenue * CFA_MULTIPLIERS.LOW)  - absUnrecouped,
+          netMidEstimate:  (revenue * CFA_MULTIPLIERS.MID)  - absUnrecouped,
+          netHighEstimate: (revenue * CFA_MULTIPLIERS.HIGH) - absUnrecouped,
+          cfaConfidence: "HIGH", // Distributor data is ground truth
+          tracksAnalyzed: 0,
+          trackDetails: [],
+          lifetimeRevenue: originalArtist.stats?.lifetimeRevenue || 0,
+          growthRate: originalArtist.stats?.growthRate || 0,
+        };
+      }
+      return; // Don't run CFA Phase 1 on custom data
+    }
+
     if (!["spotify", "apify", "youtube", "itunes", "apple"].includes(originalArtist.platform)) return;
 
     // Create a mutable copy

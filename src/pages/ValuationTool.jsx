@@ -425,6 +425,14 @@ const ValuationTool = () => {
 
 
 
+  // Helper function to check if the returned artist name is a reasonable match to the query
+  const isReasonableMatch = (query, resultName) => {
+     if (!resultName) return false;
+     const q = query.toLowerCase().replace(/[^a-z0-9]/g, '');
+     const r = resultName.toLowerCase().replace(/[^a-z0-9]/g, '');
+     return q.includes(r) || r.includes(q) || q.length === 0;
+  };
+
   const doSearchForPlatform = async (query, plt) => {
     switch (plt) {
       case "spotify":
@@ -433,6 +441,8 @@ const ValuationTool = () => {
         const result = await searchYouTube(query);
         if (result.type === "channel_list")
           return { type: "channel_list", channels: result.channels, platform: plt };
+        if (result.type === "single_channel")
+          return { type: "single_channel", channel: result.channel, platform: plt };
         return { ...result, platform: plt };
       }
       case "itunes":
@@ -500,13 +510,6 @@ const ValuationTool = () => {
       let youtubeChannelsData = [];
       let foundValidPublicArtist = false;
 
-      // Helper function to check if the returned artist name is a reasonable match to the query
-      const isReasonableMatch = (query, resultName) => {
-         if (!resultName) return false;
-         const q = query.toLowerCase().replace(/[^a-z0-9]/g, '');
-         const r = resultName.toLowerCase().replace(/[^a-z0-9]/g, '');
-         return q.includes(r) || r.includes(q) || q.length === 0;
-      };
       
       results.forEach((res, i) => {
         const p = platforms[i];
@@ -515,6 +518,11 @@ const ValuationTool = () => {
           if (data?.type === "channel_list") {
             // For channel lists, we assume the user will pick the right one, so we don't strict match yet
             youtubeChannelsData = data.channels;
+            hasChannelList = true;
+            foundValidPublicArtist = true;
+          } else if (data?.type === "single_channel") {
+            // New automated single channel selection
+            youtubeChannelsData = [data.channel];
             hasChannelList = true;
             foundValidPublicArtist = true;
           } else if (data?.name) {
@@ -566,6 +574,9 @@ const ValuationTool = () => {
           importedDistributor: selectedDistributor,
           stats: {
             totalRevenue: parseFloat(importedData.totalRevenue || 0),
+            lifetimeRevenue: parseFloat(importedData.lifetimeRevenue || importedData.totalRevenue || 0),
+            unrecoupedBalance: parseFloat(importedData.unrecoupedBalance || 0),
+            growthRate: parseFloat(importedData.growthRate || 0),
             totalStreams: parseInt(importedData.totalStreams || 0, 10),
             totalTracks: parseInt(importedData.totalTracks || 0, 10)
           }
@@ -623,6 +634,9 @@ const ValuationTool = () => {
           const data = res.value;
           if (data?.type === "channel_list") {
             historyYoutubeChannelsData = data.channels;
+            hasChannelList = true;
+          } else if (data?.type === "single_channel") {
+            historyYoutubeChannelsData = [data.channel];
             hasChannelList = true;
           } else if (data?.name) {
             newSelectedArtists[p] = { ...data, platform: p };

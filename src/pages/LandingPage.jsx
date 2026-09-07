@@ -19,6 +19,7 @@ import imgStem from '../assets/distribution logos/stem-logo.png';
 import imgAmuse from '../assets/distribution logos/amuse.png';
 import imgRecordUnion from '../assets/distribution logos/record union.png';
 import imgTooLost from '../assets/distribution logos/too_lost.jpg';
+import imgConcord from '../assets/distribution logos/Concord-LogoBlack-CMYK.png';
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -68,6 +69,7 @@ export default function LandingPage() {
   const [error, setError] = useState(null);
 
   const distributors = [
+    { name: 'Concord', img: imgConcord },
     { name: 'TuneCore', img: imgTuneCore },
     { name: 'DistroKid', img: imgDistroKid },
     { name: 'CD Baby', img: imgCDBaby },
@@ -79,7 +81,6 @@ export default function LandingPage() {
     { name: 'Amuse', img: imgAmuse },
     { name: 'Record Union', img: imgRecordUnion },
     { name: 'Too Lost', img: imgTooLost },
-    { name: 'Concord', img: null },
   ];
 
   useEffect(() => {

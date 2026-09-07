@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { UploadCloud, ArrowLeft, Loader2, Music, DollarSign, ListMusic, User, Lock } from 'lucide-react';
+import { UploadCloud, ArrowLeft, Loader2, Music, DollarSign, ListMusic, User, Lock, TrendingUp, TrendingDown, Wallet, CalendarRange } from 'lucide-react';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { supabase } from '../utils/supabase';
 import toast from 'react-hot-toast';
@@ -214,6 +214,12 @@ export default function DataImport() {
       const formatted = {
          artistName: data.artistName || 'Unknown Artist',
          totalRevenue: data.totalRevenue || '0.00',
+         lifetimeRevenue: data.lifetimeRevenue || data.totalRevenue || '0.00',
+         unrecoupedBalance: data.unrecoupedBalance || '0.00',
+         growthRate: data.growthRate || '0.0',
+         currency: data.currency || 'USD',
+         statementCount: data.statementCount || '0',
+         statements: data.statements || null,
          totalStreams: data.totalStreams || '0',
          totalTracks: data.totalTracks || '0'
       };
@@ -343,6 +349,7 @@ export default function DataImport() {
                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden mb-8 shadow-lg shadow-slate-200/50 dark:shadow-none transition-all hover:shadow-xl">
                   <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-700/50">
                      
+                     {/* Artist Profile */}
                      <div className="p-6 md:p-8 flex flex-col justify-center bg-slate-50/50 dark:bg-transparent group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors min-w-0">
                         <div className="flex items-center gap-2 text-indigo-500 dark:text-indigo-400 mb-2">
                           <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center shrink-0">
@@ -353,35 +360,88 @@ export default function DataImport() {
                         <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white leading-tight mt-1 break-words line-clamp-3" title={extractedData.artistName}>{extractedData.artistName}</p>
                      </div>
 
+                     {/* LTM Revenue (Last 12 Months) */}
                      <div className="p-6 md:p-8 flex flex-col justify-center group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
                         <div className="flex items-center gap-2 text-emerald-500 dark:text-emerald-400 mb-2">
                           <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
                             <DollarSign size={16} />
                           </div>
-                          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Lifetime Revenue</span>
+                          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">LTM Revenue (Last 12 Mo.)</span>
                         </div>
                         <p className="text-3xl md:text-4xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight mt-1">{formatCurrency(extractedData.totalRevenue)}</p>
                      </div>
 
-                     <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
-                        <div className="flex items-center gap-2 text-blue-500 dark:text-blue-400 mb-2">
-                          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                            <Music size={16} />
+                     {/* Lifetime Revenue — only shown if different from LTM */}
+                     {extractedData.lifetimeRevenue && parseFloat(extractedData.lifetimeRevenue) !== parseFloat(extractedData.totalRevenue) && (
+                       <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
+                          <div className="flex items-center gap-2 text-blue-500 dark:text-blue-400 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                              <CalendarRange size={16} />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Lifetime Revenue ({extractedData.statementCount || '?'} Periods)</span>
                           </div>
-                          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Total Streams</span>
-                        </div>
-                        <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight mt-1">{formatNumber(extractedData.totalStreams)}</p>
-                     </div>
+                          <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight mt-1">{formatCurrency(extractedData.lifetimeRevenue)}</p>
+                       </div>
+                     )}
 
-                     <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
-                        <div className="flex items-center gap-2 text-purple-500 dark:text-purple-400 mb-2">
-                          <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-                            <ListMusic size={16} />
+                     {/* Unrecouped Balance — only shown if non-zero */}
+                     {extractedData.unrecoupedBalance && parseFloat(extractedData.unrecoupedBalance) !== 0 && (
+                       <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
+                          <div className="flex items-center gap-2 text-amber-500 dark:text-amber-400 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center">
+                              <Wallet size={16} />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Unrecouped Balance</span>
                           </div>
-                          <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Total Tracks</span>
-                        </div>
-                        <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight mt-1">{formatNumber(extractedData.totalTracks)}</p>
-                     </div>
+                          <p className={`text-2xl md:text-3xl font-black tracking-tight mt-1 ${parseFloat(extractedData.unrecoupedBalance) < 0 ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                            {formatCurrency(extractedData.unrecoupedBalance)}
+                          </p>
+                          {parseFloat(extractedData.unrecoupedBalance) < 0 && (
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Advance still being recouped</p>
+                          )}
+                       </div>
+                     )}
+
+                     {/* Growth Rate — only shown if available */}
+                     {extractedData.growthRate && parseFloat(extractedData.growthRate) !== 0 && (
+                       <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${parseFloat(extractedData.growthRate) > 0 ? 'bg-emerald-100 dark:bg-emerald-900/50' : 'bg-red-100 dark:bg-red-900/50'}`}>
+                              {parseFloat(extractedData.growthRate) > 0 ? <TrendingUp size={16} className="text-emerald-500" /> : <TrendingDown size={16} className="text-red-500" />}
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Period Growth</span>
+                          </div>
+                          <p className={`text-2xl md:text-3xl font-black tracking-tight mt-1 ${parseFloat(extractedData.growthRate) > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
+                            {parseFloat(extractedData.growthRate) > 0 ? '+' : ''}{parseFloat(extractedData.growthRate).toFixed(1)}%
+                          </p>
+                       </div>
+                     )}
+
+                     {/* Total Streams — only shown if non-zero */}
+                     {parseInt(extractedData.totalStreams) > 0 && (
+                       <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
+                          <div className="flex items-center gap-2 text-blue-500 dark:text-blue-400 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                              <Music size={16} />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Total Streams</span>
+                          </div>
+                          <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight mt-1">{formatNumber(extractedData.totalStreams)}</p>
+                       </div>
+                     )}
+
+                     {/* Total Tracks — only shown if non-zero */}
+                     {parseInt(extractedData.totalTracks) > 0 && (
+                       <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
+                          <div className="flex items-center gap-2 text-purple-500 dark:text-purple-400 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                              <ListMusic size={16} />
+                            </div>
+                            <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Total Tracks</span>
+                          </div>
+                          <p className="text-2xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tight mt-1">{formatNumber(extractedData.totalTracks)}</p>
+                       </div>
+                     )}
 
                   </div>
                </div>
