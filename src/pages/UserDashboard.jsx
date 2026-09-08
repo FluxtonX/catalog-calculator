@@ -1,7 +1,7 @@
 // src/pages/UserDashboard.jsx - WITH PREVIEW FEATURE
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../utils/supabase';
-import { FileText, Download, Trash2, Calendar, Music, Loader2, AlertCircle, Search, Filter, Youtube, Eye, X, TrendingUp, DollarSign, BarChart, Globe } from 'lucide-react';
+import { FileText, Download, Trash2, Calendar, Music, Loader2, AlertCircle, Search, Filter, Youtube, Eye, X, TrendingUp, DollarSign, BarChart, Globe, Disc, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function UserDashboard() {
@@ -87,6 +87,12 @@ export default function UserDashboard() {
         if (reportType === 'youtube_valuation') {
           const { generateYouTubeValuationPDF } = await import('../utils/youtubeValuationPdfGenerator');
           generateYouTubeValuationPDF(report.report_data);
+        } else if (reportType === 'itunes_valuation') {
+          const { generateITunesValuationPDF } = await import('../utils/itunesValuationPdfGenerator');
+          generateITunesValuationPDF(report.report_data);
+        } else if (reportType === 'custom_valuation') {
+          const { generateCustomValuationPDF } = await import('../utils/customPdfGenerator');
+          generateCustomValuationPDF(report.report_data);
         } else {
           const { generateValuationPDF } = await import('../utils/pdfGenerator');
           generateValuationPDF(report.report_data);
@@ -135,6 +141,30 @@ export default function UserDashboard() {
         badgeColor: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
         gradientBg: 'from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20',
         borderColor: 'border-red-300 dark:border-red-500/30'
+      };
+    }
+    
+    if (type === 'itunes_valuation') {
+      return {
+        label: 'Apple Music',
+        icon: Disc,
+        color: 'from-slate-500/20 to-zinc-500/20',
+        iconColor: 'text-slate-800 dark:text-slate-200',
+        badgeColor: 'bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200',
+        gradientBg: 'from-slate-100 to-zinc-100 dark:from-slate-900/40 dark:to-zinc-900/40',
+        borderColor: 'border-slate-300 dark:border-slate-700/50'
+      };
+    }
+    
+    if (type === 'custom_valuation') {
+      return {
+        label: 'Custom Data',
+        icon: Database,
+        color: 'from-emerald-500/20 to-teal-500/20',
+        iconColor: 'text-emerald-600 dark:text-emerald-400',
+        badgeColor: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
+        gradientBg: 'from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20',
+        borderColor: 'border-emerald-300 dark:border-emerald-500/30'
       };
     }
     

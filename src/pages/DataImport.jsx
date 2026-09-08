@@ -26,6 +26,7 @@ export default function DataImport() {
   const [password, setPassword] = useState('');
   const [extractionStatusText, setExtractionStatusText] = useState('Extracting...');
   const [progress, setProgress] = useState(0);
+  const [showDeckModal, setShowDeckModal] = useState(false);
 
   const handleExtractWithAI = async (e) => {
     if (e) e.preventDefault();
@@ -35,6 +36,7 @@ export default function DataImport() {
     }
     if (isExtracting) return;
     
+    setShowDeckModal(false);
     setIsExtracting(true);
     setProgress(0);
     setExtractionStatusText('Connecting to Concord securely...');
@@ -285,62 +287,101 @@ export default function DataImport() {
         <div className="p-8">
           
           {!extractedData ? (
-             <div className="flex flex-col items-center justify-center py-12 text-center">
+             <div className="flex flex-col items-center justify-center py-12 text-center relative">
                 <div className="w-16 h-16 relative mb-8 flex items-center justify-center bg-indigo-50 dark:bg-indigo-900/20 rounded-full border border-indigo-100 dark:border-indigo-800">
                    <Lock className="text-indigo-500 w-8 h-8" />
                 </div>
                 <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-3">Connect your account</h3>
                 <p className="text-slate-500 dark:text-slate-400 max-w-sm mb-6 leading-relaxed">
-                  Enter your {distributor} credentials so our Deck.co AI can securely extract your catalog data.
+                  Securely link your {distributor} account. We do not store your login credentials.
                 </p>
-                <form onSubmit={handleExtractWithAI} className="w-full max-w-sm flex flex-col gap-4">
-                  <div className="flex flex-col text-left">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
-                    <input 
-                      type="email" 
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
-                      placeholder="artist@example.com"
-                    />
-                  </div>
-                  <div className="flex flex-col text-left">
-                    <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password</label>
-                    <input 
-                      type="password" 
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
-                      placeholder="••••••••"
-                    />
-                  </div>
-                  <button 
-                    type="submit"
-                    disabled={isExtracting}
-                    className="w-full mt-2 relative overflow-hidden bg-indigo-600 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30 disabled:opacity-90 disabled:cursor-not-allowed group h-12"
-                  >
-                    {/* Progress Bar Background */}
-                    {isExtracting && (
-                      <div 
-                        className="absolute top-0 left-0 h-full bg-indigo-500/50 transition-all duration-1000 ease-out"
-                        style={{ width: `${progress}%` }}
-                      ></div>
-                    )}
-                    
+                
+                {isExtracting ? (
+                  <div className="w-full max-w-sm mt-2 relative overflow-hidden bg-indigo-600 text-white font-bold rounded-xl shadow-lg h-12 flex items-center justify-center">
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-indigo-500/50 transition-all duration-1000 ease-out"
+                      style={{ width: `${progress}%` }}
+                    ></div>
                     <div className="relative z-10 flex items-center justify-center gap-2 h-full">
-                      {isExtracting ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>{extractionStatusText} ({progress}%)</span>
-                        </>
-                      ) : (
-                        'Extract with AI'
-                      )}
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>{extractionStatusText} ({progress}%)</span>
                     </div>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => setShowDeckModal(true)}
+                    className="w-full max-w-sm mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30 group h-12 flex items-center justify-center gap-2"
+                  >
+                    <Lock size={18} />
+                    Securely Connect to {distributor}
                   </button>
-                </form>
+                )}
+
+                {/* Deck.co Simulated Modal */}
+                {showDeckModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
+                    <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md overflow-hidden relative animate-in zoom-in-95 duration-200">
+                      
+                      {/* Modal Header */}
+                      <div className="bg-slate-50 dark:bg-slate-800/50 p-6 border-b border-slate-100 dark:border-slate-800 text-center relative">
+                        <button 
+                          onClick={() => setShowDeckModal(false)}
+                          className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                        >
+                          ✕
+                        </button>
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <Lock size={16} className="text-emerald-500" />
+                          <span className="text-xs font-bold text-emerald-500 uppercase tracking-wider">Secure Connection</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-slate-800 dark:text-white">Sign in to {distributor}</h3>
+                        <p className="text-sm text-slate-500 mt-1">Powered by Deck.co</p>
+                      </div>
+
+                      {/* Modal Body */}
+                      <div className="p-6">
+                        <form onSubmit={handleExtractWithAI} className="flex flex-col gap-4">
+                          <div className="flex flex-col text-left">
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                            <input 
+                              type="email" 
+                              required
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                              className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
+                              placeholder={`your.email@${distributor.toLowerCase().replace(/\s+/g, '')}.com`}
+                            />
+                          </div>
+                          <div className="flex flex-col text-left">
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                            <input 
+                              type="password" 
+                              required
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              className="px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-2 focus:ring-indigo-500 outline-none transition-all dark:text-white"
+                              placeholder="••••••••"
+                            />
+                          </div>
+                          
+                          <div className="mt-2 flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
+                            <Lock size={16} className="text-slate-400 mt-0.5 shrink-0" />
+                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                              Your credentials are encrypted end-to-end. We never store them, and they are only used to establish a secure connection to extract your catalog data.
+                            </p>
+                          </div>
+
+                          <button 
+                            type="submit"
+                            className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30 h-12 flex items-center justify-center"
+                          >
+                            Sign In & Connect
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                )}
              </div>
           ) : (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -446,16 +487,25 @@ export default function DataImport() {
                   </div>
                </div>
 
-               {/* Save Banner */}
-               {user && saveSuccess ? (
-                  <div className="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
-                     <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">✓ Saved to your account — find it anytime in the sidebar.</span>
-                  </div>
-               ) : user && isSaving ? (
-                  <div className="flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
-                     <span className="text-slate-500 dark:text-slate-400 text-sm animate-pulse">Saving to your account...</span>
-                  </div>
-               ) : !user && showAuthModal ? (
+               {/* Save Banner and Actions */}
+               <div className="flex flex-col gap-4 mt-6">
+                 <button
+                   onClick={() => navigate('/valuation')}
+                   className="w-full flex items-center justify-center gap-2 py-4 px-6 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-lg rounded-2xl shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02]"
+                 >
+                   <BarChart3 size={24} />
+                   View Full Catalog Valuation
+                 </button>
+                 
+                 {user && saveSuccess ? (
+                    <div className="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+                       <span className="text-emerald-600 dark:text-emerald-400 font-bold text-sm">✓ Saved to your account — find it anytime in the sidebar.</span>
+                    </div>
+                 ) : user && isSaving ? (
+                    <div className="flex items-center justify-center gap-2 py-3 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl">
+                       <span className="text-slate-500 dark:text-slate-400 text-sm animate-pulse">Saving to your account...</span>
+                    </div>
+                 ) : !user && showAuthModal ? (
                   <div className="flex items-start gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800 rounded-xl">
                      <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center flex-shrink-0">
                         <Lock className="text-indigo-600 dark:text-indigo-400 w-5 h-5" />
@@ -493,6 +543,7 @@ export default function DataImport() {
                      This is a one-time secure view. Refresh the page to clear.
                   </p>
                )}
+               </div>
             </div>
           )}
 

@@ -94,10 +94,18 @@ export const DECAY_FACTORS = {
   LEGACY: { maxMonths: Infinity, factor: 0.5 },
 };
 
+export const getStoredSetting = (key, defaultValue) => {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`admin_settings_${key}`);
+    if (stored !== null) return JSON.parse(stored);
+  }
+  return defaultValue;
+};
+
 export const VALUATION_MULTIPLES = {
-  CONSERVATIVE: 6,
-  MARKET: 8,
-  PREMIUM: 10,
+  CONSERVATIVE: getStoredSetting('conservative_multiple', 6),
+  MARKET: getStoredSetting('market_multiple', 8),
+  PREMIUM: getStoredSetting('premium_multiple', 10),
 };
 
 // --- CFA PHASE 1 CONSTANTS ---
@@ -134,10 +142,10 @@ export const CFA_MATURITY = {
 };
 
 export const CFA_MULTIPLIERS = {
-  LOW: 6,
-  MID: 8,
-  HIGH: 10,
-  ACCELERATOR: 1.30, // applied to high estimate
+  LOW: getStoredSetting('conservative_multiple', 6),
+  MID: getStoredSetting('market_multiple', 8),
+  HIGH: getStoredSetting('premium_multiple', 10),
+  ACCELERATOR: getStoredSetting('accelerator_multiple', 1.30), // applied to high estimate
 };
 
 export const CFA_GEO_CONFIDENCE = {

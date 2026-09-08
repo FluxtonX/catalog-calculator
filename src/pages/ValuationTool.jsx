@@ -1040,9 +1040,16 @@ const ValuationTool = () => {
               </div>
             )}
             {Object.values(selectedArtists)
-              .filter(artistData => artistData.platform !== "custom")
               .map((artistData, idx) => {
-              const pCfg = PLATFORM_CONFIG[artistData.platform] || cfg;
+              const pCfg = PLATFORM_CONFIG[artistData.platform] || {
+                label: artistData.importedDistributor || "Custom Data",
+                icon: Database,
+                color: "from-emerald-600 to-teal-800",
+                liveBadgeBg: "bg-emerald-900/30",
+                liveDot: "bg-emerald-400",
+                liveText: "text-emerald-400",
+                iconColor: "text-white"
+              };
               const PIcon = pCfg.icon || SelectedIcon;
               return (
               <div key={artistData.platform || idx} className="space-y-5 sm:space-y-6">

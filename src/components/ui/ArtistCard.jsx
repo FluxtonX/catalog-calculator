@@ -33,6 +33,7 @@ import PopularReleaseCard from "../artist/PopularReleaseCard";
 import SingleCard from "../artist/SingleCard";
 import YouTubeValuationTab from "../youtube/YouTubeValuationTab";
 import ITunesValuationTab from "../itunes/ITunesValuationTab";
+import CustomValuationTab from "../valuation/CustomValuationTab";
 import {
   ArtistTabTrigger,
   MediaGrid,
@@ -243,6 +244,17 @@ setEnhancedAlbums(
 
   // ── Render valuation content ───────────────────────────
   const renderValuation = () => {
+    if (platform === "custom") {
+      return (
+        <CustomValuationTab
+          artistData={{
+            name,
+            stats,
+            importedDistributor,
+          }}
+        />
+      );
+    }
     if (isYouTube) {
       return (
         <YouTubeValuationTab

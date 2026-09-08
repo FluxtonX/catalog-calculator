@@ -90,25 +90,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 mt-2">
-               <button
-                 onClick={() => onSelectChannel(channel)}
-                 disabled={isLoading}
-                 className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-red-500/30 transition-all hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center"
-               >
-                 {isLoading ? "Loading..." : "Confirm & Calculate Royalties"}
-               </button>
-               
-               <button
-                 onClick={() => window.location.reload()}
-                 disabled={isLoading}
-                 className="w-full sm:w-auto px-6 py-3.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-               >
-                 <SearchX size={18} />
-                 Not the right artist?
-               </button>
-            </div>
+            {/* Action Buttons Removed */}
           </div>
         </div>
       </div>
