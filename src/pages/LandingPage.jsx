@@ -140,6 +140,8 @@ export default function LandingPage() {
           if (d.type === 'channel_list' && d.channels?.length > 0) {
             const details = await getYouTubeChannelDetails(searchQuery, d.channels[0].id);
             return { ...details, platform: 'youtube' };
+          } else if (d.type === 'single_channel' && d.channel) {
+            return { ...d.channel, platform: 'youtube' };
           }
           return { ...d, platform: 'youtube' };
         });
@@ -261,10 +263,7 @@ export default function LandingPage() {
     
     const converted = adjustedValue * rate;
     
-    if (converted >= 1_000_000_000) return `${symbol}${(converted / 1_000_000_000).toFixed(2)}B`;
-    if (converted >= 1_000_000) return `${symbol}${(converted / 1_000_000).toFixed(2)}M`;
-    if (converted >= 1_000) return `${symbol}${(converted / 1_000).toFixed(1)}K`;
-    return `${symbol}${converted.toFixed(0)}`;
+    return `${symbol}${Math.round(converted).toLocaleString('en-US')}`;
   };
 
   return (
@@ -463,15 +462,6 @@ export default function LandingPage() {
 
               {/* Results */}
               <div ref={resultsRef} className={`transition-all duration-1000 ease-in-out overflow-hidden ${estimatedValue !== null ? 'max-h-[2500px] opacity-100 mt-10 pt-8 border-t border-[#1A2333]' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
-                {searchedArtists && Object.keys(searchedArtists).length > 0 ? (
-                  <CfaMasterValuation 
-                    selectedArtists={searchedArtists} 
-                    compact={true} 
-                    royaltyShare={royaltyShare} 
-                    currency={currency} 
-                    exchangeRates={exchangeRates} 
-                  />
-                ) : (
                   <>
                     <p className="text-[10px] text-[#00E5FF] font-bold tracking-widest uppercase text-center mb-2">ESTIMATED CATALOG VALUE</p>
                     <p className="text-[3.5rem] font-bold text-center tracking-tight mb-2 leading-none text-white">
@@ -481,7 +471,6 @@ export default function LandingPage() {
                       This estimate is based on their top 10 songs only
                     </p>
                   </>
-                )}
                 
                 {/* Custom Inputs */}
                 <div className="flex flex-col gap-4 max-w-[320px] mx-auto mb-8 bg-[#0B101A] border border-[#1A2333] p-4 rounded-xl shadow-lg">

@@ -7,8 +7,15 @@ import {
 } from './constants';
 import { getCityRegion } from './spotify';
 import { isFeaturedTrack } from './featuredTrackUtils';
-import { parseNumber } from './combined';
-
+export const parseNumber = (str) => {
+  if (!str) return 0;
+  if (typeof str === 'number') return str;
+  const upper = String(str).toUpperCase();
+  if (upper.includes("B")) return parseFloat(upper) * 1e9;
+  if (upper.includes("M")) return parseFloat(upper) * 1e6;
+  if (upper.includes("K")) return parseFloat(upper) * 1e3;
+  return parseFloat(upper.replace(/,/g, "")) || 0;
+};
 const getMonthsBetween = (releaseDate, currentDate) => {
   if (!releaseDate) return 0;
   const release = new Date(releaseDate);
@@ -78,7 +85,7 @@ export const calculateTrackMonthlyStreams = (track, currentDate) => {
   const monthsLive = releaseDate ? getMonthsBetween(releaseDate, currentDate) : 24; // fallback 2 years
   const ageInYears = monthsLive / 12;
   const maturityFactor = getMaturityFactor(monthsLive);
-  const lifetimeStreams = parseNumber(track.streamCount || track.streamCountFormatted || track.streams || track.playCount || track.viewCount) || 0;
+  const lifetimeStreams = parseNumber(track.streamCount || track.streamCountFormatted || track.streams || track.playCount || track.playcount || track.viewCount) || 0;
 
   // FIRST: Actual Last 30-Day Streams
   if (track.streams_last_30_days || track.last30Days) {
@@ -177,21 +184,21 @@ export const calculateCfaPhase1 = (artistData, platform) => {
   if (topTracks.length === 0) {
     if (platform === 'youtube' && artistData.totalViews) {
       // YouTube Fallback: estimate run-rate from lifetime views assuming 24 months average age
-      const estMonthlyViews = artistData.totalViews / 24;
+      const estMonthlyViews = parseNumber(artistData.totalViews) / 24;
       const rate = CFA_RATES.youtube?.ROW || 0.001;
       const estMonthlyRev = estMonthlyViews * rate;
       totalAnnualRevenue = estMonthlyRev * 12;
       cfaConfidence = "LOW";
     } else if ((platform === 'itunes' || platform === 'apple') && artistData.popularity) {
       // Apple Music Fallback: Use popularity score to estimate monthly streams
-      const estMonthlyStreams = Math.round(Math.pow(artistData.popularity / 100, 4) * 60000000);
+      const estMonthlyStreams = Math.round(Math.pow(parseNumber(artistData.popularity) / 100, 4) * 60000000);
       const rate = CFA_RATES.itunes?.ROW || 0.00675;
       const estMonthlyRev = estMonthlyStreams * rate;
       totalAnnualRevenue = estMonthlyRev * 12;
       cfaConfidence = "LOW";
     } else if (artistData.monthlyListeners) {
       // Generic Fallback using monthly listeners (approx 3.5 streams per listener)
-      const estMonthlyStreams = artistData.monthlyListeners * 3.5;
+      const estMonthlyStreams = parseNumber(artistData.monthlyListeners) * 3.5;
       const rate = CFA_RATES[platform]?.ROW || 0.003;
       totalAnnualRevenue = estMonthlyStreams * rate * 12;
       cfaConfidence = "LOW";

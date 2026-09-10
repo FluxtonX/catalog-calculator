@@ -25,7 +25,7 @@ const CfaMasterValuation = ({
   const masterData = getCombinedCfaValuations(selectedArtists);
   
   // Only show if there is actually data
-  if (!masterData || masterData.annualRevenue === 0) return null;
+  if (!masterData) return null;
 
   const formatAdjustedCurrency = (value) => {
     if (!value || isNaN(value)) return `${currency === 'USD' ? '$' : currency + ' '}0`;

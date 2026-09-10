@@ -187,6 +187,7 @@ export default function Auth() {
           <div className="space-y-4">
 
             {/* Distribution Company Dropdown Mockup */}
+            {/*
             {enableDistributionCompanies && (
               <div className="w-full">
                 <button
@@ -208,6 +209,7 @@ export default function Auth() {
                 </button>
 
                 {/* Dropdown Menu */}
+                {/* 
                 {showDistributors && (
                   <div className="mt-2 border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800/50">
                     <div className="flex flex-col py-1 max-h-60 overflow-y-auto custom-scrollbar">
@@ -230,8 +232,11 @@ export default function Auth() {
                     </div>
                   </div>
                 )}
+                */}
+              {/* 
               </div>
             )}
+            */}
 
             {/* Google */}
             <button
@@ -253,6 +258,7 @@ export default function Auth() {
             </button>
 
             {/* YouTube */}
+            {/*
             <button
               onClick={handleYouTubeSignIn}
               disabled={isAnyLoading}
@@ -267,8 +273,10 @@ export default function Auth() {
               )}
               <span>Continue with YouTube</span>
             </button>
+            */}
 
             {/* Spotify */}
+            {/*
             <button
               onClick={handleSpotifySignIn}
               disabled={isAnyLoading}
@@ -283,8 +291,10 @@ export default function Auth() {
               )}
               <span>Continue with Spotify</span>
             </button>
+            */}
 
             {/* Apple */}
+            {/*
             <button
               onClick={handleAppleSignIn}
               disabled={isAnyLoading}
@@ -299,6 +309,7 @@ export default function Auth() {
               )}
               <span>Continue with Apple</span>
             </button>
+            */}
 
           </div>
 

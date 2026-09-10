@@ -108,7 +108,7 @@ export const getCombinedCfaValuations = (selectedArtists) => {
 
       artist.topTracks = proxyArtist.topTracks.map(track => {
         // Parse the stream value from any of the known properties
-        const rawStreams = track.playcount || track.playCount || track.streams || track.streamCount || track.viewCount || 0;
+        const rawStreams = parseNumber(track.playcount || track.playCount || track.streams || track.streamCount || track.viewCount || 0);
         const scaledStreams = Math.round(rawStreams * scaleFactor);
         
         return {
