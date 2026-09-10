@@ -598,10 +598,10 @@ export default function LandingPage() {
         </div>
 
         {/* Option 2 Row */}
-        <div className="flex flex-col lg:flex-row gap-8 lg:gap-14 items-start mb-20" id="auth-section">
+        <div className="flex flex-col lg:flex-row justify-center gap-8 lg:gap-14 items-center lg:items-start mb-20" id="auth-section">
           
           {/* Left Sidebar Option 2 */}
-          <div className="w-full lg:w-[280px] flex-shrink-0 pt-2 lg:pt-4">
+          <div className="w-full lg:w-[280px] flex-shrink-0 pt-2 lg:pt-4 flex flex-col items-center lg:items-start text-center lg:text-left">
             <div className="inline-block px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-bold tracking-widest uppercase rounded border border-purple-500/20 mb-6">
               OPTION 2
             </div>
@@ -610,7 +610,7 @@ export default function LandingPage() {
                 <Lock className="w-4 h-4 text-purple-400" />
               </div>
               <div>
-                <h3 className="text-xl lg:text-2xl font-bold mb-2 lg:mb-3 leading-tight">Connect for<br/>actual valuation</h3>
+                <h3 className="text-xl lg:text-2xl font-bold mb-2 lg:mb-3 leading-tight">Connect for a Detailed Valuation</h3>
                 <p className="text-sm text-white/50 leading-relaxed max-w-[240px]">
                   Login via your preferred DSP to pull actual read-only account data for a more accurate valuation.
                 </p>
@@ -619,7 +619,7 @@ export default function LandingPage() {
           </div>
 
           {/* Right Main Box Option 2 */}
-          <div className="flex-1 w-full relative">
+          <div className="hidden flex-1 w-full relative">
             {/* Outer Box for Option 2 exactly like design */}
             <div className="absolute -inset-8 border border-[#1A2333] rounded-[32px] pointer-events-none hidden lg:block" />
             
