@@ -352,30 +352,7 @@ setEnhancedAlbums(
         </div>
       </div>
 
-      {/* ── Biography ────────────────────────────────────── */}
-      {(isApify || isItunes) && !isCustom && biography && (
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
-          <SectionHeader
-            icon={Music}
-            title="Biography"
-            iconBg={
-              isItunes
-                ? "from-slate-800/15 to-zinc-800/15"
-                : "from-emerald-500/20 to-blue-500/20"
-            }
-            iconColor={
-              isItunes
-                ? "text-slate-900 dark:text-white"
-                : "text-emerald-600 dark:text-emerald-400"
-            }
-          />
-          <Separator.Root
-            className="bg-slate-100 dark:bg-slate-800 h-px mb-4"
-            decorative
-          />
-          <BioText text={biography} />
-        </div>
-      )}
+
 
 
     </div>

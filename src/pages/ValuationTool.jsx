@@ -20,6 +20,9 @@ import {
 import ArtistCard from "../components/ui/ArtistCard";
 import SocialStatsSection from "../components/valuation/sections/SocialStatsSection";
 import StreamingStatsSection from "../components/valuation/sections/StreamingStatsSection";
+import BioText from "../components/artist/BioText";
+import SectionHeader from "../components/common/SectionHeader";
+import * as Separator from "@radix-ui/react-separator";
 import { usePageTitle } from "../hooks/usePageTitle";
 import {
   searchYouTube,
@@ -1021,6 +1024,45 @@ const ValuationTool = () => {
             onSelectChannel={handleChannelSelect}
             isLoading={isLoading}
           />
+        )}
+
+        {/* Biography Section */}
+        {!isLoading && Object.keys(selectedArtists).length > 0 && (
+          <div className="space-y-8 mt-8 mb-8">
+            {(() => {
+              const bioArtist = Object.values(selectedArtists).find(a => a.biography);
+              if (!bioArtist) return null;
+              const isItunes = bioArtist.platform === "itunes";
+              const isYouTube = bioArtist.platform === "youtube";
+              return (
+                <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
+                  <SectionHeader
+                    icon={Music}
+                    title="Biography"
+                    iconBg={
+                      isItunes
+                        ? "from-slate-800/15 to-zinc-800/15"
+                        : isYouTube
+                        ? "from-[#FF0000]/20 to-[#FF0000]/20"
+                        : "from-emerald-500/20 to-blue-500/20"
+                    }
+                    iconColor={
+                      isItunes
+                        ? "text-slate-900 dark:text-white"
+                        : isYouTube
+                        ? "text-[#FF0000] dark:text-[#FF0000]"
+                        : "text-emerald-600 dark:text-emerald-400"
+                    }
+                  />
+                  <Separator.Root
+                    className="bg-slate-100 dark:bg-slate-800 h-px mb-4"
+                    decorative
+                  />
+                  <BioText text={bioArtist.biography} />
+                </div>
+              );
+            })()}
+          </div>
         )}
 
         {/* Artist Analysis */}
