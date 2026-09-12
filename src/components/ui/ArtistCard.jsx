@@ -209,37 +209,37 @@ setEnhancedAlbums(
   const valuationBtnActive = isItunes
     ? "bg-gradient-to-r from-slate-900 to-zinc-800 text-white shadow-xl shadow-slate-900/40 hover:shadow-slate-900/60 hover:scale-105 active:scale-95"
     : isYouTube
-      ? "bg-gradient-to-r from-red-500 via-rose-500 to-pink-600 text-white shadow-xl shadow-red-500/40 hover:shadow-red-500/70 hover:scale-105 active:scale-95"
+      ? "bg-gradient-to-r from-[#FF0000] to-[#FF0000] text-white shadow-xl shadow-[#FF0000]/40 hover:shadow-[#FF0000]/70 hover:scale-105 active:scale-95"
       : "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-500/40 hover:shadow-emerald-500/70 hover:scale-105 active:scale-95";
 
   const valuationBorderColor = isItunes
     ? "border-slate-300 dark:border-slate-600"
     : isYouTube
-      ? "border-red-300 dark:border-red-700/70"
+      ? "border-[#FF0000] dark:border-[#FF0000]/70"
       : "border-emerald-300 dark:border-emerald-700/70";
 
   const valuationBgColor = isItunes
     ? "from-slate-50 via-zinc-50 to-slate-100 dark:from-slate-900/80 dark:via-zinc-900/60 dark:to-slate-900/80"
     : isYouTube
-      ? "from-red-50 via-rose-50/80 to-pink-50 dark:from-red-950/60 dark:via-rose-950/50 dark:to-pink-950/60"
+      ? "from-[#FF0000]/10 via-[#FF0000]/5 to-[#FF0000]/10 dark:from-[#FF0000]/20 dark:via-[#FF0000]/10 dark:to-[#FF0000]/20"
       : "from-emerald-50 via-teal-50/80 to-green-50 dark:from-emerald-950/60 dark:via-teal-950/50 dark:to-green-950/60";
 
   const valuationIconBg = isItunes
     ? "from-slate-900 to-zinc-800"
     : isYouTube
-      ? "from-red-500 via-rose-500 to-pink-600"
+      ? "from-[#FF0000] to-[#FF0000]"
       : "from-emerald-500 to-teal-600";
 
   const valuationAccentBar = isItunes
     ? "bg-gradient-to-r from-slate-700 via-zinc-500 to-slate-700"
     : isYouTube
-      ? "bg-gradient-to-r from-red-500 via-rose-400 to-pink-500"
+      ? "bg-gradient-to-r from-[#FF0000] to-[#FF0000]"
       : "bg-gradient-to-r from-emerald-500 via-teal-400 to-green-500";
 
   const valuationGlowRing = isItunes
     ? "ring-2 ring-slate-400/30 dark:ring-slate-500/30"
     : isYouTube
-      ? "ring-2 ring-red-400/40 dark:ring-red-500/40"
+      ? "ring-2 ring-[#FF0000]/40 dark:ring-[#FF0000]/40"
       : "ring-2 ring-emerald-400/40 dark:ring-emerald-500/40";
 
   // ── Render valuation content ───────────────────────────

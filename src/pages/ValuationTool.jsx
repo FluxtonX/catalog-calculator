@@ -83,9 +83,9 @@ const PLATFORM_CONFIG = {
     label: "YouTube",
     icon: YouTubeIcon,
     placeholder: "Search channel or artist on YouTube...",
-    color: "from-red-500 via-rose-500 to-pink-600",
+    color: "from-[#FF0000] to-[#FF0000]",
     bgPattern:
-      "radial-gradient(circle at 70% 50%, rgba(239, 68, 68, 0.25) 0%, transparent 60%)",
+      "radial-gradient(circle at 70% 50%, rgba(255, 0, 0, 0.25) 0%, transparent 60%)",
     tip: "Discover channel statistics, subscriber counts, and video performance.",
     itemCheckedText: "text-red-600 dark:text-red-400",
     itemCheckedBg: "bg-red-50 dark:bg-red-900/30",
