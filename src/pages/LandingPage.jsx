@@ -433,9 +433,9 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 mb-6 text-white/40">
-                <InfoIcon className="w-[14px] h-[14px] flex-shrink-0" />
-                <p className="text-[11px]">Combine Spotify, Apple Music, and YouTube for one overall estimated value.</p>
+              <div className="flex items-center gap-3 mb-6 text-white/90 bg-[#1A2333]/50 p-3.5 rounded-xl border border-cyan-500/20 shadow-lg">
+                <InfoIcon className="w-5 h-5 flex-shrink-0 text-cyan-400" />
+                <p className="text-[12px] font-bold tracking-wide uppercase leading-snug">THIS ESTIMATE IS AN INDICATION BASED ON YOUR TOP 10 TRACKS</p>
               </div>
 
               <button 
@@ -569,7 +569,7 @@ export default function LandingPage() {
         </div>
 
         {/* Divider / Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 py-12 border-y border-[#1A2333] mb-12">
+        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 py-12 border-t border-[#1A2333]">
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 rounded-full border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
@@ -597,138 +597,6 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* Option 2 Row */}
-        <div className="flex flex-col lg:flex-row justify-center gap-8 lg:gap-14 items-center lg:items-start mb-20" id="auth-section">
-          
-          {/* Left Sidebar Option 2 */}
-          <div className="w-full lg:w-[280px] flex-shrink-0 pt-2 lg:pt-4 flex flex-col items-center lg:items-start text-center lg:text-left">
-            <div className="inline-block px-3 py-1 bg-purple-500/10 text-purple-400 text-[10px] font-bold tracking-widest uppercase rounded border border-purple-500/20 mb-6">
-              OPTION 2
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full border border-purple-500/30 flex items-center justify-center flex-shrink-0 mt-1">
-                <Lock className="w-4 h-4 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-xl lg:text-2xl font-bold mb-2 lg:mb-3 leading-tight">Connect for a Detailed Valuation</h3>
-                <p className="text-sm text-white/50 leading-relaxed max-w-[240px]">
-                  Login via your preferred DSP to pull actual read-only account data for a more accurate valuation.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Main Box Option 2 */}
-          <div className="hidden flex-1 w-full relative">
-            {/* Outer Box for Option 2 exactly like design */}
-            <div className="absolute -inset-8 border border-[#1A2333] rounded-[32px] pointer-events-none hidden lg:block" />
-            
-            <div className="bg-[#0B101A] border border-[#1A2333] rounded-[24px] p-6 lg:p-10 shadow-2xl relative max-w-[440px] mx-auto">
-              
-              <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center mb-4">
-                  <img 
-                    src="/logo.png" 
-                    alt="Logo" 
-                    className="w-16 h-16 object-contain"
-                    style={{ filter: 'drop-shadow(0 0 15px rgba(16, 185, 129, 0.4))' }}
-                  />
-                </div>
-                <h4 className="text-[22px] font-bold mb-1 tracking-tight text-white">Welcome Back</h4>
-                <p className="text-[13px] text-white/50">Sign in to access actual valuation data</p>
-              </div>
-
-              {error && (
-                <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-xs text-red-400 text-center flex items-center justify-center gap-2">
-                  <span className="font-bold">Error:</span> {error}
-                </div>
-              )}
-
-              <div className="space-y-3">
-                {/* Distributor Dropdown */}
-                {enableDistributionCompanies && (
-                  <div className="relative mb-6">
-                    <button 
-                      onClick={() => setShowDistributors(!showDistributors)}
-                      className="w-full flex items-center justify-between p-3.5 bg-[#05080F] border border-[#1A2333] rounded-xl hover:border-white/20 transition-all"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-5 h-5 flex items-center justify-center text-white/50">
-                          <Landmark className="w-4 h-4" />
-                        </div>
-                        <span className="text-sm font-medium text-white/80">Sign in to Distribution Company</span>
-                      </div>
-                      <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${showDistributors ? 'rotate-180' : ''}`} />
-                    </button>
-
-                    {showDistributors && (
-                      <div className="absolute top-full left-0 w-full mt-2 bg-[#0B101A] border border-[#1A2333] rounded-xl overflow-hidden z-20 py-2 shadow-2xl max-h-64 overflow-y-auto">
-                        {distributors.map((d, idx) => (
-                          <button key={idx} onClick={() => navigate('/import', { state: { distributor: d.name } })} className="w-full flex items-center gap-3 px-4 py-2 hover:bg-white/5 transition-colors text-left">
-                            <div className="w-[18px] h-[18px] rounded-[4px] overflow-hidden flex-shrink-0 flex items-center justify-center">
-                              <img 
-                                src={d.img} 
-                                alt={d.name} 
-                                className={`w-full h-full object-cover ${d.name === 'Too Lost' ? 'scale-[1.4]' : ''}`}
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  if (e.target.parentElement.nextSibling) e.target.parentElement.nextSibling.style.display = 'flex';
-                                }}
-                              />
-                            </div>
-                            <div className="hidden w-[18px] h-[18px] rounded-[4px] items-center justify-center bg-gray-800 text-[10px] font-bold text-white uppercase">
-                              {d.name[0]}
-                            </div>
-                            <span className="text-[13px] text-white/90">{d.name}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* DSP Logins */}
-                <button
-                  onClick={handleYouTubeSignIn}
-                  disabled={loading.youtube}
-                  className="w-full py-3.5 bg-[#FF0000] hover:bg-[#CC0000] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                  </svg>
-                  {loading.youtube ? 'Connecting...' : 'Continue with YouTube'}
-                </button>
-
-                <button
-                  onClick={handleSpotifySignIn}
-                  disabled={loading.spotify}
-                  className="w-full py-3.5 bg-[#1DB954] hover:bg-[#1ED760] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-                  </svg>
-                  {loading.spotify ? 'Connecting...' : 'Continue with Spotify'}
-                </button>
-                
-                <button
-                  onClick={handleAppleSignIn}
-                  disabled={loading.apple}
-                  className="w-full py-3.5 bg-black hover:bg-[#111] rounded-xl text-sm font-bold text-white transition-colors flex items-center justify-center gap-2"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.641-.026 2.669-1.48 3.666-2.928 1.16-1.68 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.484-4.662 2.597-4.74-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.702z" />
-                  </svg>
-                  {loading.apple ? 'Connecting...' : 'Continue with Apple'}
-                </button>
-              </div>
-
-              <p className="text-center text-[9px] leading-relaxed text-white/30 mt-6 px-4">
-                By signing in, you agree to our Terms of Service and Privacy Policy.<br/>YouTube sign-in also requests read-only access to your channel.
-              </p>
-            </div>
-          </div>
-
-        </div>
 
         {/* Features Section - Moved from previous version */}
         <div className="py-16 border-t border-white/5 relative">
