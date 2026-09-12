@@ -295,14 +295,16 @@ export default function LandingPage() {
 
           {/* Right Button */}
           <div className="absolute right-0">
-            <button 
-              onClick={() => document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' })}
+            <a 
+              href="https://www.creativefundingagency.com/funding-calculator"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 px-5 py-2.5 bg-transparent border border-purple-500/30 hover:bg-white/5 rounded-xl text-[13px] font-medium text-white transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]"
             >
               <Lock className="w-3.5 h-3.5 opacity-80" />
               Connect Your DSPs
               <ChevronRight className="w-3.5 h-3.5 opacity-50 ml-1" />
-            </button>
+            </a>
           </div>
         </header>
 
