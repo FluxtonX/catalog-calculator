@@ -16,22 +16,22 @@ import {
 import { formatNumber, formatToMillions } from "../hooks/useValuationLogic";
 
 // eslint-disable-next-line no-unused-vars
-const SocialStatCard = ({ icon: Icon, label, value, colorClass, iconColorClass, showExact }) => (
+const SocialStatCard = ({ icon: Icon, label, value, colorClass, iconColorClass, showExact, forceLightMode }) => (
   <div 
-    className="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center justify-center gap-2.5 min-w-[150px] shrink-0 transition-all text-center hover:border-slate-300 dark:hover:border-slate-700"
+    className={`bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm flex flex-col items-center justify-center gap-2.5 min-w-[150px] shrink-0 transition-all text-center hover:border-slate-300 ${forceLightMode ? '' : 'dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700'}`}
     title={value !== undefined && value !== null && value !== '' ? formatNumber(value) : "N/A"}
   >
-    <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest w-full truncate">{label}</p>
+    <p className={`text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest w-full truncate ${forceLightMode ? '' : 'dark:text-slate-400'}`}>{label}</p>
     <div className="flex items-center justify-center gap-2 w-full">
       <Icon size={22} className={`shrink-0 ${iconColorClass}`} />
-      <p className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white leading-none tracking-tight truncate">
+      <p className={`text-2xl sm:text-3xl font-black text-slate-900 leading-none tracking-tight truncate ${forceLightMode ? '' : 'dark:text-white'}`}>
         {value !== undefined && value !== null && value !== '' ? (showExact ? formatNumber(value) : formatToMillions(value)) : "N/A"}
       </p>
     </div>
   </div>
 );
 
-const SocialStatsSection = ({ artistData }) => {
+const SocialStatsSection = ({ artistData, forceLightMode }) => {
   const [showExact, setShowExact] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
@@ -109,10 +109,19 @@ const SocialStatsSection = ({ artistData }) => {
   const popularTrackImage = 
     mostPopularTrack?.artworkUrl100 ?? 
     mostPopularTrack?.artworkUrl60 ?? 
+    mostPopularTrack?.album?.coverArt?.sources?.[0]?.url ?? 
+    mostPopularTrack?.coverArt?.sources?.[0]?.url ?? 
     mostPopularTrack?.album?.images?.[0]?.url ?? 
+    mostPopularTrack?.track?.album?.images?.[0]?.url ?? 
+    mostPopularTrack?.albumImage ?? 
+    mostPopularTrack?.album_image_url ?? 
     mostPopularTrack?.image ?? 
+    mostPopularTrack?.image_url ?? 
+    mostPopularTrack?.imageUrl ?? 
+    mostPopularTrack?.coverUrl ?? 
     mostPopularTrack?.thumbnail ?? 
     mostPopularTrack?.artwork ?? 
+    image ?? 
     null;
   const popularTrackStreams = mostPopularTrack?.streamCount || mostPopularTrack?.playcount || mostPopularTrack?.streams || 0;
   
@@ -151,30 +160,36 @@ const SocialStatsSection = ({ artistData }) => {
         
         {/* Most Popular Track Card */}
         {mostPopularTrack && (
-        <div className="lg:col-span-5 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-700 shadow-md flex items-center justify-between relative overflow-hidden">
+        <div className={`lg:col-span-5 bg-gradient-to-br from-slate-100 to-slate-200 rounded-3xl p-6 border border-slate-200 shadow-md flex items-center justify-between relative overflow-hidden ${forceLightMode ? '' : 'dark:from-slate-800 dark:to-slate-900 dark:border-slate-700'}`}>
           <div className="z-10 flex flex-col justify-between h-full">
-            <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4">Most Popular Track</p>
+            <p className={`text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 ${forceLightMode ? '' : 'dark:text-slate-400'}`}>Most Popular Track</p>
             <div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white truncate max-w-[200px] sm:max-w-[250px] mb-2">
+              <h3 className={`text-2xl font-black text-slate-900 truncate max-w-[200px] sm:max-w-[250px] mb-2 ${forceLightMode ? '' : 'dark:text-white'}`}>
                 {(mostPopularTrack && (mostPopularTrack.title || mostPopularTrack.name)) ? (mostPopularTrack.title || mostPopularTrack.name) : "Unknown Track"}
               </h3>
               <div className="flex items-center gap-2">
                 <SpotifyLogo size={24} className="text-[#1DB954]" />
-                <span className="text-2xl font-black text-slate-900 dark:text-white" title={mostPopularTrack ? formatNumber(popularTrackStreams) : "0"}>
+                <span className={`text-2xl font-black text-slate-900 ${forceLightMode ? '' : 'dark:text-white'}`} title={mostPopularTrack ? formatNumber(popularTrackStreams) : "0"}>
                   {mostPopularTrack && popularTrackStreams > 0 ? (showExact ? formatNumber(popularTrackStreams) : formatToMillions(popularTrackStreams)) : "0"}
                 </span>
-                <span className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest mt-1">Streams</span>
+                <span className={`text-sm font-bold text-slate-700 uppercase tracking-widest mt-1 ${forceLightMode ? '' : 'dark:text-slate-300'}`}>Streams</span>
               </div>
             </div>
           </div>
           
           {/* Track Image Collage / Artwork */}
           <div 
-            className="relative z-10 w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden shadow-lg border-2 border-white dark:border-slate-800 group cursor-pointer"
+            className={`relative z-10 w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden shadow-lg border-2 border-white group cursor-pointer ${forceLightMode ? '' : 'dark:border-slate-800'}`}
             onClick={handlePlayPreview}
             title={isPlaying ? "Pause Preview" : "Play Preview"}
           >
-            <img src={popularTrackImage || "/placeholder-artwork.png"} alt="Artwork" className={`w-full h-full object-cover transition-transform duration-500 ${isPlaying ? 'scale-110' : 'group-hover:scale-110'}`} />
+            {popularTrackImage ? (
+              <img src={popularTrackImage} alt="Artwork" className={`w-full h-full object-cover transition-transform duration-500 ${isPlaying ? 'scale-110' : 'group-hover:scale-110'}`} />
+            ) : (
+              <div className={`w-full h-full flex items-center justify-center bg-slate-200 text-slate-400 ${forceLightMode ? '' : 'dark:bg-slate-700 dark:text-slate-500'}`}>
+                <Music size={32} />
+              </div>
+            )}
             <div className={`absolute inset-0 bg-black/30 flex items-center justify-center transition-opacity ${isPlaying || isLoadingAudio ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                <div className="w-10 h-10 bg-[#0095FF] hover:bg-[#007acc] transition-colors rounded-full flex items-center justify-center shadow-lg">
                  {isLoadingAudio ? (
@@ -199,14 +214,14 @@ const SocialStatsSection = ({ artistData }) => {
           </div>
           
           {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/20 dark:bg-white/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
+          <div className={`absolute top-0 right-0 w-64 h-64 bg-white/20 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none ${forceLightMode ? '' : 'dark:bg-white/5'}`}></div>
         </div>
         )}
 
         {/* Stats Grid */}
         <div className={`${mostPopularTrack ? "lg:col-span-7" : "lg:col-span-12"} grid grid-cols-1 sm:grid-cols-3 gap-4`}>
           {/* Chartmetric Rank */}
-          <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-md flex flex-col justify-center items-center text-center group hover:-translate-y-1 transition-all duration-300">
+          <div className={`bg-gradient-to-br from-white to-slate-50 rounded-3xl p-5 border border-slate-200 shadow-md flex flex-col justify-center items-center text-center group hover:-translate-y-1 transition-all duration-300 ${forceLightMode ? '' : 'dark:from-slate-900 dark:to-slate-800 dark:border-slate-700'}`}>
             <div className="mb-3 p-2 bg-[#48D3B4]/10 rounded-full">
               <TrendingUp size={24} className="text-[#48D3B4]" />
             </div>
@@ -214,29 +229,29 @@ const SocialStatsSection = ({ artistData }) => {
               <span className="text-3xl font-black text-[#48D3B4]">{chartmetricRank ? formatNumber(chartmetricRank) : "N/A"}</span>
               {chartmetricRank > 0 && <span className="text-[#48D3B4] font-bold text-sm ml-0.5">th</span>}
             </div>
-            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2">Chartmetric Rank</p>
+            <p className={`text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2 ${forceLightMode ? '' : 'dark:text-slate-400'}`}>Chartmetric Rank</p>
           </div>
 
           {/* Monthly Listeners */}
-          <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-md flex flex-col justify-center items-center text-center group hover:-translate-y-1 transition-all duration-300" title={monthlyListeners ? formatNumber(monthlyListeners) : "N/A"}>
+          <div className={`bg-gradient-to-br from-white to-slate-50 rounded-3xl p-5 border border-slate-200 shadow-md flex flex-col justify-center items-center text-center group hover:-translate-y-1 transition-all duration-300 ${forceLightMode ? '' : 'dark:from-slate-900 dark:to-slate-800 dark:border-slate-700'}`} title={monthlyListeners ? formatNumber(monthlyListeners) : "N/A"}>
             <div className="mb-3 p-2 bg-[#1DB954]/10 rounded-full">
               <SpotifyLogo size={24} className="text-[#1DB954]" />
             </div>
-            <span className="text-3xl font-black text-slate-900 dark:text-white">
+            <span className={`text-3xl font-black text-slate-900 ${forceLightMode ? '' : 'dark:text-white'}`}>
               {monthlyListeners ? (showExact ? formatNumber(monthlyListeners) : formatToMillions(monthlyListeners)) : "N/A"}
             </span>
-            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2">Monthly Listeners</p>
+            <p className={`text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2 ${forceLightMode ? '' : 'dark:text-slate-400'}`}>Monthly Listeners</p>
           </div>
 
           {/* Playlist Count */}
-          <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 rounded-3xl p-5 border border-slate-200 dark:border-slate-700 shadow-md flex flex-col justify-center items-center text-center group hover:-translate-y-1 transition-all duration-300" title={playlistCount ? formatNumber(playlistCount) : "N/A"}>
+          <div className={`bg-gradient-to-br from-white to-slate-50 rounded-3xl p-5 border border-slate-200 shadow-md flex flex-col justify-center items-center text-center group hover:-translate-y-1 transition-all duration-300 ${forceLightMode ? '' : 'dark:from-slate-900 dark:to-slate-800 dark:border-slate-700'}`} title={playlistCount ? formatNumber(playlistCount) : "N/A"}>
             <div className="mb-3 p-2 bg-[#1DB954]/10 rounded-full">
               <ListMusic size={24} className="text-[#1DB954]" />
             </div>
-            <span className="text-3xl font-black text-slate-900 dark:text-white">
+            <span className={`text-3xl font-black text-slate-900 ${forceLightMode ? '' : 'dark:text-white'}`}>
               {playlistCount ? (showExact ? formatNumber(playlistCount) : formatToMillions(playlistCount)) : "N/A"}
             </span>
-            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2">Playlist Count</p>
+            <p className={`text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-2 ${forceLightMode ? '' : 'dark:text-slate-400'}`}>Playlist Count</p>
           </div>
         </div>
       </div>
@@ -245,18 +260,18 @@ const SocialStatsSection = ({ artistData }) => {
       <div className="w-full mt-4">
         {/* Header section with toggle */}
         <div className="flex justify-between items-center mb-6 px-1">
-          <h3 className="text-xl font-black text-slate-900 dark:text-white">Quick Social Stats</h3>
+          <h3 className={`text-xl font-black text-slate-900 ${forceLightMode ? '' : 'dark:text-white'}`}>Quick Social Stats</h3>
           
           <button 
             onClick={() => setShowExact(!showExact)}
-            className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+            className={`flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-sm ${forceLightMode ? '' : 'dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
           >
             <div className={`w-2 h-2 rounded-full ${showExact ? 'bg-green-500' : 'bg-slate-400'}`}></div>
             {showExact ? 'Exact Numbers' : 'Abbreviated'}
           </button>
         </div>
         
-        <div className="flex overflow-x-auto pb-4 gap-4 hide-scrollbar">
+        <div className="flex overflow-x-auto pb-4 gap-4 custom-scrollbar">
           {radioSpins > 0 && (
             <SocialStatCard 
               icon={Radio} 
@@ -264,7 +279,7 @@ const SocialStatsSection = ({ artistData }) => {
               value={radioSpins} 
               iconColorClass="text-[#8B5CF6]" 
               showExact={showExact}
-            />
+             forceLightMode={forceLightMode} />
           )}
           <SocialStatCard 
             icon={Instagram} 
@@ -272,53 +287,78 @@ const SocialStatsSection = ({ artistData }) => {
             value={igFollowers} 
             iconColorClass="text-[#E1306C]" 
             showExact={showExact}
-          />
+           forceLightMode={forceLightMode} />
           <SocialStatCard 
             icon={TikTokLogo} 
             label="TikTok Followers" 
             value={tiktokFollowers} 
             iconColorClass="text-black dark:text-white" 
             showExact={showExact}
-          />
+           forceLightMode={forceLightMode} />
           <SocialStatCard 
             icon={SpotifyLogo} 
             label="Spotify Followers" 
             value={spotifyFollowers} 
             iconColorClass="text-[#1DB954]" 
             showExact={showExact}
-          />
+           forceLightMode={forceLightMode} />
           <SocialStatCard 
             icon={Youtube} 
             label="YouTube Subscribers" 
             value={youtubeSubscribers} 
             iconColorClass="text-[#FF0000]" 
             showExact={showExact}
-          />
+           forceLightMode={forceLightMode} />
           <SocialStatCard 
             icon={Twitter} 
             label="X Followers" 
             value={xFollowers} 
             iconColorClass="text-black dark:text-white" 
             showExact={showExact}
-          />
+           forceLightMode={forceLightMode} />
           <SocialStatCard 
             icon={Facebook} 
             label="Facebook Followers" 
             value={facebookFollowers} 
             iconColorClass="text-[#1877F2]" 
             showExact={showExact}
-          />
+           forceLightMode={forceLightMode} />
         </div>
       </div>
       
-      {/* Hide scrollbar styling */}
+      {/* Custom scrollbar styling */}
       <style dangerouslySetInnerHTML={{__html: `
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
+        .custom-scrollbar::-webkit-scrollbar {
+          height: 8px;
         }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0; 
+          border-radius: 10px;
+          border: 2px solid #ffffff; /* Adds padding feel inside the thumb */
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #cbd5e1; 
+        }
+        /* For Firefox */
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: #e2e8f0 transparent;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #334155;
+          border: 2px solid #0f172a;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #475569;
+        }
+        .dark .custom-scrollbar {
+          scrollbar-color: #334155 transparent;
         }
       `}} />
     </div>

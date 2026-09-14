@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import ArtistCard from "../components/ui/ArtistCard";
+import OverviewModal from "../components/valuation/OverviewModal";
 import SocialStatsSection from "../components/valuation/sections/SocialStatsSection";
 import StreamingStatsSection from "../components/valuation/sections/StreamingStatsSection";
 import BioText from "../components/artist/BioText";
@@ -309,6 +310,7 @@ const ValuationTool = () => {
   );
 
   const isInitialMount = useRef(true);
+  const hasShownModal = useRef(false);
   const isPlatformUserChange = useRef(false); // tracks if platforms was changed by user in THIS session
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -318,6 +320,19 @@ const ValuationTool = () => {
   const [youtubeChannels, setYoutubeChannels] = useState([]);
   const [showChannelSelector, setShowChannelSelector] = useState(false);
   const [shouldShowSuggestions, setShouldShowSuggestions] = useState(true);
+  const [showOverviewModal, setShowOverviewModal] = useState(false);
+
+  useEffect(() => {
+    const checkAuthAndShowModal = async () => {
+      if (hasShownModal.current) return;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && Object.keys(useArtistStore.getState().selectedArtists).length > 0) {
+        setShowOverviewModal(true);
+        hasShownModal.current = true;
+      }
+    };
+    checkAuthAndShowModal();
+  }, [selectedArtists]);
 
   const [recentSearches, setRecentSearches] = useState(() => {
     try {
@@ -731,7 +746,7 @@ const ValuationTool = () => {
           </p>
 
           {/* Platform switcher pills */}
-          <div className="pt-3 pb-2 flex justify-center">
+          <div className="pt-3 pb-2 flex flex-col sm:flex-row items-center justify-center gap-4">
             <div className="inline-flex items-center justify-center gap-2 p-2 bg-slate-100/90 dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-lg hover:shadow-xl transition-all duration-300">
               {Object.entries(PLATFORM_CONFIG).map(([key, config]) => {
                 const PIcon = config.icon;
@@ -757,6 +772,17 @@ const ValuationTool = () => {
                 );
               })}
             </div>
+            
+            {/* Added Overview Button */}
+            {Object.keys(selectedArtists).length > 0 && (
+              <button
+                onClick={() => setShowOverviewModal(true)}
+                className="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-sm sm:text-base font-black transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.4)] border border-transparent scale-105 active:scale-100"
+              >
+                <Sparkles size={18} />
+                Quick Overview
+              </button>
+            )}
           </div>
         </div>
 
@@ -1027,60 +1053,20 @@ const ValuationTool = () => {
         )}
 
         {/* Biography Section */}
-        {!isLoading && Object.keys(selectedArtists).length > 0 && (
-          <div className="space-y-8 mt-8 mb-8">
-            {(() => {
-              const bioArtist = Object.values(selectedArtists).find(a => a.biography);
-              if (!bioArtist) return null;
-              const isItunes = bioArtist.platform === "itunes";
-              const isYouTube = bioArtist.platform === "youtube";
-              return (
-                <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
-                  <SectionHeader
-                    icon={Music}
-                    title="Biography"
-                    iconBg={
-                      isItunes
-                        ? "from-slate-800/15 to-zinc-800/15"
-                        : isYouTube
-                        ? "from-[#FF0000]/20 to-[#FF0000]/20"
-                        : "from-emerald-500/20 to-blue-500/20"
-                    }
-                    iconColor={
-                      isItunes
-                        ? "text-slate-900 dark:text-white"
-                        : isYouTube
-                        ? "text-[#FF0000] dark:text-[#FF0000]"
-                        : "text-emerald-600 dark:text-emerald-400"
-                    }
-                  />
-                  <Separator.Root
-                    className="bg-slate-100 dark:bg-slate-800 h-px mb-4"
-                    decorative
-                  />
-                  <BioText text={bioArtist.biography} />
-                </div>
-              );
-            })()}
-          </div>
-        )}
+        {!isLoading && Object.keys(selectedArtists).length > 0 && (() => {
+          const bioArtist = Object.values(selectedArtists).find(a => a.biography);
+          if (!bioArtist || !bioArtist.biography) return null;
+          return (
+            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-800 mb-8">
+              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">BIOGRAPHY</h3>
+              <BioText text={bioArtist.biography} forceLightMode={false} />
+            </div>
+          );
+        })()}
 
         {/* Artist Analysis */}
         {!isLoading && Object.keys(selectedArtists).length > 0 && (
           <div className="space-y-8">
-            {Object.keys(selectedArtists).length > 1 && (
-              <CfaMasterValuation selectedArtists={selectedArtists} />
-            )}
-            {Object.values(selectedArtists).length > 0 && (
-              <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8 rounded-3xl shadow-xl mt-6 flex flex-col gap-6">
-                <SocialStatsSection 
-                  artistData={selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || selectedArtists.apify || Object.values(selectedArtists)[0]} 
-                />
-                <StreamingStatsSection 
-                  artistData={selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || selectedArtists.apify || Object.values(selectedArtists)[0]} 
-                />
-              </div>
-            )}
             {Object.values(selectedArtists)
               .map((artistData, idx) => {
               const pCfg = PLATFORM_CONFIG[artistData.platform] || {
@@ -1233,6 +1219,10 @@ const ValuationTool = () => {
           </div>
         )}
       </div>
+
+      {showOverviewModal && (
+        <OverviewModal onClose={() => setShowOverviewModal(false)} />
+      )}
     </div>
   );
 };

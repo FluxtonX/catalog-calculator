@@ -83,14 +83,6 @@ export default function LandingPage() {
     { name: 'Too Lost', img: imgTooLost },
   ];
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate('/valuation', { replace: true });
-      }
-    });
-  }, [navigate]);
-
   // Auto-suggest Effect
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -134,18 +126,27 @@ export default function LandingPage() {
         throw new Error("Please select at least one platform to calculate the valuation.");
       }
       
-      const promises = activePlatforms.map(p => {
-        if (p === 'spotify') return getNormalizedArtistData(searchQuery).then(d => ({...d, platform: 'spotify'}));
-        if (p === 'youtube') return searchYouTube(searchQuery).then(async (d) => {
+      // If Apple Music is selected but others aren't, we need proxies to estimate Apple Music streams
+      const platformsToFetch = [...activePlatforms];
+      if (platformsToFetch.includes('apple') || platformsToFetch.includes('itunes')) {
+        if (!platformsToFetch.includes('spotify')) platformsToFetch.push('spotify_proxy');
+        if (!platformsToFetch.includes('youtube')) platformsToFetch.push('youtube_proxy');
+      }
+
+      const promises = platformsToFetch.map(p => {
+        if (p === 'spotify' || p === 'spotify_proxy') {
+          return getNormalizedArtistData(searchQuery).then(d => ({...d, platform: p}));
+        }
+        if (p === 'youtube' || p === 'youtube_proxy') return searchYouTube(searchQuery).then(async (d) => {
           if (d.type === 'channel_list' && d.channels?.length > 0) {
             const details = await getYouTubeChannelDetails(searchQuery, d.channels[0].id);
-            return { ...details, platform: 'youtube' };
+            return { ...details, platform: p };
           } else if (d.type === 'single_channel' && d.channel) {
-            return { ...d.channel, platform: 'youtube' };
+            return { ...d.channel, platform: p };
           }
-          return { ...d, platform: 'youtube' };
+          return { ...d, platform: p };
         });
-        if (p === 'itunes') {
+        if (p === 'itunes' || p === 'apple') {
           return searchAppleMusic(searchQuery)
             .then(d => ({ ...d, platform: 'itunes' }))
             .catch(() => searchItunes(searchQuery).then(d => ({ ...d, platform: 'itunes' })).catch(() => null));
@@ -338,20 +339,22 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Added Login Section - MADE LARGER */}
-            <div className="mt-12 bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-8 relative overflow-hidden flex flex-col items-center text-center group transition-colors hover:bg-white/10">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-blue-500/20 transition-colors"></div>
-              <p className="text-sm text-white/90 font-medium mb-6 leading-relaxed relative z-10">
-                Login for a detailed valuation report
-              </p>
-              <button 
-                onClick={() => navigate('/auth')}
-                className="w-full flex items-center justify-center gap-2 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-bold text-white transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] relative z-10"
-              >
-                <Lock className="w-4 h-4" />
-                Login to Platform
-              </button>
-            </div>
+            {/* Added Login Section - ONLY SHOW AFTER SEARCH */}
+            {estimatedValue !== null && (
+              <div className="mt-12 bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-8 relative overflow-hidden flex flex-col items-center text-center group transition-colors hover:bg-white/10">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-blue-500/20 transition-colors"></div>
+                <p className="text-sm text-white/90 font-medium mb-6 leading-relaxed relative z-10">
+                  Login for a detailed valuation report
+                </p>
+                <button 
+                  onClick={() => navigate('/auth')}
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl text-sm font-bold text-white transition-all shadow-[0_0_20px_rgba(37,99,235,0.4)] relative z-10"
+                >
+                  <Lock className="w-4 h-4" />
+                  Login to Platform
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Right Main Box Option 1 */}

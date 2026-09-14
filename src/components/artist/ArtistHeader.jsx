@@ -62,15 +62,15 @@ const StatPill = ({ icon: Icon, value, label, gradient, title }) => (
       <Tooltip.Trigger asChild>
         <div className="group flex items-center gap-2 sm:gap-3 bg-white/10 hover:bg-white/15 backdrop-blur-sm px-3 py-2 sm:px-5 sm:py-3 rounded-xl border border-white/20 hover:border-white/30 transition-all duration-200 cursor-default">
           <div
-            className={`p-1.5 rounded-lg bg-gradient-to-br ${gradient} shadow-md flex-shrink-0`}
+            className={`p-1.5 rounded-lg bg-gradient-to-br ${gradient} shadow-md flex-shrink-0 flex items-center justify-center`}
           >
             <Icon size={12} className="sm:w-3.5 sm:h-3.5 text-white" />
           </div>
-          <div className="flex items-baseline gap-1 sm:gap-2 min-w-0">
-            <span className="font-black text-sm sm:text-xl text-white truncate">
-              {value}
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span className="font-black text-sm sm:text-xl text-white truncate leading-none">
+              {typeof value === 'number' ? value.toLocaleString() : (!isNaN(Number(value)) ? Number(value).toLocaleString() : value)}
             </span>
-            <span className="text-white/60 text-[10px] sm:text-sm font-medium whitespace-nowrap hidden xs:inline">
+            <span className="text-white/60 text-[10px] sm:text-sm font-medium whitespace-nowrap hidden xs:inline leading-none">
               {label}
             </span>
           </div>
@@ -179,50 +179,12 @@ const ArtistHeader = ({
         </>
       )}
 
-      <div className="relative z-10 p-4 sm:p-6 lg:p-10">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-5 sm:gap-7 lg:gap-10">
-          {/* Artist Image */}
-          <div className="flex-shrink-0 mx-auto lg:mx-0">
-            {image ? (
-              <div className="relative group">
-                <div
-                  className={`absolute -inset-1 bg-gradient-to-br ${imageGlow} rounded-2xl sm:rounded-3xl blur-lg opacity-40 group-hover:opacity-70 transition-all duration-500`}
-                />
-                <img
-                  src={image}
-                  alt={name}
-                  className="relative w-28 h-28 sm:w-48 sm:h-48 lg:w-60 lg:h-60 rounded-2xl sm:rounded-3xl object-cover shadow-2xl ring-2 ring-white/20 group-hover:ring-white/40 transition-all duration-300 group-hover:scale-[1.02]"
-                  loading="eager"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "https://via.placeholder.com/256?text=No+Image";
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                  <div className="flex items-center gap-1.5 text-white text-xs font-semibold">
-                    <Music size={14} />
-                    <span>{platformLabel}</span>
-                  </div>
-                </div>
-                {isYoutube && (
-                  <div
-                    className={`absolute -bottom-2 -right-2 p-2 rounded-xl shadow-lg ${platformBadgeBg}`}
-                  >
-                    <Youtube size={14} className="text-white" />
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="w-28 h-28 sm:w-48 sm:h-48 lg:w-60 lg:h-60 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center ring-2 ring-white/10">
-                <Music size={40} className="text-white/30" />
-              </div>
-            )}
-          </div>
-
+      <div className="relative z-10 p-4 sm:p-6 lg:p-10 flex flex-col items-center text-center justify-center min-h-[300px]">
+        <div className="w-full max-w-4xl flex flex-col items-center">
           {/* Artist Details */}
-          <div className="flex-1 w-full min-w-0">
+          <div className="w-full flex flex-col items-center">
             {/* Live badge row */}
-            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mb-3 sm:mb-4 flex-wrap">
               <div
                 className={`flex items-center gap-1.5 px-3 py-1.5 border rounded-full ${liveRingColor}`}
               >
@@ -253,12 +215,12 @@ const ArtistHeader = ({
             </div>
 
             {/* Artist name */}
-            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black mb-4 sm:mb-5 leading-tight bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent tracking-tight truncate">
+            <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black mb-4 sm:mb-6 leading-tight bg-gradient-to-r from-white to-white/80 bg-clip-text text-transparent tracking-tight truncate max-w-full px-4">
               {name}
             </h2>
 
             {/* Stats row */}
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-5 sm:mb-6">
               {followers && (
                 <StatPill
                   icon={Users}
@@ -292,7 +254,7 @@ const ArtistHeader = ({
 
             {/* Genres */}
             {genres?.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-5">
+              <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-5 sm:mb-6">
                 {genres.slice(0, 6).map((genre, i) => (
                   <span
                     key={i}
@@ -309,18 +271,18 @@ const ArtistHeader = ({
             )}
 
             <Separator.Root
-              className="bg-white/10 h-px mb-4 sm:mb-5"
+              className="bg-white/10 h-px w-3/4 max-w-md mx-auto mb-5 sm:mb-6"
               decorative
             />
 
        {/* Action buttons */}
-<div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-5">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-5">
   {isYoutube && youtubeUrl && (
                 <a
                   href={youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 hover:border-red-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 hover:border-red-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
                 >
                   <Youtube size={15} />
                   <span className="hidden xs:inline">Open in YouTube</span>
@@ -332,22 +294,23 @@ const ArtistHeader = ({
                   href={spotifyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 hover:border-emerald-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 hover:border-emerald-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
                 >
                   <Music size={15} />
                   <span className="hidden xs:inline">Open in Spotify</span>
                   <span className="xs:hidden">Spotify</span>
                 </a>
               )}
-              {/* Apple Music button — white/glass style matching Apple's design language */}
               {isItunes && appleUrl && (
                 <a
                   href={appleUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/15 hover:bg-white/25 border border-white/25 hover:border-white/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg backdrop-blur-sm"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-700/50 hover:bg-zinc-600/60 border border-zinc-500/30 hover:border-zinc-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
                 >
-                  <Music size={15} />
+                  <svg viewBox="0 0 384 512" className="w-3.5 h-3.5 fill-current">
+                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                  </svg>
                   <span className="hidden xs:inline">Open in Apple Music</span>
                   <span className="xs:hidden">Apple Music</span>
                 </a>
@@ -356,7 +319,7 @@ const ArtistHeader = ({
 
             {/* Social links (Spotify only) */}
             {isApify && externalLinks?.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+              <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
                 {externalLinks.map((link, i) => {
                   const Icon = getSocialIconComponent(link.label);
                   return (

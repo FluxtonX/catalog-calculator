@@ -1,0 +1,567 @@
+{
+  "platform": "apify",
+  "id": "58lV9VcRSjABbAbfWS6skp",
+  "name": "Bon Jovi",
+  "image": "https://i.scdn.co/image/ab6761610000e5eb52aade0d2ea19706074da4b9",
+  "images": [
+    {
+      "url": "https://i.scdn.co/image/ab6761610000e5eb52aade0d2ea19706074da4b9",
+      "height": 640,
+      "width": 640
+    },
+    {
+      "url": "https://i.scdn.co/image/ab6761610000f17852aade0d2ea19706074da4b9",
+      "height": 160,
+      "width": 160
+    },
+    {
+      "url": "https://i.scdn.co/image/ab6761610000517452aade0d2ea19706074da4b9",
+      "height": 320,
+      "width": 320
+    }
+  ],
+  "followers": "17.5M",
+  "followersRaw": 17504755,
+  "monthlyListeners": "36.2M",
+  "monthlyListenersRaw": 36180733,
+  "popularity": 150,
+  "popularityFormatted": "#150 Worldwide",
+  "genres": [],
+  "spotifyUrl": "https://open.spotify.com/artist/58lV9VcRSjABbAbfWS6skp",
+  "youtubeUrl": "https://open.spotify.com/artist/58lV9VcRSjABbAbfWS6skp",
+  "apifyUrl": "https://open.spotify.com/artist/58lV9VcRSjABbAbfWS6skp",
+  "verified": true,
+  "topTracks": [
+    {
+      "id": "0ee1DiZF94NSqqpG0XHUzH",
+      "rank": 1,
+      "title": "Livin' On A Prayer",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 250209,
+      "durationFormatted": "4:10",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/0ee1DiZF94NSqqpG0XHUzH",
+      "youtubeUrl": "https://open.spotify.com/track/0ee1DiZF94NSqqpG0XHUzH",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 2374179066,
+      "streamCountFormatted": "2.4B"
+    },
+    {
+      "id": "2TofEeQobQ9YoK7EFds698",
+      "rank": 2,
+      "title": "You Give Love A Bad Name",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 222317,
+      "durationFormatted": "3:42",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/2TofEeQobQ9YoK7EFds698",
+      "youtubeUrl": "https://open.spotify.com/track/2TofEeQobQ9YoK7EFds698",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1651821901,
+      "streamCountFormatted": "1.7B"
+    },
+    {
+      "id": "0v1XpBHnsbkCn7iJ9Ucr1l",
+      "rank": 3,
+      "title": "It's My Life",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 224493,
+      "durationFormatted": "3:44",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/0v1XpBHnsbkCn7iJ9Ucr1l",
+      "youtubeUrl": "https://open.spotify.com/track/0v1XpBHnsbkCn7iJ9Ucr1l",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1337692397,
+      "streamCountFormatted": "1.3B"
+    },
+    {
+      "id": "2RChe0r2cMoyOvuKobZy44",
+      "rank": 4,
+      "title": "Always",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 353026,
+      "durationFormatted": "5:53",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/2RChe0r2cMoyOvuKobZy44",
+      "youtubeUrl": "https://open.spotify.com/track/2RChe0r2cMoyOvuKobZy44",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 827528644,
+      "streamCountFormatted": "827.5M"
+    },
+    {
+      "id": "1zng9uqqXoPkmU05nsAlsw",
+      "rank": 5,
+      "title": "Bed Of Roses",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 394400,
+      "durationFormatted": "6:34",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/1zng9uqqXoPkmU05nsAlsw",
+      "youtubeUrl": "https://open.spotify.com/track/1zng9uqqXoPkmU05nsAlsw",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 563695588,
+      "streamCountFormatted": "563.7M"
+    },
+    {
+      "id": "0X1sqQ652p1sceKM2nJlIJ",
+      "rank": 6,
+      "title": "Runaway",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 230666,
+      "durationFormatted": "3:50",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/0X1sqQ652p1sceKM2nJlIJ",
+      "youtubeUrl": "https://open.spotify.com/track/0X1sqQ652p1sceKM2nJlIJ",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 460786118,
+      "streamCountFormatted": "460.8M"
+    },
+    {
+      "id": "52m7IQitPjIy1PrULHhS9F",
+      "rank": 7,
+      "title": "Wanted Dead Or Alive",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 311004,
+      "durationFormatted": "5:11",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/52m7IQitPjIy1PrULHhS9F",
+      "youtubeUrl": "https://open.spotify.com/track/52m7IQitPjIy1PrULHhS9F",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 605269042,
+      "streamCountFormatted": "605.3M"
+    },
+    {
+      "id": "07HqIg8BnB1lJElnw2ZiSR",
+      "rank": 8,
+      "title": "I'll Be There For You",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 346586,
+      "durationFormatted": "5:46",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/07HqIg8BnB1lJElnw2ZiSR",
+      "youtubeUrl": "https://open.spotify.com/track/07HqIg8BnB1lJElnw2ZiSR",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 310524300,
+      "streamCountFormatted": "310.5M"
+    },
+    {
+      "id": "72hcFp4tYkd3dbNA9dZ3Pv",
+      "rank": 9,
+      "title": "Bad Medicine",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 316706,
+      "durationFormatted": "5:16",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/72hcFp4tYkd3dbNA9dZ3Pv",
+      "youtubeUrl": "https://open.spotify.com/track/72hcFp4tYkd3dbNA9dZ3Pv",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 277385392,
+      "streamCountFormatted": "277.4M"
+    },
+    {
+      "id": "1YRiaGNPyP6YuH2FCutj3d",
+      "rank": 10,
+      "title": "Never Say Goodbye",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 289268,
+      "durationFormatted": "4:49",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/1YRiaGNPyP6YuH2FCutj3d",
+      "youtubeUrl": "https://open.spotify.com/track/1YRiaGNPyP6YuH2FCutj3d",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 172382574,
+      "streamCountFormatted": "172.4M"
+    }
+  ],
+  "relatedArtists": [],
+  "albums": [
+    {
+      "id": "59U2BkI8hyEtE7Z3ViuRse",
+      "name": "Forever (Legendary Edition)",
+      "image": null,
+      "releaseDate": "2025-10-24",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/59U2BkI8hyEtE7Z3ViuRse"
+    },
+    {
+      "id": "2MCqgJGGIXwh9YhZFtwwXW",
+      "name": "Forever",
+      "image": null,
+      "releaseDate": "2024-06-07",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/2MCqgJGGIXwh9YhZFtwwXW"
+    },
+    {
+      "id": "5jbeZAH40R7ZGUfDnZAkpl",
+      "name": "Bon Jovi (Deluxe Edition)",
+      "image": null,
+      "releaseDate": "2024-01-24",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/5jbeZAH40R7ZGUfDnZAkpl"
+    },
+    {
+      "id": "6gZ9rRJt7m8g7ZzK8U6hcq",
+      "name": "2020 (Deluxe)",
+      "image": null,
+      "releaseDate": "2020-10-05",
+      "releaseYear": "2020",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/6gZ9rRJt7m8g7ZzK8U6hcq"
+    },
+    {
+      "id": "0CNCv0znPVq1m4BOIOYjl6",
+      "name": "2020",
+      "image": null,
+      "releaseDate": "2020-10-02",
+      "releaseYear": "2020",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/0CNCv0znPVq1m4BOIOYjl6"
+    },
+    {
+      "id": "400D8LXbvMuOzi4lVv89FM",
+      "name": "This House Is Not For Sale",
+      "image": null,
+      "releaseDate": "2018-02-23",
+      "releaseYear": "2018",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/400D8LXbvMuOzi4lVv89FM"
+    },
+    {
+      "id": "74qSdlV98jwj4Q6KMD4GUm",
+      "name": "This House Is Not For Sale (Deluxe)",
+      "image": null,
+      "releaseDate": "2018-02-23",
+      "releaseYear": "2018",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/74qSdlV98jwj4Q6KMD4GUm"
+    },
+    {
+      "id": "5BBt9PG2b2QuMpWkmx8ZAj",
+      "name": "This House Is Not For Sale (Live From The London Palladium)",
+      "image": null,
+      "releaseDate": "2016-12-16",
+      "releaseYear": "2016",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/5BBt9PG2b2QuMpWkmx8ZAj"
+    },
+    {
+      "id": "3AkIHz2xtJzBOGopjuVWxR",
+      "name": "Burning Bridges",
+      "image": null,
+      "releaseDate": "2015-08-21",
+      "releaseYear": "2015",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/3AkIHz2xtJzBOGopjuVWxR"
+    },
+    {
+      "id": "4ooMZ4wOsRvvLMovozUuKQ",
+      "name": "What About Now",
+      "image": null,
+      "releaseDate": "2013-03-08",
+      "releaseYear": "2013",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/4ooMZ4wOsRvvLMovozUuKQ"
+    }
+  ],
+  "singles": [
+    {
+      "id": "3O62XBQhDZ3prnhNji3id0",
+      "name": "We Made It Look Easy (with Robbie Williams)",
+      "image": null,
+      "releaseDate": "2025-10-17",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/3O62XBQhDZ3prnhNji3id0"
+    },
+    {
+      "id": "68pwsK1qpyqCrwSNy5NJF2",
+      "name": "Living Proof (with Jelly Roll)",
+      "image": null,
+      "releaseDate": "2025-09-19",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/68pwsK1qpyqCrwSNy5NJF2"
+    },
+    {
+      "id": "19nHtI253SJMwVFvZ40XF0",
+      "name": "Red, White and Jersey / Hollow Man (with Bruce Springsteen)",
+      "image": null,
+      "releaseDate": "2025-08-29",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/19nHtI253SJMwVFvZ40XF0"
+    },
+    {
+      "id": "5tjFV3KmhkpTpRTnv1I8Wu",
+      "name": "Now Or Never",
+      "image": null,
+      "releaseDate": "2025-03-28",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "ep",
+      "spotifyUrl": "https://open.spotify.com/album/5tjFV3KmhkpTpRTnv1I8Wu"
+    },
+    {
+      "id": "0f5Fhl4ZgbGtWwtxGofKqa",
+      "name": "Now Or Never (TropKillaz Remix)",
+      "image": null,
+      "releaseDate": "2025-03-27",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/0f5Fhl4ZgbGtWwtxGofKqa"
+    },
+    {
+      "id": "7wI8TpkCWRTwmnzZNjUDTj",
+      "name": "Now or Never (Muzik Junkies & AROCK Remix)",
+      "image": null,
+      "releaseDate": "2025-03-26",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/7wI8TpkCWRTwmnzZNjUDTj"
+    },
+    {
+      "id": "3fZxc2BwHIv2I72Txd9yGq",
+      "name": "Now or Never (F.A.S.T x & DJ Triple XL Remix)",
+      "image": null,
+      "releaseDate": "2025-03-25",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/3fZxc2BwHIv2I72Txd9yGq"
+    },
+    {
+      "id": "0dB1uN1lO77aZjOcDJCyvR",
+      "name": "Keep The Faith",
+      "image": null,
+      "releaseDate": "2025-02-28",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/0dB1uN1lO77aZjOcDJCyvR"
+    },
+    {
+      "id": "4ObwiIpULEzwOPrtLSd7xA",
+      "name": "Now Or Never",
+      "image": null,
+      "releaseDate": "2024-11-14",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/4ObwiIpULEzwOPrtLSd7xA"
+    },
+    {
+      "id": "0sW2pBU8D2VwVcOQXEYfqA",
+      "name": "The People's House (with The War And Treaty)",
+      "image": null,
+      "releaseDate": "2024-08-30",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/0sW2pBU8D2VwVcOQXEYfqA"
+    }
+  ],
+  "popularReleases": [
+    {
+      "id": "2PRGSft6sBpJewkx16FrJG",
+      "name": "Slippery When Wet (Deluxe Edition)",
+      "image": null,
+      "releaseDate": "1986",
+      "releaseYear": "1986",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/2PRGSft6sBpJewkx16FrJG"
+    },
+    {
+      "id": "0kBfgEilUFCMIQY5IOjG4t",
+      "name": "Slippery When Wet",
+      "image": null,
+      "releaseDate": "1986-08-16",
+      "releaseYear": "1986",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/0kBfgEilUFCMIQY5IOjG4t"
+    },
+    {
+      "id": "0Q9SljCrM0CL0bR23MuP69",
+      "name": "Crush",
+      "image": null,
+      "releaseDate": "2000-01-01",
+      "releaseYear": "2000",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/0Q9SljCrM0CL0bR23MuP69"
+    },
+    {
+      "id": "2FbviTPUjgJJUxsGM1sGDq",
+      "name": "Keep The Faith",
+      "image": null,
+      "releaseDate": "1992-11-03",
+      "releaseYear": "1992",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/2FbviTPUjgJJUxsGM1sGDq"
+    },
+    {
+      "id": "3mcKOl0KNe65BqiBa40WxR",
+      "name": "New Jersey (Deluxe Edition)",
+      "image": null,
+      "releaseDate": "1988-09-13",
+      "releaseYear": "1988",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/3mcKOl0KNe65BqiBa40WxR"
+    },
+    {
+      "id": "1UUOBzIHw0noiRGRpbt3sz",
+      "name": "Bon Jovi",
+      "image": null,
+      "releaseDate": "1984-01-23",
+      "releaseYear": "1984",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/1UUOBzIHw0noiRGRpbt3sz"
+    },
+    {
+      "id": "1b6ChQEPZbOHVNi5vjqYr6",
+      "name": "These Days",
+      "image": null,
+      "releaseDate": "1995-06-27",
+      "releaseYear": "1995",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/1b6ChQEPZbOHVNi5vjqYr6"
+    },
+    {
+      "id": "3VfBy3QX5peTfME0UxzZ2P",
+      "name": "Have A Nice Day",
+      "image": null,
+      "releaseDate": "2005-01-01",
+      "releaseYear": "2005",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/3VfBy3QX5peTfME0UxzZ2P"
+    },
+    {
+      "id": "67vqUSurP7icdgCiZ3DZsY",
+      "name": "Bounce",
+      "image": null,
+      "releaseDate": "2002-01-01",
+      "releaseYear": "2002",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/67vqUSurP7icdgCiZ3DZsY"
+    },
+    {
+      "id": "5WDu6WNuSMRYhyqvYQRdqm",
+      "name": "Como Yo Nadie Te Ha Amado (This Ain't A Love Song)",
+      "image": null,
+      "releaseDate": "1995-05-30",
+      "releaseYear": "1995",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/5WDu6WNuSMRYhyqvYQRdqm"
+    }
+  ],
+  "topCities": [
+    {
+      "country": "BR",
+      "city": "São Paulo",
+      "numberOfListeners": 852596
+    },
+    {
+      "country": "CL",
+      "city": "Santiago",
+      "numberOfListeners": 587476
+    },
+    {
+      "country": "MX",
+      "city": "Mexico City",
+      "numberOfListeners": 558249
+    },
+    {
+      "country": "GB",
+      "city": "London",
+      "numberOfListeners": 425743
+    },
+    {
+      "country": "CO",
+      "city": "Bogotá",
+      "numberOfListeners": 353942
+    }
+  ],
+  "stats": {
+    "totalFollowers": 17504755,
+    "monthlyListeners": 36180733,
+    "worldRank": 150,
+    "popularity": 150,
+    "totalGenres": 0,
+    "totalTopTracks": 10,
+    "totalRelatedArtists": 0,
+    "totalAlbums": 10,
+    "totalSingles": 10,
+    "totalPopularReleases": 10,
+    "averageTrackPopularity": 8581,
+    "totalStreams": "8.6B",
+    "averageStreams": "858.1M"
+  },
+  "biography": "After ushering in the era of pop-metal with their 1986 blockbuster “Slippery When Wet” and its hit singles &#34;You Give Love a Bad Name,&#34;  &#34;Wanted Dead or Alive, &#34; and  &#34;Living on a Prayer,&#34; Bon Jovi has transcended the big-haired &#39;80s, withstanding changes in style and sound to become -- and stay -- one of the biggest American rock bands. &#34;Slippery When Wet”,  its 1988 sequel &#34;New Jersey”, and 1992&#39;s &#34;Keep the Faith” were international smashes, each selling over ten million copies worldwide. They cannily and subtly changed their sound to fit the time. First, they lessened their reliance on arena rock guitars, emphasizing melody and ballads without rejecting hard rock. They later incorporated elements of soft rock and country, moves that helped them sustain their popularity into the 21st century -- a run they celebrated in 2024 with the documentary Thank You, Goodnight: The Bon Jovi Story and album “Forever.” - Stephen Thomas Erlewine",
+  "externalLinks": []
+}

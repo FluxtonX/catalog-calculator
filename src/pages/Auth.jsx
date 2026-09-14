@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Mail, CheckCircle2, ArrowRight } from 'lucide-react';
 import { enableDistributionCompanies } from '../config/feature_flags';
 import imgConcord from '../assets/distribution logos/Concord-LogoBlack-CMYK.png';
 
@@ -9,8 +9,10 @@ export default function Auth() {
   const navigate = useNavigate();
   // eslint-disable-next-line no-unused-vars
   const location = useLocation();
-  const [loading, setLoading] = useState({ google: false, youtube: false, spotify: false, apple: false });
+  const [loading, setLoading] = useState({ google: false, youtube: false, spotify: false, apple: false, email: false });
   const [error, setError] = useState(null);
+  const [email, setEmail] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   const [showDistributors, setShowDistributors] = useState(false);
 
@@ -78,6 +80,30 @@ export default function Auth() {
       listener.subscription.unsubscribe();
     };
   }, [navigate]);
+
+  const handleEmailSignIn = async (e) => {
+    e.preventDefault();
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+    try {
+      setLoading(prev => ({ ...prev, email: true }));
+      setError(null);
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
+        },
+      });
+      if (error) throw error;
+      setEmailSent(true);
+    } catch (error) {
+      setError(error.message || 'Failed to send login link');
+    } finally {
+      setLoading(prev => ({ ...prev, email: false }));
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     try {
@@ -256,6 +282,63 @@ export default function Auth() {
               )}
               <span>Continue with Google</span>
             </button>
+
+            {/* Email Magic Link (Manual Entry) */}
+            <div className="relative flex items-center py-4">
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+              <span className="flex-shrink-0 mx-4 text-slate-400 text-sm font-medium">OR</span>
+              <div className="flex-grow border-t border-slate-200 dark:border-slate-700"></div>
+            </div>
+
+            {emailSent ? (
+              <div className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-500/30 rounded-xl p-6 text-center">
+                <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Check your email!</h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                  We sent a secure login link to <span className="font-semibold text-slate-900 dark:text-white">{email}</span>. Click the link to sign in.
+                </p>
+                <button
+                  onClick={() => {
+                    setEmailSent(false);
+                    setEmail('');
+                  }}
+                  className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold hover:underline"
+                >
+                  Use a different email
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleEmailSignIn} className="space-y-3">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-slate-400" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    className="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:border-emerald-500 dark:focus:border-emerald-500 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 transition-all"
+                    disabled={isAnyLoading}
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isAnyLoading || !email}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-500 rounded-xl font-bold text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading.email ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <>
+                      Continue with Email
+                      <ArrowRight size={18} />
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
 
             {/* YouTube */}
             {/*

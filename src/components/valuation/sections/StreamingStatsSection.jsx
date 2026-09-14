@@ -9,8 +9,8 @@ const SpotifyIcon = () => (
   </svg>
 );
 
-const TikTokIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 text-slate-900 dark:text-white">
+const TikTokIcon = ({ forceLightMode }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className={`shrink-0 text-slate-900 ${forceLightMode ? '' : 'dark:text-white'}`}>
     <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.01.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 2.78-1.15 5.54-3.33 7.39-1.95 1.7-4.94 2.37-7.22 1.25-2.25-1.11-3.84-3.14-4.22-5.71-.38-2.67.56-5.49 2.53-7.28 1.88-1.74 4.86-2.25 7.15-1.19.06.85.06 1.7.07 2.55-1.15-.55-2.61-.43-3.64.33-1.06.77-1.63 2.1-1.47 3.42.17 1.34 1.09 2.54 2.29 3.08 1.4.63 3.19.46 4.32-.67 1.03-1.03 1.41-2.59 1.4-4.04.01-4.92.01-9.84.01-14.76h.13z"/>
   </svg>
 );
@@ -33,14 +33,14 @@ const ShazamIcon = () => (
   </svg>
 );
 
-const StatBlock = ({ label, value }) => (
+const StatBlock = ({ label, value, forceLightMode }) => (
   <div className="flex flex-col gap-1">
-    <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest truncate">{label}</p>
-    <p className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight truncate">{formatToMillions(value || 0)}</p>
+    <p className={`text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate ${forceLightMode ? '' : 'dark:text-slate-400'}`}>{label}</p>
+    <p className={`text-xl sm:text-2xl font-black text-slate-900 tracking-tight ${forceLightMode ? '' : 'dark:text-white'}`}>{formatToMillions(value || 0)}</p>
   </div>
 );
 
-const StreamingStatsSection = ({ artistData }) => {
+const StreamingStatsSection = ({ artistData, forceLightMode }) => {
   const stats = artistData?.stats || {};
   
   // Extract all the required fields from the expanded stats object
@@ -68,8 +68,8 @@ const StreamingStatsSection = ({ artistData }) => {
     <div className="mt-8 flex flex-col gap-4">
       {/* Section Header */}
       <div className="flex items-center gap-2 mb-2">
-        <PlayCircle className="text-slate-800 dark:text-white" size={20} />
-        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Streaming Stats</h3>
+        <PlayCircle className={`text-slate-800 ${forceLightMode ? '' : 'dark:text-white'}`} size={20} />
+        <h3 className={`text-lg font-bold text-slate-900 ${forceLightMode ? '' : 'dark:text-white'}`}>Streaming Stats</h3>
       </div>
       
       {/* Cards Grid */}
@@ -79,41 +79,41 @@ const StreamingStatsSection = ({ artistData }) => {
         <div className="flex flex-col gap-4 sm:gap-6">
           
           {/* Spotify Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+          <div className={`bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm transition-all hover:border-slate-300 ${forceLightMode ? '' : 'dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700'}`}>
             <div className="flex items-center gap-3 mb-6">
               <SpotifyIcon />
-              <h4 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Spotify</h4>
+              <h4 className={`text-xl sm:text-2xl font-bold text-slate-900 tracking-tight ${forceLightMode ? '' : 'dark:text-white'}`}>Spotify</h4>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <StatBlock label="Followers" value={spFollowers} />
-              <StatBlock label="Monthly Listeners" value={spMonthlyListeners} />
-              <StatBlock label="Playlist Count" value={spPlaylists} />
+              <StatBlock label="Followers" value={spFollowers}  forceLightMode={forceLightMode} />
+              <StatBlock label="Monthly Listeners" value={spMonthlyListeners}  forceLightMode={forceLightMode} />
+              <StatBlock label="Playlist Count" value={spPlaylists}  forceLightMode={forceLightMode} />
             </div>
             <div>
-              <StatBlock label="Playlist Reach" value={spPlaylistReach} />
+              <StatBlock label="Playlist Reach" value={spPlaylistReach}  forceLightMode={forceLightMode} />
             </div>
           </div>
           
           {/* Pandora Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+          <div className={`bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm transition-all hover:border-slate-300 ${forceLightMode ? '' : 'dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700'}`}>
             <div className="flex items-center gap-3 mb-6">
               <PandoraIcon />
-              <h4 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Pandora</h4>
+              <h4 className={`text-xl sm:text-2xl font-bold text-slate-900 tracking-tight ${forceLightMode ? '' : 'dark:text-white'}`}>Pandora</h4>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <StatBlock label="Monthly Listeners" value={pdListeners} />
-              <StatBlock label="Streams" value={pdStreams} />
+              <StatBlock label="Monthly Listeners" value={pdListeners}  forceLightMode={forceLightMode} />
+              <StatBlock label="Streams" value={pdStreams}  forceLightMode={forceLightMode} />
             </div>
           </div>
           
           {/* Shazam Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+          <div className={`bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm transition-all hover:border-slate-300 ${forceLightMode ? '' : 'dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700'}`}>
             <div className="flex items-center gap-3 mb-6">
               <ShazamIcon />
-              <h4 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Shazam</h4>
+              <h4 className={`text-xl sm:text-2xl font-bold text-slate-900 tracking-tight ${forceLightMode ? '' : 'dark:text-white'}`}>Shazam</h4>
             </div>
             <div>
-              <StatBlock label="Shazams" value={shazams} />
+              <StatBlock label="Shazams" value={shazams}  forceLightMode={forceLightMode} />
             </div>
           </div>
           
@@ -123,32 +123,32 @@ const StreamingStatsSection = ({ artistData }) => {
         <div className="flex flex-col gap-4 sm:gap-6">
           
           {/* TikTok Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700">
+          <div className={`bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm transition-all hover:border-slate-300 ${forceLightMode ? '' : 'dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700'}`}>
             <div className="flex items-center gap-3 mb-6">
-              <TikTokIcon />
-              <h4 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">TikTok</h4>
+              <TikTokIcon  forceLightMode={forceLightMode} />
+              <h4 className={`text-xl sm:text-2xl font-bold text-slate-900 tracking-tight ${forceLightMode ? '' : 'dark:text-white'}`}>TikTok</h4>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <StatBlock label="Followers" value={ttFollowers} />
-              <StatBlock label="Likes" value={ttLikes} />
-              <StatBlock label="Post Count" value={ttPosts} />
-              <StatBlock label="Top Video Views" value={ttViews} />
+              <StatBlock label="Followers" value={ttFollowers}  forceLightMode={forceLightMode} />
+              <StatBlock label="Likes" value={ttLikes}  forceLightMode={forceLightMode} />
+              <StatBlock label="Post Count" value={ttPosts}  forceLightMode={forceLightMode} />
+              <StatBlock label="Top Video Views" value={ttViews}  forceLightMode={forceLightMode} />
             </div>
           </div>
           
           {/* YouTube Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-slate-300 dark:hover:border-slate-700 h-full">
+          <div className={`bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm transition-all hover:border-slate-300 h-full ${forceLightMode ? '' : 'dark:bg-slate-900 dark:border-slate-800 dark:hover:border-slate-700'}`}>
             <div className="flex items-center gap-3 mb-6">
               <YouTubeIcon />
-              <h4 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">YouTube</h4>
+              <h4 className={`text-xl sm:text-2xl font-bold text-slate-900 tracking-tight ${forceLightMode ? '' : 'dark:text-white'}`}>YouTube</h4>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <StatBlock label="Subscribers" value={ytSubs} />
-              <StatBlock label="Total Views" value={ytViews} />
-              <StatBlock label="Monthly Video Views" value={ytMonthlyViews} />
+              <StatBlock label="Subscribers" value={ytSubs}  forceLightMode={forceLightMode} />
+              <StatBlock label="Total Views" value={ytViews}  forceLightMode={forceLightMode} />
+              <StatBlock label="Monthly Video Views" value={ytMonthlyViews}  forceLightMode={forceLightMode} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <StatBlock label="Daily Video Views" value={ytDailyViews} />
+              <StatBlock label="Daily Video Views" value={ytDailyViews}  forceLightMode={forceLightMode} />
               {/* Note: We don't have Most Popular Video string readily available from basic stats, so omitting it to maintain accuracy, or can add a placeholder if strict layout matching is required */}
             </div>
           </div>

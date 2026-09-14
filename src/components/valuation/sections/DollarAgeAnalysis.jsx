@@ -1,3 +1,4 @@
+
 import { Calendar } from "lucide-react";
 import SectionHeader from "../ui/SectionHeader";
 import InfoTooltip from "../ui/InfoTooltip";
@@ -12,6 +13,7 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
     ? { label: "Established Catalog", sub: "Moderate Stability", color: "text-yellow-600 dark:text-yellow-400", dot: "bg-yellow-500", pct: 65, bar: "from-yellow-500 to-amber-400" }
     : { label: "Young Catalog", sub: "Growth Phase", color: "text-orange-600 dark:text-orange-400", dot: "bg-orange-500", pct: 35, bar: "from-orange-500 to-amber-500" };
 
+  
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
       <div className="flex items-center gap-2">

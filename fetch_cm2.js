@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fs from 'fs';
 
 async function run() {
   const tokenRes = await fetch("https://api.chartmetric.com/api/token", {
@@ -19,6 +19,12 @@ async function run() {
   });
   const detailData = await detailRes.json();
 
-  console.log(JSON.stringify(detailData.obj.cm_statistics || {}, null, 2).substring(0, 3000));
+  const topTracksRes = await fetch(`https://api.chartmetric.com/api/artist/${artistId}/tracks`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const topTracksData = await topTracksRes.json();
+
+  fs.writeFileSync('debug_cm.json', JSON.stringify({ detail: detailData.obj, tracks: topTracksData }, null, 2));
+  console.log("Saved to debug_cm.json");
 }
 run();

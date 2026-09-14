@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // Replace this with Deno.env.get("CHARTMETRIC_REFRESH_TOKEN") when deployed securely.
-const REFRESH_TOKEN = Deno.env.get("CHARTMETRIC_REFRESH_TOKEN") || "8k7e3gw3zw5S8NdKA6UgzmDiJnSXKdINnsyDHeGZZTUMnw7ewqkcGVSKHrl1ElPT";
+const REFRESH_TOKEN = Deno.env.get("CHARTMETRIC_REFRESH_TOKEN") || "ZJHhOma1aILVG1e95gOfnH6MGpbvHWwCGyXF8dKQbY6QhjyOif2FVzoF8uOiA0yE";
 
 // Global cache for the access token to avoid fetching it on every request
 let cachedAccessToken: string | null = null;

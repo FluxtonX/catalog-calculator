@@ -180,18 +180,23 @@ export const calculateCfaPhase1 = (artistData, platform) => {
   let cfaConfidence = "LOW";
 
   // --- PLATFORM LEVEL FALLBACK ---
-  // If no topTracks were found (like for YouTube and Apple Music), fallback to channel/platform level stats
-  if (topTracks.length === 0) {
-    if (platform === 'youtube' && artistData.totalViews) {
+  // If no track-level revenue was found (either no topTracks or tracks have no stream counts), fallback to platform level stats
+  if (totalAnnualRevenue === 0) {
+    const totalViews = artistData.totalViews || artistData.stats?.totalViews || artistData.channel?.totalViews;
+    const popularity = artistData.popularity || artistData.stats?.popularity || artistData.chartStats?.popularity;
+    
+    console.log(`[CFA Fallback] Platform: ${platform}, totalViews: ${totalViews}, popularity: ${popularity}`);
+    
+    if (platform === 'youtube' && totalViews) {
       // YouTube Fallback: estimate run-rate from lifetime views assuming 24 months average age
-      const estMonthlyViews = parseNumber(artistData.totalViews) / 24;
+      const estMonthlyViews = parseNumber(totalViews) / 24;
       const rate = CFA_RATES.youtube?.ROW || 0.001;
       const estMonthlyRev = estMonthlyViews * rate;
       totalAnnualRevenue = estMonthlyRev * 12;
       cfaConfidence = "LOW";
-    } else if ((platform === 'itunes' || platform === 'apple') && artistData.popularity) {
+    } else if ((platform === 'itunes' || platform === 'apple') && popularity) {
       // Apple Music Fallback: Use popularity score to estimate monthly streams
-      const estMonthlyStreams = Math.round(Math.pow(parseNumber(artistData.popularity) / 100, 4) * 60000000);
+      const estMonthlyStreams = Math.round(Math.pow(parseNumber(popularity) / 100, 4) * 60000000);
       const rate = CFA_RATES.itunes?.ROW || 0.00675;
       const estMonthlyRev = estMonthlyStreams * rate;
       totalAnnualRevenue = estMonthlyRev * 12;

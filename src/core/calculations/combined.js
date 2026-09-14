@@ -32,11 +32,10 @@ export const getPlatformValuation = (artistData) => {
 export const getCombinedValuation = (selectedArtists) => {
   if (!selectedArtists || Object.keys(selectedArtists).length === 0) return 0;
   
-  return Object.values(selectedArtists).reduce((sum, artist) => {
-    const val = getPlatformValuation(artist);
-    console.log(`[Summation Debug] Platform: ${artist.platform}, Name: ${artist.name}, Valuation: ${val}`);
-    return sum + val;
-  }, 0);
+  // Upgrade to use the new cross-pollination engine so platforms without stats (Apple Music) 
+  // can mathematically borrow track streams from proxy platforms
+  const cfa = getCombinedCfaValuations(selectedArtists);
+  return cfa ? cfa.midEstimate : 0;
 };
 
 export const getCombinedCfaValuations = (selectedArtists) => {
@@ -52,7 +51,8 @@ export const getCombinedCfaValuations = (selectedArtists) => {
   };
 
   const artists = Object.values(selectedArtists);
-  const proxyArtist = artists.find(a => a.platform === 'spotify' || a.platform === 'apify' || (a.topTracks && a.topTracks.length > 0));
+  // Find a proxy artist (like Spotify) that actually has stream counts on their tracks
+  const proxyArtist = artists.find(a => ['spotify', 'apify', 'spotify_proxy'].includes(a.platform) || (a.topTracks && a.topTracks.length > 0));
 
   artists.forEach(originalArtist => {
     // ── Handle custom/distributor data (Concord, TuneCore, etc.) ──
@@ -90,11 +90,15 @@ export const getCombinedCfaValuations = (selectedArtists) => {
       return; // Don't run CFA Phase 1 on custom data
     }
 
-    if (!["spotify", "apify", "youtube", "itunes", "apple"].includes(originalArtist.platform)) return;
+    if (!["spotify", "apify", "youtube", "itunes", "apple", "spotify_proxy", "youtube_proxy"].includes(originalArtist.platform)) return;
 
     // Create a mutable copy
     const artist = { ...originalArtist };
-    const platformStr = artist.platform === "apify" ? "spotify" : (artist.platform === "apple" ? "itunes" : artist.platform);
+    
+    // Normalize platform string and strip _proxy suffix for correct rate lookup
+    let platformStr = artist.platform === "apify" ? "spotify" : (artist.platform === "apple" ? "itunes" : artist.platform);
+    const isProxy = platformStr.includes('_proxy');
+    platformStr = platformStr.replace('_proxy', '');
 
     // Check if the artist actually has valid stream numbers on their tracks
     const hasValidStreams = artist.topTracks && artist.topTracks.length > 0 && 
@@ -123,13 +127,62 @@ export const getCombinedCfaValuations = (selectedArtists) => {
 
     const cfaResult = calculateCfaPhase1(artist, platformStr);
     
-    result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
-    result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
-    result.lowEstimate += cfaResult.lowEstimate || 0;
-    result.midEstimate += cfaResult.midEstimate || 0;
-    result.highEstimate += cfaResult.highEstimate || 0;
+    // We add proxies to the breakdown so they can be used for mathematical inference,
+    // but we use their original proxy name so they don't overwrite the real platform.
+    result.breakdown[originalArtist.platform] = cfaResult;
     
-    result.breakdown[platformStr] = cfaResult;
+    // Do NOT add proxy values to the final user-facing sum
+    if (!isProxy) {
+      result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
+      result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
+      result.lowEstimate += cfaResult.lowEstimate || 0;
+      result.midEstimate += cfaResult.midEstimate || 0;
+      result.highEstimate += cfaResult.highEstimate || 0;
+    }
+  });
+
+  // SECOND PASS: Mathematical Revenue Inference for Platforms with Missing Data
+  const successfulPlatforms = Object.values(result.breakdown).filter(r => r && r.totalAnnualRevenue > 0);
+  
+  Object.keys(result.breakdown).forEach(key => {
+    // Only infer for real platforms, skip inferring for broken proxies
+    if (key.includes('_proxy')) return;
+    
+    const cfaResult = result.breakdown[key];
+    const platformStr = key;
+    
+    if (cfaResult.totalAnnualRevenue === 0 && successfulPlatforms.length > 0) {
+      // Find the most reliable platform to infer from
+      const anchor = successfulPlatforms.find(r => r.platform === 'spotify' || r.platform === 'spotify_proxy') || successfulPlatforms[0];
+      
+      const ratios = {
+        'spotify': 1.0,
+        'itunes': 0.40,
+        'youtube': 1.20,
+        'custom': 1.0
+      };
+      
+      // The anchor might be a proxy, so strip the suffix for ratio lookup
+      const anchorType = anchor.platform.replace('_proxy', '');
+      const anchorRatio = ratios[anchorType] || 1.0;
+      const targetRatio = ratios[platformStr] || 1.0;
+      
+      // Mathematically infer the missing revenue
+      const inferredRevenue = anchor.totalAnnualRevenue * (targetRatio / anchorRatio);
+      
+      cfaResult.totalAnnualRevenue = inferredRevenue;
+      cfaResult.midEstimate = inferredRevenue * CFA_MULTIPLIERS.MID;
+      cfaResult.lowEstimate = inferredRevenue * CFA_MULTIPLIERS.LOW;
+      cfaResult.highEstimate = inferredRevenue * CFA_MULTIPLIERS.HIGH;
+      cfaResult.cfaConfidence = "ARTIST_CROSS_PLATFORM_INFERENCE";
+      
+      // Accumulate the newly inferred non-zero sums
+      result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
+      result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
+      result.lowEstimate += cfaResult.lowEstimate || 0;
+      result.midEstimate += cfaResult.midEstimate || 0;
+      result.highEstimate += cfaResult.highEstimate || 0;
+    }
   });
 
   return result;

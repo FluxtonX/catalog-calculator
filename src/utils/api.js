@@ -78,6 +78,11 @@ export async function searchSpotify(query) {
   return await invokeEdgeFunction('spotify', { query });
 }
 
+// Chartmetric
+export async function searchChartmetric(query) {
+  return await invokeEdgeFunction('chartmetric', { query });
+}
+
 // YouTube
 // src/utils/api.js - ADD these functions to your existing file
 
@@ -210,7 +215,9 @@ export const searchYouTube = async (query) => {
       channel: {
         id: rawChannels[0].id,
         name: rawChannels[0].title || rawChannels[0].name,
-        image: rawChannels[0].image || rawChannels[0].thumbnail
+        image: rawChannels[0].image || rawChannels[0].thumbnail,
+        subscribers: rawChannels[0].subscribers || 0,
+        totalViews: rawChannels[0].totalViews || 0
       }
     };
 
@@ -600,15 +607,28 @@ export async function searchItunes(query) {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to search iTunes');
+      throw new Error('Failed to search iTunes edge function');
     }
 
     const data = await response.json();
+    if (data && data.results && data.results.length > 0) {
+      return data.results[0];
+    }
     return data;
   } catch (error) {
-    console.error('iTunes search error:', error);
-    throw error;
+    console.warn('iTunes edge function failed, falling back to direct public Apple API...', error);
+    try {
+      const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=musicArtist&limit=1`);
+      if (!res.ok) throw new Error('Public iTunes API failed');
+      const data = await res.json();
+      if (data && data.results && data.results.length > 0) {
+        return data.results[0]; // Return the artist object directly so LandingPage can read artistName
+      }
+      return data;
+    } catch (fallbackError) {
+      console.error('iTunes direct fallback error:', fallbackError);
+      throw fallbackError;
+    }
   }
 }
 
@@ -635,11 +655,12 @@ export async function searchAppleMusic(query) {
     }
 
     const data = await response.json();
+    if (data && data.results && data.results.length > 0) {
+      return data.results[0]; // Return the artist object directly
+    }
     return data;
   } catch (error) {
-    console.error('Apple Music search error:', error);
-    // Fallback to free mode if premium fails
-    console.log('Falling back to FREE iTunes Search API...');
+    console.warn('Apple Music search error, falling back to FREE iTunes Search API...', error);
     return searchItunes(query);
   }
 }
