@@ -1068,6 +1068,7 @@ const ValuationTool = () => {
         {!isLoading && Object.keys(selectedArtists).length > 0 && (
           <div className="space-y-8">
             {Object.values(selectedArtists)
+              .filter(artistData => artistData.platform === platform || artistData.platform === 'custom')
               .map((artistData, idx) => {
               const pCfg = PLATFORM_CONFIG[artistData.platform] || {
                 label: artistData.importedDistributor || "Custom Data",
