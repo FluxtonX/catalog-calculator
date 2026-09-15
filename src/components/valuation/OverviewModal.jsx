@@ -562,7 +562,15 @@ const OverviewModal = ({ onClose }) => {
              <div className="space-y-6">
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                   <StreamingStatsSection 
-                    artistData={selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || selectedArtists.apify || Object.values(selectedArtists)[0]} 
+                    artistData={{
+                      ...(selectedArtists.apify || selectedArtists.spotify || Object.values(selectedArtists)[0]),
+                      stats: {
+                        ...(selectedArtists.apify?.stats || {}),
+                        sp_followers: selectedArtists.apify?.stats?.sp_followers || selectedArtists.spotify?.followers || 0,
+                        youtube_subscribers: selectedArtists.apify?.stats?.youtube_subscribers || selectedArtists.youtube?.subscriberCount || 0,
+                        ycs_views: selectedArtists.apify?.stats?.ycs_views || selectedArtists.youtube?.viewCount || 0,
+                      }
+                    }} 
                     forceLightMode={true}
                   />
                 </div>
