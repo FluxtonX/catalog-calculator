@@ -280,32 +280,18 @@ export default function LandingPage() {
         {/* Header */}
         <header className="relative py-8 flex items-center justify-center">
           
-          {/* Centered Logo */}
-          <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 flex items-center justify-center">
-              <Hexagon className="absolute inset-0 w-10 h-10 text-cyan-400" strokeWidth={1.5} />
-              <Calculator className="w-4 h-4 text-white relative z-10" />
+          {/* Center Aligned Logo */}
+          <div className="flex items-center gap-4 translate-x-[150px]">
+            <div className="relative w-14 h-14 flex items-center justify-center">
+              <Hexagon className="absolute inset-0 w-14 h-14 text-cyan-400" strokeWidth={1.5} />
+              <Calculator className="w-6 h-6 text-white relative z-10" />
             </div>
             <div className="flex flex-col items-start leading-tight">
-              <h1 className="font-bold text-xl tracking-tight text-white flex items-center gap-1.5">
+              <h1 className="font-bold text-3xl tracking-tight text-white flex items-center gap-1.5">
                 Catalog <span className="text-[#00E5FF] font-medium">Calculator</span>
               </h1>
-              <p className="text-[11px] text-white/60 font-medium tracking-wide">by CFA</p>
+              <p className="text-xs text-white/60 font-medium tracking-wide">by CFA</p>
             </div>
-          </div>
-
-          {/* Right Button */}
-          <div className="absolute right-0">
-            <a 
-              href="https://www.creativefundingagency.com/funding-calculator"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-5 py-2.5 bg-transparent border border-purple-500/30 hover:bg-white/5 rounded-xl text-[13px] font-medium text-white transition-all shadow-[0_0_15px_rgba(168,85,247,0.15)]"
-            >
-              <Lock className="w-3.5 h-3.5 opacity-80" />
-              Connect Your DSPs
-              <ChevronRight className="w-3.5 h-3.5 opacity-50 ml-1" />
-            </a>
           </div>
         </header>
 
