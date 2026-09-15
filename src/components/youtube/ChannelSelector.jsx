@@ -24,7 +24,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
       </div>
 
       <div className="flex items-center gap-3 mb-6 relative z-10">
-        <div className="p-3 bg-gradient-to-br from-red-500 to-pink-600 rounded-xl shadow-lg shadow-red-500/20">
+        <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg shadow-red-500/20">
           <CheckCircle size={24} className="text-white" />
         </div>
         <div>
@@ -54,7 +54,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
                 }}
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-red-400 to-pink-500 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-red-400 to-red-500 flex items-center justify-center">
                 <Users size={48} className="text-white opacity-50" />
               </div>
             )}
@@ -67,7 +67,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
                <h3 className="font-black text-2xl sm:text-3xl text-slate-900 dark:text-white">
                  {channel.name}
                </h3>
-               <CheckCircle size={20} className="text-blue-500 shrink-0" fill="currentColor" stroke="white" />
+               <CheckCircle size={20} className="text-red-500 shrink-0" fill="currentColor" stroke="white" />
             </div>
 
             <div className="flex flex-wrap items-center gap-4 mb-6 mt-2">

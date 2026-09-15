@@ -13,7 +13,7 @@ const MetricCard = ({ icon: Icon, label, value, sub, accent, tooltip, badge }) =
     <p className={`text-xl sm:text-2xl lg:text-3xl font-black ${accent.text} leading-none mb-1.5`}>{value}</p>
     <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-0.5">{label}</p>
     {sub && <p className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">{sub}</p>}
-    {badge && <p className="text-[10px] text-purple-500 dark:text-purple-400 font-semibold mt-1">✦ {badge}</p>}
+    {badge && <p className="text-[10px] text-emerald-500 dark:text-emerald-400 font-semibold mt-1">✦ {badge}</p>}
   </div>
 );
 
@@ -21,9 +21,9 @@ const MetricCard = ({ icon: Icon, label, value, sub, accent, tooltip, badge }) =
 const ArtistHeader = ({ artistName, marketValuation, monthlyStreamsEst, ltmSpotifyRevenue, effectiveSpotifyRate, geoMethodUsed, cfaConfidence, formatCurrency, formatToMillions, formatNumber }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
     {/* Title strip */}
-    <div className="bg-gradient-to-r from-emerald-500/10 via-blue-500/10 to-purple-500/10 dark:from-emerald-500/5 dark:via-blue-500/5 dark:to-purple-500/5 px-5 sm:px-7 pt-6 pb-5 border-b border-slate-100 dark:border-slate-800">
+    <div className="bg-gradient-to-r from-emerald-500/10 via-emerald-500/10 to-emerald-500/10 dark:from-emerald-500/5 dark:via-emerald-500/5 dark:to-emerald-500/5 px-5 sm:px-7 pt-6 pb-5 border-b border-slate-100 dark:border-slate-800">
       <div className="flex items-center gap-3">
-        <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-blue-600 shadow-md">
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md">
           <DollarSign size={20} className="text-white" />
         </div>
         <div>
@@ -54,7 +54,7 @@ const ArtistHeader = ({ artistName, marketValuation, monthlyStreamsEst, ltmSpoti
         value={formatToMillions(monthlyStreamsEst)}
         sub={formatNumber(monthlyStreamsEst)}
         badge="Top 10 Tracks"
-        accent={{ border: "border-purple-200 dark:border-purple-500/30", iconBg: "bg-purple-100 dark:bg-purple-900/40", icon: "text-purple-600 dark:text-purple-400", text: "text-purple-600 dark:text-purple-400" }}
+        accent={{ border: "border-emerald-200 dark:border-emerald-500/30", iconBg: "bg-emerald-100 dark:bg-emerald-900/40", icon: "text-emerald-600 dark:text-emerald-400", text: "text-emerald-600 dark:text-emerald-400" }}
         tooltip="CFA estimated monthly streams based on run-rate logic."
       />
       <MetricCard
@@ -63,7 +63,7 @@ const ArtistHeader = ({ artistName, marketValuation, monthlyStreamsEst, ltmSpoti
         value={formatCurrency(ltmSpotifyRevenue)}
         sub="Artist Attributed"
         badge="Top 10 Tracks"
-        accent={{ border: "border-blue-200 dark:border-blue-500/30", iconBg: "bg-blue-100 dark:bg-blue-900/40", icon: "text-blue-600 dark:text-blue-400", text: "text-blue-600 dark:text-blue-400" }}
+        accent={{ border: "border-emerald-200 dark:border-emerald-500/30", iconBg: "bg-emerald-100 dark:bg-emerald-900/40", icon: "text-emerald-600 dark:text-emerald-400", text: "text-emerald-600 dark:text-emerald-400" }}
         tooltip="Estimated Annual Streaming Revenue attributable to the artist."
       />
       <MetricCard

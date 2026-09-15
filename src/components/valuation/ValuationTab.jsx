@@ -230,12 +230,12 @@ useEffect(() => {
             title="Insufficient Data"
             message="No lifetime stream data available. Enter valid stream counts to calculate valuation."
             accent={{
-              border: "border-red-200 dark:border-red-500/40",
-              bg: "bg-red-50 dark:bg-red-900/20",
-              iconBg: "bg-red-100 dark:bg-red-800/40",
-              icon: "text-red-600 dark:text-red-400",
-              title: "text-red-800 dark:text-red-300",
-              text: "text-red-700 dark:text-red-400",
+              border: "border-emerald-200 dark:border-emerald-500/40",
+              bg: "bg-emerald-50 dark:bg-emerald-900/20",
+              iconBg: "bg-emerald-100 dark:bg-emerald-800/40",
+              icon: "text-emerald-600 dark:text-emerald-400",
+              title: "text-emerald-800 dark:text-emerald-300",
+              text: "text-emerald-700 dark:text-emerald-400",
             }}
           />
         )}
@@ -247,12 +247,12 @@ useEffect(() => {
     title="Sign in to Save Reports"
     message="You can view and save reports, but sign in to download PDFs and save reports."
     accent={{
-      border: "border-green-200 dark:border-green-500/40",
-      bg: "bg-green-50 dark:bg-green-900/20",
-      iconBg: "bg-green-100 dark:bg-green-800/40",
-      icon: "text-green-600 dark:text-green-400",
-      title: "text-green-800 dark:text-green-300",
-      text: "text-green-700 dark:text-green-400",
+      border: "border-emerald-200 dark:border-emerald-500/40",
+      bg: "bg-emerald-50 dark:bg-emerald-900/20",
+      iconBg: "bg-emerald-100 dark:bg-emerald-800/40",
+      icon: "text-emerald-600 dark:text-emerald-400",
+      title: "text-emerald-800 dark:text-emerald-300",
+      text: "text-emerald-700 dark:text-emerald-400",
     }}
     action={
       <button

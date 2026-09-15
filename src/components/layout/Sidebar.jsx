@@ -183,8 +183,13 @@ const Sidebar = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between">
 
             {/* Logo + Brand */}
-            <div className="flex items-center gap-2">
-
+            <button
+              onClick={() => {
+                navigate('/valuation');
+                if (window.innerWidth < 1024) onClose();
+              }}
+              className="flex items-center gap-2 text-left cursor-pointer hover:opacity-80 transition-opacity outline-none"
+            >
               {/* ✅ Dynamic logo — changes with platform */}
               <div className="w-11 h-11 flex items-center justify-center flex-shrink-0">
                 <img
@@ -207,7 +212,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                   Professional Suite
                 </p>
               </div>
-            </div>
+            </button>
 
             {/* Close button — mobile only */}
             <button

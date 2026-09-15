@@ -373,7 +373,7 @@ const OverviewModal = ({ onClose }) => {
         </button>
 
         {/* Hero Banner Section */}
-        <div className="relative pt-12 pb-24 px-8 bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-900 flex-shrink-0">
+        <div className="relative pt-12 pb-24 px-8 bg-gradient-to-br from-slate-900 via-emerald-950 to-emerald-900 flex-shrink-0">
            {/* Decorative elements */}
            <div className="absolute inset-0 overflow-hidden pointer-events-none">
              <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[150%] bg-white/5 blur-3xl rounded-full" />
@@ -415,7 +415,7 @@ const OverviewModal = ({ onClose }) => {
           {primaryArtist && (
              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
                 <div className="flex flex-col items-center justify-center text-center p-2">
-                   <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-3">
+                   <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
                      <Trophy size={20} />
                    </div>
                    <p className="text-3xl font-black text-slate-900 mb-1">{primaryArtist.popularity || 'N/A'}</p>
@@ -431,7 +431,7 @@ const OverviewModal = ({ onClose }) => {
                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Monthly Listeners</p>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center p-2">
-                   <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center mb-3">
+                   <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
                      <Users size={20} />
                    </div>
                    <p className="text-3xl font-black text-slate-900 mb-1">

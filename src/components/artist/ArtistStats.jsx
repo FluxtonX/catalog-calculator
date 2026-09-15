@@ -27,10 +27,23 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
             icon={Users}
             label="Subscribers"
             value={stats.totalSubscribers}
+            iconBg="bg-red-500/20"
+            iconColor="text-red-600 dark:text-red-400"
           />
-          <StatCard icon={Eye} label="Total Views" value={stats.totalViews} />
-         
-          <StatCard icon={Music} label="Videos" value={stats.totalVideos} />
+          <StatCard 
+            icon={Eye} 
+            label="Total Views" 
+            value={stats.totalViews} 
+            iconBg="bg-red-500/20"
+            iconColor="text-red-600 dark:text-red-400"
+          />
+          <StatCard 
+            icon={Music} 
+            label="Videos" 
+            value={stats.totalVideos} 
+            iconBg="bg-red-500/20"
+            iconColor="text-red-600 dark:text-red-400"
+          />
         </>
     
 ) : isItunes ? (

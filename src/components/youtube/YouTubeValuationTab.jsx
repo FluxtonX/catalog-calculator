@@ -149,17 +149,17 @@ const YouTubeValuationTab = ({ artistData }) => {
     title="Sign in to Save Reports"
     message="You can view and save reports, but sign in to download PDFs and save reports."
     accent={{
-      border: "border-green-200 dark:border-green-500/40",
-      bg: "bg-green-50 dark:bg-green-900/20",
-      iconBg: "bg-green-100 dark:bg-green-800/40",
-      icon: "text-green-600 dark:text-green-400",
-      title: "text-green-800 dark:text-green-300",
-      text: "text-green-700 dark:text-green-400",
+      border: "border-red-200 dark:border-red-500/40",
+      bg: "bg-red-50 dark:bg-red-900/20",
+      iconBg: "bg-red-100 dark:bg-red-800/40",
+      icon: "text-red-600 dark:text-red-400",
+      title: "text-red-800 dark:text-red-300",
+      text: "text-red-700 dark:text-red-400",
     }}
     action={
       <button
         onClick={() => navigate("/auth", { state: { from: location } })}
-        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-md"
+        className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-md"
       >
         <LogIn size={14} />
         Sign In Now

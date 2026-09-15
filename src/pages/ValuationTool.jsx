@@ -1044,7 +1044,7 @@ const ValuationTool = () => {
         )}
 
         {/* Channel Selector */}
-        {!isLoading && showChannelSelector && youtubeChannels.length > 0 && (
+        {!isLoading && platform === 'youtube' && showChannelSelector && youtubeChannels.length > 0 && (
           <ChannelSelector
             channels={youtubeChannels}
             onSelectChannel={handleChannelSelect}
@@ -1052,17 +1052,7 @@ const ValuationTool = () => {
           />
         )}
 
-        {/* Biography Section */}
-        {!isLoading && Object.keys(selectedArtists).length > 0 && (() => {
-          const bioArtist = Object.values(selectedArtists).find(a => a.biography);
-          if (!bioArtist || !bioArtist.biography) return null;
-          return (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-800 mb-8">
-              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">BIOGRAPHY</h3>
-              <BioText text={bioArtist.biography} forceLightMode={false} />
-            </div>
-          );
-        })()}
+
 
         {/* Artist Analysis */}
         {!isLoading && Object.keys(selectedArtists).length > 0 && (

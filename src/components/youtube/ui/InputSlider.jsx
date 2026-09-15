@@ -26,7 +26,7 @@ const InputSlider = ({ label, value, onValueChange, min, max, step, unit, format
         step={step}
       >
         <SliderPrimitive.Track className="bg-slate-200 dark:bg-slate-700 relative grow rounded-full h-2">
-          <SliderPrimitive.Range className="absolute bg-gradient-to-r from-red-500 to-rose-400 rounded-full h-full" />
+          <SliderPrimitive.Range className="absolute bg-gradient-to-r from-red-500 to-red-400 rounded-full h-full" />
         </SliderPrimitive.Track>
         <SliderPrimitive.Thumb
           className="block w-5 h-5 bg-white dark:bg-slate-200 border-2 border-red-500 rounded-full shadow-lg hover:shadow-red-500/30 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 transition-all cursor-pointer hover:scale-110"

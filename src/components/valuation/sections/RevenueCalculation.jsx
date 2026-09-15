@@ -9,7 +9,7 @@ const RevenueCalculation = ({
   formatNumber, formatCurrency,
 }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
-    <SectionHeader icon={Calculator} title="Revenue Calculation" subtitle="Step-by-step royalty breakdown" gradient="from-purple-500 to-blue-600" />
+    <SectionHeader icon={Calculator} title="Revenue Calculation" subtitle="Step-by-step royalty breakdown" gradient="from-emerald-500 to-emerald-600" />
 
     <div className="space-y-3">
       <CalcRow label="Monthly Streams (Estimated)"
@@ -24,11 +24,11 @@ const RevenueCalculation = ({
       <CalcRow label="Monthly Revenue"
         value={formatCurrency(monthlySpotifyRevenue)}
         sub={`${formatNumber(monthlyStreamsEst)} streams × $${effectiveSpotifyRate.toFixed(4)}`}
-        valueColor="text-blue-600 dark:text-blue-400"
+        valueColor="text-emerald-600 dark:text-emerald-400"
       />
 
       {/* LTM highlight */}
-      <div className="bg-gradient-to-br from-emerald-50 to-blue-50 dark:from-emerald-900/20 dark:to-blue-900/20 border-2 border-emerald-300 dark:border-emerald-500/30 rounded-2xl p-5 sm:p-6">
+      <div className="bg-gradient-to-br from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 border-2 border-emerald-300 dark:border-emerald-500/30 rounded-2xl p-5 sm:p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <div>
             <p className="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-300">

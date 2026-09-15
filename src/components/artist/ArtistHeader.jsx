@@ -70,7 +70,7 @@ const StatPill = ({ icon: Icon, value, label, gradient, title }) => (
             <span className="font-black text-sm sm:text-xl text-white truncate leading-none">
               {typeof value === 'number' ? value.toLocaleString() : (!isNaN(Number(value)) ? Number(value).toLocaleString() : value)}
             </span>
-            <span className="text-white/60 text-[10px] sm:text-sm font-medium whitespace-nowrap hidden xs:inline leading-none">
+            <span className="text-white/60 text-[10px] sm:text-sm font-medium whitespace-nowrap hidden sm:inline leading-none">
               {label}
             </span>
           </div>
@@ -253,9 +253,12 @@ const ArtistHeader = ({
             </div>
 
             {/* Genres */}
-            {genres?.length > 0 && (
+            {!isItunes && genres?.filter(g => !['youtube', 'video content'].includes(g.toLowerCase()))?.length > 0 && (
               <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-5 sm:mb-6">
-                {genres.slice(0, 6).map((genre, i) => (
+                {genres
+                  .filter(g => !['youtube', 'video content'].includes(g.toLowerCase()))
+                  .slice(0, 6)
+                  .map((genre, i) => (
                   <span
                     key={i}
                     className={`px-2.5 py-1 sm:px-3 sm:py-1.5 bg-white/10 hover:bg-white/15 backdrop-blur-sm border rounded-full text-[10px] sm:text-xs font-semibold text-white/85 hover:text-white transition-all duration-200 cursor-default capitalize ${
@@ -275,82 +278,64 @@ const ArtistHeader = ({
               decorative
             />
 
-       {/* Action buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-5">
-  {isYoutube && youtubeUrl && (
-                <a
-                  href={youtubeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 hover:border-red-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
-                >
-                  <Youtube size={15} />
-                  <span className="hidden xs:inline">Open in YouTube</span>
-                  <span className="xs:hidden">YouTube</span>
-                </a>
-              )}
-              {isApify && spotifyUrl && (
-                <a
-                  href={spotifyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 hover:border-emerald-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
-                >
-                  <Music size={15} />
-                  <span className="hidden xs:inline">Open in Spotify</span>
-                  <span className="xs:hidden">Spotify</span>
-                </a>
-              )}
-              {isItunes && appleUrl && (
-                <a
-                  href={appleUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-700/50 hover:bg-zinc-600/60 border border-zinc-500/30 hover:border-zinc-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
-                >
-                  <svg viewBox="0 0 384 512" className="w-3.5 h-3.5 fill-current">
-                    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
-                  </svg>
-                  <span className="hidden xs:inline">Open in Apple Music</span>
-                  <span className="xs:hidden">Apple Music</span>
-                </a>
-              )}
-            </div>
+       {/* Action buttons and Social Links */}
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mt-2 sm:mt-0 mb-4 sm:mb-5">
+          {isYoutube && youtubeUrl && (
+            <a
+              href={youtubeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 hover:border-red-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
+            >
+              <Youtube size={15} />
+              <span className="hidden sm:inline">Open in YouTube</span>
+              <span className="sm:hidden">YouTube</span>
+            </a>
+          )}
+          {isApify && spotifyUrl && (
+            <a
+              href={spotifyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/30 hover:border-emerald-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
+            >
+              <Music size={15} />
+              <span className="hidden sm:inline">Open in Spotify</span>
+              <span className="sm:hidden">Spotify</span>
+            </a>
+          )}
+          {isItunes && appleUrl && (
+            <a
+              href={appleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-2.5 bg-zinc-700/50 hover:bg-zinc-600/60 border border-zinc-500/30 hover:border-zinc-400/50 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-105 shadow-lg"
+            >
+              <svg viewBox="0 0 384 512" className="w-3.5 h-3.5 fill-current">
+                <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+              </svg>
+              <span className="hidden sm:inline">Open in Apple Music</span>
+              <span className="sm:hidden">Apple Music</span>
+            </a>
+          )}
 
-            {/* Social links (Spotify only) */}
-            {isApify && externalLinks?.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
-                {externalLinks.map((link, i) => {
-                  const Icon = getSocialIconComponent(link.label);
-                  return (
-                    <SocialLink
-                      key={i}
-                      href={link.url}
-                      label={link.label}
-                      Icon={Icon}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {/* iTunes external links */}
-            {isItunes && externalLinks?.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {externalLinks.map((link, i) => (
-                  <a
+          {/* Social / External links */}
+          {externalLinks?.length > 0 && (
+            <>
+              {externalLinks.map((link, i) => {
+                const Icon = getSocialIconComponent(link.label);
+                return (
+                  <SocialLink
                     key={i}
                     href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 hover:border-white/40 rounded-xl text-xs font-semibold text-white/90 hover:text-white transition-all duration-200 hover:scale-105"
-                  >
-                    <ExternalLink size={12} />
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            )}
+                    label={link.label}
+                    Icon={Icon}
+                  />
+                );
+              })}
+            </>
+          )}
+        </div>
           </div>
         </div>
       </div>

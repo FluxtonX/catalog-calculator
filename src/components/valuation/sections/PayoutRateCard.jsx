@@ -5,7 +5,7 @@ import RadixProgress from "../ui/RadixProgress";
 const PayoutRateCard = ({ effectiveSpotifyRate, geoMethodUsed, geoRateData }) => (
   <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
     <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
-      <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-md">
+      <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-md">
         <Globe size={18} className="text-white" />
       </div>
       <div>
@@ -18,7 +18,7 @@ const PayoutRateCard = ({ effectiveSpotifyRate, geoMethodUsed, geoRateData }) =>
 
     <div className="p-4 sm:p-5 flex-1 space-y-4">
       {/* Big rate number */}
-      <div className="text-center py-4 bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-500/30">
+      <div className="text-center py-4 bg-gradient-to-br from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 rounded-2xl border border-emerald-200 dark:border-emerald-500/30">
         <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-1">Effective Rate</p>
         <p className="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400">
           ${effectiveSpotifyRate.toFixed(4)}
