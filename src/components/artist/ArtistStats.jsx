@@ -1,6 +1,6 @@
 import React from "react";
 import StatCard from "../ui/StatCard";
-import { formatNumberAbbrev } from "../../utils/formatters";
+import { formatToMillions } from "../../components/valuation/hooks/useValuationLogic";
 import {
   DollarSign,
   Music,
@@ -27,21 +27,21 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
           <StatCard
             icon={Users}
             label="Subscribers"
-            value={formatNumberAbbrev(stats.totalSubscribers)}
+            value={formatToMillions(stats.totalSubscribers)}
             iconBg="bg-red-500/20"
             iconColor="text-red-600 dark:text-red-400"
           />
           <StatCard 
             icon={Eye} 
             label="Total Views" 
-            value={formatNumberAbbrev(stats.totalViews)} 
+            value={formatToMillions(stats.totalViews)} 
             iconBg="bg-red-500/20"
             iconColor="text-red-600 dark:text-red-400"
           />
           <StatCard 
             icon={Music} 
             label="Videos" 
-            value={formatNumberAbbrev(stats.totalVideos)} 
+            value={formatToMillions(stats.totalVideos)} 
             iconBg="bg-red-500/20"
             iconColor="text-red-600 dark:text-red-400"
           />
@@ -52,25 +52,25 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
   <>
     <StatCard
       icon={Music}
-      label="Top Tracks"
-      value={stats.totalTopTracks ?? topTracks?.length ?? 0}
-      iconBg="bg-pink-500/20"
-      iconColor="text-pink-600 dark:text-pink-400"
+      label="Total Tracks"
+      value={topTracks?.length || 0}
+      iconBg="bg-slate-500/20"
+      iconColor="text-slate-600 dark:text-slate-400"
     />
-   <StatCard
-  icon={Album}
-  label="Albums"
-  value={albums?.length ?? stats.totalAlbums ?? 0}
-  iconBg="bg-rose-500/20"
-  iconColor="text-rose-600 dark:text-rose-400"
-/>
+    <StatCard
+      icon={Album}
+      label="Albums"
+      value={albums?.length || stats.totalAlbums || 0}
+      iconBg="bg-slate-500/20"
+      iconColor="text-slate-600 dark:text-slate-400"
+    />
   
     <StatCard
       icon={Disc}
       label="Singles"
       value={singles?.length ?? stats.totalSingles ?? 0}
-      iconBg="bg-purple-500/20"
-      iconColor="text-purple-600 dark:text-purple-400"
+      iconBg="bg-slate-500/20"
+      iconColor="text-slate-600 dark:text-slate-400"
     />
   </>
       ) : isApify ? (
@@ -79,12 +79,12 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
     <StatCard
       icon={Music}
       label="Total Streams (Top 10)"
-      value={formatNumberAbbrev(stats.totalStreams)}
+      value={formatToMillions(stats.totalStreams)}
     />
     <StatCard
       icon={TrendingUp}
       label="Avg Streams (Top 10)"
-      value={formatNumberAbbrev(stats.averageStreams)}
+      value={formatToMillions(stats.averageStreams)}
     />
     <StatCard
       icon={Music}
