@@ -566,7 +566,7 @@ const OverviewModal = ({ onClose }) => {
                       ...(selectedArtists.apify || selectedArtists.spotify || Object.values(selectedArtists)[0]),
                       stats: {
                         ...(selectedArtists.apify?.stats || {}),
-                        sp_followers: selectedArtists.apify?.stats?.sp_followers || selectedArtists.spotify?.followers || 0,
+                        sp_followers: selectedArtists.apify?.stats?.sp_followers || selectedArtists.spotify?.followers?.total || selectedArtists.spotify?.followers || 0,
                         youtube_subscribers: selectedArtists.apify?.stats?.youtube_subscribers || selectedArtists.youtube?.subscriberCount || 0,
                         ycs_views: selectedArtists.apify?.stats?.ycs_views || selectedArtists.youtube?.viewCount || 0,
                       }
