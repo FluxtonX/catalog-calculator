@@ -34,7 +34,7 @@ const ShazamIcon = () => (
 );
 
 const StatBlock = ({ label, value, forceLightMode }) => (
-  <div className="flex flex-col gap-1">
+  <div className={`flex flex-col gap-1.5 p-3 sm:p-4 rounded-xl border transition-colors ${forceLightMode ? 'bg-slate-50 border-slate-200' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700/60'}`}>
     <p className={`text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate ${forceLightMode ? '' : 'dark:text-slate-400'}`}>{label}</p>
     <p className={`text-xl sm:text-2xl font-black text-slate-900 tracking-tight ${forceLightMode ? '' : 'dark:text-white'}`}>{formatToMillions(value || 0)}</p>
   </div>

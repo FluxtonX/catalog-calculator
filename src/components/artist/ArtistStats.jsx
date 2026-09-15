@@ -1,5 +1,6 @@
 import React from "react";
 import StatCard from "../ui/StatCard";
+import { formatNumberAbbrev } from "../../utils/formatters";
 import {
   DollarSign,
   Music,
@@ -26,21 +27,21 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
           <StatCard
             icon={Users}
             label="Subscribers"
-            value={stats.totalSubscribers}
+            value={formatNumberAbbrev(stats.totalSubscribers)}
             iconBg="bg-red-500/20"
             iconColor="text-red-600 dark:text-red-400"
           />
           <StatCard 
             icon={Eye} 
             label="Total Views" 
-            value={stats.totalViews} 
+            value={formatNumberAbbrev(stats.totalViews)} 
             iconBg="bg-red-500/20"
             iconColor="text-red-600 dark:text-red-400"
           />
           <StatCard 
             icon={Music} 
             label="Videos" 
-            value={stats.totalVideos} 
+            value={formatNumberAbbrev(stats.totalVideos)} 
             iconBg="bg-red-500/20"
             iconColor="text-red-600 dark:text-red-400"
           />
@@ -78,12 +79,12 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
     <StatCard
       icon={Music}
       label="Total Streams (Top 10)"
-      value={stats.totalStreams}
+      value={formatNumberAbbrev(stats.totalStreams)}
     />
     <StatCard
       icon={TrendingUp}
       label="Avg Streams (Top 10)"
-      value={stats.averageStreams}
+      value={formatNumberAbbrev(stats.averageStreams)}
     />
     <StatCard
       icon={Music}

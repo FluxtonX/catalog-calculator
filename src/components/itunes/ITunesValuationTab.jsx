@@ -499,9 +499,9 @@ const trackImage = rawImage
   ? rawImage.replace("100x100", "300x300").replace("60x60", "300x300")
   : null;
         const barColor =
-          pop >= 70 ? "bg-emerald-500" :
-          pop >= 40 ? "bg-yellow-500" :
-                      "bg-slate-400";
+          pop >= 70 ? "bg-slate-800 dark:bg-slate-300" :
+          pop >= 40 ? "bg-slate-600 dark:bg-slate-400" :
+                      "bg-slate-400 dark:bg-slate-500";
 
         return (
           <div
