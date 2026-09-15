@@ -829,13 +829,7 @@ const ValuationTool = () => {
             </div>
 
             <div className="flex gap-2 sm:gap-3 flex-col lg:flex-row">
-              <PlatformSelect
-                platforms={platforms}
-                setPlatforms={setPlatforms}
-                platform={platform}
-                setPlatform={setPlatform}
-                isLoading={isLoading}
-              />
+
 
               <div className="flex-1 relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
