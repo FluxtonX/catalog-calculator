@@ -33,12 +33,14 @@ import SaveButton from "./sections/SaveButton";
 
 import { useLocation } from "react-router-dom";
 
-const ValuationTab = () => {
+const ValuationTab = ({ artistData: propArtistData }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { selectedArtist: artistData } = useArtistStore();
+  const { selectedArtist: storeArtistData } = useArtistStore();
+  const artistData = propArtistData || storeArtistData;
+
   const [user, setUser] = useState(undefined);
-const [authLoading, setAuthLoading] = useState(true);
+  const [authLoading, setAuthLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
   const initialLifetimeStreams = getLifetimeStreams(artistData);
