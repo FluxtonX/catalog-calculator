@@ -1,5 +1,5 @@
 // All calculation logic extracted — zero changes to original logic
-
+import { useArtistStore } from "../../../store/artistStore";
 
 export const RATE_BY_REGION = {
   US_CA_UK_AU: 0.0042,
@@ -56,11 +56,20 @@ export const formatToMillions = (num) => {
   }
   return formatNumber(parsed);
 };
+
 export const formatCurrency = (num) => {
   if (num === null || num === undefined) return "$0";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(num);
+  
+  const { royaltyShare = 100, currency = 'USD', exchangeRates = { USD: 1 } } = useArtistStore.getState();
+  
+  const adjustedValue = num * (royaltyShare / 100);
+  const rate = exchangeRates[currency] || 1;
+  const converted = adjustedValue * rate;
+  
+  let symbol = '$';
+  try {
+    symbol = (0).toLocaleString('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).replace(/\d|\.|,/g, '').trim();
+  } catch(e) {}
+  
+  return `${symbol}${Math.round(converted).toLocaleString('en-US')}`;
 };

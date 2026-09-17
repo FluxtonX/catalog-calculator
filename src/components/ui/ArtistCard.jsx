@@ -306,7 +306,7 @@ setEnhancedAlbums(
   return (
     <div className="space-y-6 sm:space-y-8 px-2 sm:px-0">
       {/* ── Artist Info Card ─────────────────────────────── */}
-      {!hideHeader && (
+      {!hideHeader && !isItunes && (
         <ArtistHeader
           name={name}
           image={image}
