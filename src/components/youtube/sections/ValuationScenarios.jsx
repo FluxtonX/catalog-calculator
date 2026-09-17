@@ -27,7 +27,7 @@ const ValuationScenarios = ({
 }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
     <div className="flex items-center gap-3 px-5 sm:px-7 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
-      <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 shadow-md">
+      <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80 shadow-md">
         <DollarSign size={18} className="text-white" />
       </div>
       <div>
@@ -45,13 +45,13 @@ const ValuationScenarios = ({
       {/* 3 scenario cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <ScenarioCard icon={Calculator} title="Conservative" subtitle="6× Multiple" value={formatCurrency(conservativeValuation)}
-          color={{ border: "border-blue-200 dark:border-blue-500/30", bg: "bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-900/20 dark:to-blue-800/10", iconBg: "bg-gradient-to-br from-blue-500 to-blue-700", text: "text-blue-600 dark:text-blue-400", sep: "bg-blue-300", ring: "", badge: "" }}
+          color={{ border: "border-[#FF0000]/20 dark:border-[#FF0000]/30", bg: "bg-gradient-to-br from-[#FF0000]/5 to-[#FF0000]/10 dark:from-[#FF0000]/10 dark:to-[#FF0000]/5", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]/50", ring: "", badge: "" }}
         />
         <ScenarioCard icon={TrendingUp} title="Market Standard" subtitle="8× Multiple" value={formatCurrency(marketValuation)} featured
-          color={{ border: "border-emerald-300 dark:border-emerald-500/40", bg: "bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-emerald-900/20 dark:to-emerald-800/10", iconBg: "bg-gradient-to-br from-emerald-500 to-emerald-700", text: "text-emerald-600 dark:text-emerald-400", sep: "bg-emerald-400", ring: "ring-emerald-400 dark:ring-emerald-500", badge: "bg-emerald-500" }}
+          color={{ border: "border-[#FF0000]/40 dark:border-[#FF0000]/50", bg: "bg-gradient-to-br from-[#FF0000]/10 to-[#FF0000]/20 dark:from-[#FF0000]/20 dark:to-[#FF0000]/10", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/90", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]", ring: "ring-[#FF0000] dark:ring-[#FF0000]", badge: "bg-[#FF0000]" }}
         />
         <ScenarioCard icon={TrendingUp} title="Premium" subtitle="10× Multiple" value={formatCurrency(premiumValuation)}
-          color={{ border: "border-purple-200 dark:border-purple-500/30", bg: "bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-900/20 dark:to-purple-800/10", iconBg: "bg-gradient-to-br from-purple-500 to-purple-700", text: "text-purple-600 dark:text-purple-400", sep: "bg-purple-300", ring: "", badge: "" }}
+          color={{ border: "border-[#FF0000]/30 dark:border-[#FF0000]/40", bg: "bg-gradient-to-br from-[#FF0000]/5 to-[#FF0000]/15 dark:from-[#FF0000]/15 dark:to-[#FF0000]/5", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]/70", ring: "", badge: "" }}
         />
       </div>
 
