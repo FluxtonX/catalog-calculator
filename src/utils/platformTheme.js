@@ -1,13 +1,13 @@
 export const PLATFORM_THEME = {
   spotify: {
-    gradient: "from-emerald-500 to-teal-600",
-    gradientSoft: "from-emerald-500/10 to-teal-600/10",
-    accentBg: "bg-emerald-100 dark:bg-emerald-900/30",
-    accentText: "text-emerald-600 dark:text-emerald-400",
-    accentDot: "bg-emerald-500",
-    border: "border-emerald-500/30",
-    hoverBorder: "hover:border-emerald-500/40",
-    glow: "shadow-emerald-500/30",
+    gradient: "from-[#1DB954] to-[#1DB954]",
+    gradientSoft: "from-[#1DB954]/10 to-[#1DB954]/10",
+    accentBg: "bg-[#1DB954]/10 dark:bg-[#1DB954]/30",
+    accentText: "text-[#1DB954] dark:text-[#1DB954]",
+    accentDot: "bg-[#1DB954]",
+    border: "border-[#1DB954]/30",
+    hoverBorder: "hover:border-[#1DB954]/40",
+    glow: "shadow-[#1DB954]/30",
   },
   youtube: {
     gradient: "from-[#FF0000] to-[#FF0000]",
