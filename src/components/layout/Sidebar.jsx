@@ -214,7 +214,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                   Professional Suite
                 </p>
               </div>
-            </button>
+            </div>
 
             {/* Close button — mobile only */}
             <button
