@@ -266,7 +266,7 @@ const SocialStatsSection = ({ artistData, forceLightMode }) => {
             onClick={() => setShowExact(!showExact)}
             className={`flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors shadow-sm ${forceLightMode ? '' : 'dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'}`}
           >
-            <div className={`w-2 h-2 rounded-full ${showExact ? 'bg-green-500' : 'bg-slate-400'}`}></div>
+            <div className={`w-2 h-2 rounded-full ${showExact ? 'bg-[#1DB954]' : 'bg-slate-400'}`}></div>
             {showExact ? 'Exact Numbers' : 'Abbreviated'}
           </button>
         </div>

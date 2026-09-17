@@ -10,7 +10,7 @@ const SaveButton = ({ hasValidData, isSaving, onSave }) => (
         px-8 sm:px-10 py-4 rounded-2xl text-base sm:text-lg font-black text-white
         shadow-xl transition-all duration-300
         ${hasValidData && !isSaving
-          ? "bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
+          ? "bg-gradient-to-r from-[#1DB954] to-[#1DB954] hover:from-[#1DB954] hover:to-[#1DB954] hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
           : "bg-slate-300 dark:bg-slate-700 cursor-not-allowed text-slate-500 dark:text-slate-400"
         }
       `}

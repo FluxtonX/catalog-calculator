@@ -306,8 +306,7 @@ useEffect(() => {
           monthlyStreamsEst={monthlyStreamsEst}
           effectiveSpotifyRate={effectiveSpotifyRate}
           geoMethodUsed={geoMethodUsed}
-          // eslint-disable-next-line no-undef
-          monthlySpotifyRevenue={monthlySpotifyRevenue}
+          monthlySpotifyRevenue={monthlyRevenue}
           ltmSpotifyRevenue={ltmSpotifyRevenue}
           methodUsed={methodUsed}
           featuredTrackCount={featuredTrackCount}
@@ -330,15 +329,6 @@ useEffect(() => {
           formatCurrency={formatCurrency}
         />
 
-        {/* Methodology — collapsible */}
-        <MethodologyNote />
-
-        {/* Save */}
-        <SaveButton
-          hasValidData={hasValidData}
-          isSaving={isSaving}
-          onSave={handleSave}
-        />
       </div>
     </div>
   );

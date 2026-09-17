@@ -829,14 +829,6 @@ const ValuationTool = () => {
             </div>
 
             <div className="flex gap-2 sm:gap-3 flex-col lg:flex-row">
-              <PlatformSelect
-                platforms={platforms}
-                setPlatforms={setPlatforms}
-                platform={platform}
-                setPlatform={setPlatform}
-                isLoading={isLoading}
-              />
-
               <div className="flex-1 relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
                   <Search size={18} className="text-white/70" />
@@ -1044,7 +1036,7 @@ const ValuationTool = () => {
         )}
 
         {/* Channel Selector */}
-        {!isLoading && showChannelSelector && youtubeChannels.length > 0 && (
+        {!isLoading && platform === "youtube" && showChannelSelector && youtubeChannels.length > 0 && (
           <ChannelSelector
             channels={youtubeChannels}
             onSelectChannel={handleChannelSelect}
@@ -1052,22 +1044,14 @@ const ValuationTool = () => {
           />
         )}
 
-        {/* Biography Section */}
-        {!isLoading && Object.keys(selectedArtists).length > 0 && (() => {
-          const bioArtist = Object.values(selectedArtists).find(a => a.biography);
-          if (!bioArtist || !bioArtist.biography) return null;
-          return (
-            <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 dark:border-slate-800 mb-8">
-              <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">BIOGRAPHY</h3>
-              <BioText text={bioArtist.biography} forceLightMode={false} />
-            </div>
-          );
-        })()}
-
         {/* Artist Analysis */}
         {!isLoading && Object.keys(selectedArtists).length > 0 && (
           <div className="space-y-8">
             {Object.values(selectedArtists)
+              .filter((artistData) => {
+                const dataPlatform = artistData.platform === "apify" ? "spotify" : artistData.platform === "apple" ? "itunes" : artistData.platform;
+                return dataPlatform === platform;
+              })
               .map((artistData, idx) => {
               const pCfg = PLATFORM_CONFIG[artistData.platform] || {
                 label: artistData.importedDistributor || "Custom Data",
