@@ -349,6 +349,85 @@ setEnhancedAlbums(
               singles={singlesForDisplay}
             />
           </div>
+
+          {/* New Tab section for extra API info */}
+          {tabs.length > 0 && (
+            <div className="mt-8 sm:mt-10">
+              <Tabs.Root defaultValue={tabs[0]?.id}>
+                <ScrollArea.Root className="w-full">
+                  <ScrollArea.Viewport className="w-full">
+                    <Tabs.List className="flex items-center gap-1 sm:gap-2 px-1 border-b border-slate-200 dark:border-slate-800">
+                      {tabs.map((tab) => (
+                        <ArtistTabTrigger
+                          key={tab.id}
+                          id={tab.id}
+                          label={tab.label}
+                          Icon={tab.icon}
+                          platform={platform}
+                        />
+                      ))}
+                    </Tabs.List>
+                  </ScrollArea.Viewport>
+                  <ScrollArea.Scrollbar orientation="horizontal" className="flex select-none touch-none p-0.5 bg-slate-100 dark:bg-slate-800 transition-colors duration-[160ms] ease-out hover:bg-slate-200 dark:hover:bg-slate-700 data-[orientation=horizontal]:h-2.5 data-[orientation=horizontal]:flex-col rounded-full">
+                    <ScrollArea.Thumb className="flex-1 bg-slate-300 dark:bg-slate-600 rounded-full relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]" />
+                  </ScrollArea.Scrollbar>
+                </ScrollArea.Root>
+
+                <div className="pt-6 sm:pt-8">
+                  {tabs.some((t) => t.id === "tracks") && (
+                    <Tabs.Content value="tracks" className="outline-none">
+                      <TrackList tracks={topTracks} />
+                    </Tabs.Content>
+                  )}
+                  {tabs.some((t) => t.id === "albums") && (
+                    <Tabs.Content value="albums" className="outline-none">
+                      {albumsForDisplay?.length > 0 ? (
+                        <MediaGrid>
+                          {albumsForDisplay.map((album) => (
+                            <AlbumCard key={album.id} album={album} platform={platform} />
+                          ))}
+                        </MediaGrid>
+                      ) : (
+                        <EmptyState message="No albums found." />
+                      )}
+                    </Tabs.Content>
+                  )}
+                  {tabs.some((t) => t.id === "singles") && (
+                    <Tabs.Content value="singles" className="outline-none">
+                      <MediaGrid>
+                        {singlesForDisplay.map((single) => (
+                          <SingleCard key={single.id} single={single} platform={platform} />
+                        ))}
+                      </MediaGrid>
+                    </Tabs.Content>
+                  )}
+                  {tabs.some((t) => t.id === "popular") && (
+                    <Tabs.Content value="popular" className="outline-none">
+                      <MediaGrid>
+                        {popularReleases?.map((release) => (
+                          <PopularReleaseCard key={release.id} release={release} platform={platform} />
+                        ))}
+                      </MediaGrid>
+                    </Tabs.Content>
+                  )}
+                  {tabs.some((t) => t.id === "related") && (
+                    <Tabs.Content value="related" className="outline-none">
+                      <MediaGrid>
+                        {relatedArtists?.map((artist) => (
+                          <RelatedArtistCard key={artist.id} artist={artist} platform={platform} />
+                        ))}
+                      </MediaGrid>
+                    </Tabs.Content>
+                  )}
+                  {tabs.some((t) => t.id === "cities") && (
+                    <Tabs.Content value="cities" className="outline-none">
+                      <TopCitiesList cities={topCities} />
+                    </Tabs.Content>
+                  )}
+                </div>
+              </Tabs.Root>
+            </div>
+          )}
         </div>
       </div>
 
