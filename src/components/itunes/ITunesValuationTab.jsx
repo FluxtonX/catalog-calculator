@@ -673,77 +673,10 @@ const trackImage = rawImage
             </div>
           ))}
         </div>
-        <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-3">
-          "Apple Music pays ~$0.008/stream" vs Spotify's average
-          $0.003–$0.005/stream (2024 industry rates). Actual payouts vary by
-          region, subscription tier, and label agreement.
-        </p>
+
       </div>
 
-      {/* ── Methodology toggle ───────────────────────────── */}
-      <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-        <button
-          onClick={() => setShowMethodology((v) => !v)}
-          className="w-full flex items-center justify-between gap-3 p-4 sm:p-5"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/15 rounded-xl">
-              <Info size={16} className="text-blue-600 dark:text-blue-400" />
-            </div>
-            <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              Methodology & Notes
-            </span>
-          </div>
-          {showMethodology ? (
-            <ChevronUp size={18} className="text-slate-400" />
-          ) : (
-            <ChevronDown size={18} className="text-slate-400" />
-          )}
-        </button>
 
-        {showMethodology && (
-          <div className="border-t border-slate-200 dark:border-slate-800 p-4 sm:p-5">
-            <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
-              <li>
-                Monthly stream estimates are derived from Apple Music popularity
-                scores (0–100) using an exponential model where 100 = ~6M
-                streams/month, 50 = ~1.1M streams/month.
-              </li>
-              <li>
-                Apple Music payout rate used:{" "}
-                <strong className="text-slate-900 dark:text-white">
-                  $0.0080 per stream
-                </strong>{" "}
-                (industry average as of 2024).
-              </li>
-              <li>
-                LTM (Last Twelve Months) Revenue is shown as a low/high range:
-                Monthly Streams range × Rate × 12, then adjusted for catalog
-                depth.
-              </li>
-              <li>
-                Catalog bonus adds up to +50% based on number of albums and
-                singles in the artist's discography.
-              </li>
-              <li>
-                Valuations use revenue multiples: Conservative (6×), Market
-                (8×), Premium (10×).
-              </li>
-              <li>
-                Deal Score (0–100) combines popularity, catalog depth, and
-                stream volume estimates.
-              </li>
-              <li>
-                <strong className="text-slate-900 dark:text-white">
-                  Disclaimer:
-                </strong>{" "}
-                These are estimates only. Actual royalties vary by territory,
-                subscription tier, and label agreements.
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
       {/* ── Save / Download PDF ──────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">
         <div>

@@ -532,8 +532,6 @@ export default function LandingPage() {
 
                 <a 
                   href="https://www.creativefundingagency.com/application"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="mx-auto flex w-full max-w-[380px] py-3.5 bg-gradient-to-r from-[#C29C5B] to-[#A27A3F] hover:brightness-110 rounded-xl text-[15px] font-medium text-white shadow-xl transition-all items-center justify-center gap-3"
                 >
                   Sell Your Catalog Now
