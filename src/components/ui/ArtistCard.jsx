@@ -304,32 +304,32 @@ setEnhancedAlbums(
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 px-2 sm:px-0">
+    <div className="space-y-6 sm:space-y-8 px-2 sm:px-0">
       {/* ── Artist Info Card ─────────────────────────────── */}
-      <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
-        {!hideHeader && (
-          <ArtistHeader
-            name={name}
-            image={image}
-            followers={followers}
-            monthlyListeners={monthlyListeners}
-            popularity={popularity}
-            genres={genres}
-            platform={platform}
-            spotifyUrl={spotifyUrl}
-            youtubeUrl={youtubeUrl}
-            appleUrl={appleUrl}
-            externalLinks={externalLinks}
-            onLaunchValuation={handleLaunchValuation}
-            getSocialIcon={getSocialIcon}
-            onCalculateRoyalties={() => setShowValuation(true)}
-          />
-        )}
+      {!hideHeader && (
+        <ArtistHeader
+          name={name}
+          image={image}
+          followers={followers}
+          monthlyListeners={monthlyListeners}
+          popularity={popularity}
+          genres={genres}
+          platform={platform}
+          spotifyUrl={spotifyUrl}
+          youtubeUrl={youtubeUrl}
+          appleUrl={appleUrl}
+          externalLinks={externalLinks}
+          onLaunchValuation={handleLaunchValuation}
+          getSocialIcon={getSocialIcon}
+          onCalculateRoyalties={() => setShowValuation(true)}
+        />
+      )}
 
-        {/* ── Valuation Auto-Render ──────────────── */}
+      {/* ── Valuation Auto-Render & Stats ──────────────── */}
+      <div className="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800">
         <div
           ref={valuationSectionRef}
-          className={`relative overflow-hidden border-t-2 border-b-2 ${valuationBorderColor} ${valuationGlowRing} bg-gradient-to-br ${valuationBgColor} transition-all duration-300`}
+          className={`relative overflow-hidden border-b-2 ${valuationBorderColor} ${valuationGlowRing} bg-gradient-to-br ${valuationBgColor} transition-all duration-300`}
         >
           {/* Accent bar at top */}
           <div className={`h-1.5 w-full ${valuationAccentBar}`} />
@@ -340,7 +340,7 @@ setEnhancedAlbums(
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 lg:p-8">
-          <div className="mt-8">
+          <div className="mt-4 sm:mt-6">
             <ArtistStats
               stats={stats}
               platform={platform}
