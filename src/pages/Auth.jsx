@@ -62,9 +62,25 @@ export default function Auth() {
     }
 
     // Step 2: Normal auth state listener for already-logged-in users
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, !!session);
       if (session) {
+        // Upsert user profile to database
+        try {
+          const user = session.user;
+          const { error: upsertError } = await supabase
+            .from('profiles')
+            .upsert({
+              id: user.id,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+              avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+            }, { onConflict: 'id' });
+          if (upsertError) console.error("Error upserting profile:", upsertError);
+        } catch (err) {
+          console.error("Failed to upsert profile:", err);
+        }
+
         const hasPending = !!window.localStorage.getItem('cc_pending_extraction');
         navigate(hasPending ? '/import' : '/valuation', { replace: true });
       }
