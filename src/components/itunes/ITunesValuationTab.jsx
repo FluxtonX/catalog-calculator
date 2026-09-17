@@ -261,7 +261,7 @@ const catalogBonus = Math.min(
   return (
     <div className="space-y-5 sm:space-y-7">
       {/* ── Header banner ────────────────────────────────── */}
-  <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 p-5 sm:p-8 shadow-2xl">
+  <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-900 via-zinc-800 to-slate-900 p-5 sm:p-8 shadow-2xl border border-slate-800">
   <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full blur-3xl pointer-events-none" />
   <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-2xl pointer-events-none" />
 
@@ -404,10 +404,10 @@ const catalogBonus = Math.min(
     label="Avg Track Popularity"
     value={`${Math.round(calculations.avgTop10Popularity)}/100`}
     sub={`Top ${calculations.tracksUsed} tracks avg`}
-    borderColor="border-slate-200 dark:border-slate-800/40"
-    iconBg="bg-slate-500/15"
-    iconColor="text-slate-600 dark:text-slate-400"
-    valueColor="text-slate-600 dark:text-slate-400"
+    borderColor="border-slate-200 dark:border-slate-800"
+    iconBg="bg-slate-100 dark:bg-slate-800"
+    iconColor="text-slate-900 dark:text-white"
+    valueColor="text-slate-900 dark:text-white"
   />
   {/* hover tooltip */}
   <div className="absolute top-2 right-2 p-1 rounded-full bg-white/80 dark:bg-slate-800 cursor-default">
@@ -428,30 +428,30 @@ const catalogBonus = Math.min(
           label="Payout Rate"
           value="$0.0080"
           sub="per stream"
-          borderColor="border-slate-200 dark:border-slate-800/40"
-          iconBg="bg-slate-500/15"
-          iconColor="text-slate-600 dark:text-slate-400"
-          valueColor="text-slate-600 dark:text-slate-400"
+          borderColor="border-slate-200 dark:border-slate-800"
+          iconBg="bg-slate-100 dark:bg-slate-800"
+          iconColor="text-slate-900 dark:text-white"
+          valueColor="text-slate-900 dark:text-white"
         />
         <ITunesMetricCard
           icon={Disc3}
           label="Catalog Depth"
           value={`${calculations.totalAlbums}A / ${calculations.totalSingles}S`}
           sub="Albums / Singles"
-          borderColor="border-slate-200 dark:border-slate-800/40"
-          iconBg="bg-slate-500/15"
-          iconColor="text-slate-600 dark:text-slate-400"
-          valueColor="text-slate-600 dark:text-slate-400"
+          borderColor="border-slate-200 dark:border-slate-800"
+          iconBg="bg-slate-100 dark:bg-slate-800"
+          iconColor="text-slate-900 dark:text-white"
+          valueColor="text-slate-900 dark:text-white"
         />
         <ITunesMetricCard
           icon={Star}
           label="Catalog Bonus"
           value={`+${calculations.catalogBonus.toFixed(0)}%`}
           sub="LTM adjustment"
-          borderColor="border-slate-200 dark:border-slate-800/40"
-          iconBg="bg-slate-500/15"
-          iconColor="text-slate-600 dark:text-slate-400"
-          valueColor="text-slate-600 dark:text-slate-400"
+          borderColor="border-slate-200 dark:border-slate-800"
+          iconBg="bg-slate-100 dark:bg-slate-800"
+          iconColor="text-slate-900 dark:text-white"
+          valueColor="text-slate-900 dark:text-white"
         />
       </div>
 
@@ -459,8 +459,8 @@ const catalogBonus = Math.min(
 {topTracks?.length > 0 && (
   <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
     <div className="flex items-center gap-3 p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800">
-      <div className="p-2.5 bg-slate-500/15 rounded-xl">
-        <Music size={18} className="text-slate-600 dark:text-slate-400" />
+      <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl">
+        <Music size={18} className="text-slate-900 dark:text-white" />
       </div>
       <div>
         <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
@@ -499,8 +499,8 @@ const trackImage = rawImage
   ? rawImage.replace("100x100", "300x300").replace("60x60", "300x300")
   : null;
         const barColor =
-          pop >= 70 ? "bg-slate-800 dark:bg-slate-300" :
-          pop >= 40 ? "bg-slate-600 dark:bg-slate-400" :
+          pop >= 70 ? "bg-slate-900 dark:bg-white" :
+          pop >= 40 ? "bg-slate-700 dark:bg-slate-300" :
                       "bg-slate-400 dark:bg-slate-500";
 
         return (
@@ -521,7 +521,7 @@ const trackImage = rawImage
                 className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0 ring-1 ring-slate-200 dark:ring-slate-700"
               />
             ) : (
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-slate-500 to-slate-600 flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center flex-shrink-0">
                 <Music size={14} className="text-white" />
               </div>
             )}
@@ -558,7 +558,7 @@ const trackImage = rawImage
             {/* Est. annual revenue */}
             <div className="text-right flex-shrink-0 w-20">
               <p className="text-[10px] text-slate-400 font-medium">Annual Rev.</p>
-              <p className="text-xs font-black text-slate-600 dark:text-slate-400">
+              <p className="text-xs font-black text-slate-900 dark:text-white">
                 {formatCurrency(revenue)}
               </p>
             </div>
@@ -577,7 +577,7 @@ const trackImage = rawImage
       </span>
       <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
         Total Est. Annual:{" "}
-        <span className="text-slate-600 dark:text-slate-400">
+        <span className="text-slate-900 dark:text-white">
           {formatCurrency(
             (topTracks ?? []).slice(0, 10).reduce((sum, t, i) => {
               const real = t.popularity ?? t.trackPopularity ?? 0;
@@ -595,8 +595,8 @@ const trackImage = rawImage
       {/* ── Valuation scenarios ───────────────────────────── */}
       <div>
         <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="p-2.5 bg-slate-500/15 rounded-xl">
-            <BarChart3 size={20} className="text-slate-600 dark:text-slate-400" />
+          <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl">
+            <BarChart3 size={20} className="text-slate-900 dark:text-white" />
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
@@ -613,7 +613,7 @@ const trackImage = rawImage
             label="Conservative"
             multiple={6}
             value={calculations.conservative}
-            color="from-blue-400 to-blue-600"
+            color="from-slate-700 to-slate-900"
             icon={TrendingUp}
             isHighlighted={false}
           />
@@ -621,8 +621,8 @@ const trackImage = rawImage
             label="Market"
             multiple={8}
             value={calculations.market}
-            color="from-slate-400 to-slate-600"
-            gradient="bg-gradient-to-br from-slate-600 via-slate-700 to-slate-800"
+            color="from-slate-800 to-slate-900"
+            gradient="bg-gradient-to-br from-slate-800 via-zinc-800 to-slate-900"
             icon={DollarSign}
             isHighlighted={true}
           />
@@ -630,7 +630,7 @@ const trackImage = rawImage
             label="Premium"
             multiple={10}
             value={calculations.premium}
-            color="from-purple-400 to-purple-600"
+            color="from-slate-700 to-slate-900"
             icon={Star}
             isHighlighted={false}
           />
@@ -647,7 +647,7 @@ const trackImage = rawImage
             {
               label: "Apple Music (est.)",
               rate: APPLE_MUSIC_RATE,
-              color: "bg-gradient-to-r from-slate-500 to-slate-600",
+              color: "bg-gradient-to-r from-slate-800 to-slate-900",
               pct: 100,
             },
             {
@@ -673,77 +673,10 @@ const trackImage = rawImage
             </div>
           ))}
         </div>
-        <p className="text-[10px] sm:text-xs text-slate-400 dark:text-slate-500 mt-3">
-          "Apple Music pays ~$0.008/stream" vs Spotify's average
-          $0.003–$0.005/stream (2024 industry rates). Actual payouts vary by
-          region, subscription tier, and label agreement.
-        </p>
+
       </div>
 
-      {/* ── Methodology toggle ───────────────────────────── */}
-      <div className="bg-gradient-to-r from-slate-50 to-slate-100/30 dark:from-slate-900 dark:to-slate-900/20 border-2 border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg">
-        <button
-          onClick={() => setShowMethodology((v) => !v)}
-          className="w-full flex items-center justify-between gap-3 p-4 sm:p-5"
-        >
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/15 rounded-xl">
-              <Info size={16} className="text-blue-600 dark:text-blue-400" />
-            </div>
-            <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-              Methodology & Notes
-            </span>
-          </div>
-          {showMethodology ? (
-            <ChevronUp size={18} className="text-slate-400" />
-          ) : (
-            <ChevronDown size={18} className="text-slate-400" />
-          )}
-        </button>
 
-        {showMethodology && (
-          <div className="border-t border-slate-200 dark:border-slate-800 p-4 sm:p-5">
-            <ul className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 space-y-2 list-disc list-inside">
-              <li>
-                Monthly stream estimates are derived from Apple Music popularity
-                scores (0–100) using an exponential model where 100 = ~6M
-                streams/month, 50 = ~1.1M streams/month.
-              </li>
-              <li>
-                Apple Music payout rate used:{" "}
-                <strong className="text-slate-900 dark:text-white">
-                  $0.0080 per stream
-                </strong>{" "}
-                (industry average as of 2024).
-              </li>
-              <li>
-                LTM (Last Twelve Months) Revenue is shown as a low/high range:
-                Monthly Streams range × Rate × 12, then adjusted for catalog
-                depth.
-              </li>
-              <li>
-                Catalog bonus adds up to +50% based on number of albums and
-                singles in the artist's discography.
-              </li>
-              <li>
-                Valuations use revenue multiples: Conservative (6×), Market
-                (8×), Premium (10×).
-              </li>
-              <li>
-                Deal Score (0–100) combines popularity, catalog depth, and
-                stream volume estimates.
-              </li>
-              <li>
-                <strong className="text-slate-900 dark:text-white">
-                  Disclaimer:
-                </strong>{" "}
-                These are estimates only. Actual royalties vary by territory,
-                subscription tier, and label agreements.
-              </li>
-            </ul>
-          </div>
-        )}
-      </div>
       {/* ── Save / Download PDF ──────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">
         <div>
@@ -757,7 +690,7 @@ const trackImage = rawImage
         <button
           onClick={handleSave}
           disabled={isSaving}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-700 hover:from-slate-700 hover:to-slate-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap border border-slate-700"
         >
           {isSaving ? (
             <>

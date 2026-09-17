@@ -12,11 +12,8 @@ const AdminPanel = () => {
   const [email, setEmail] = useState('');
   const [selectedRole, setSelectedRole] = useState('user');
   const [searchQuery, setSearchQuery] = useState('');
-  const [users] = useState([
-    { id: 1, name: 'muhammadnasirpk44', email: 'muhammadnasirpk44@gmail.com', role: 'admin' },
-    { id: 2, name: 'Amit Noach', email: 'amitnoa@base44.com', role: 'admin' },
-    { id: 3, name: 'Gigi Fortune', email: 'gigi@creativefundingagency.com', role: 'admin' },
-  ]);
+  const [users, setUsers] = useState([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
   // Settings State
   const [multiples, setMultiples] = useState({
@@ -67,8 +64,27 @@ const AdminPanel = () => {
   useEffect(() => {
     if (activeTab === 'reports') {
       fetchAllReports();
+    } else if (activeTab === 'users') {
+      fetchUsers();
     }
   }, [activeTab]);
+
+  const fetchUsers = async () => {
+    setIsLoadingUsers(true);
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (err) {
+      console.error('Failed to fetch users', err);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
 
   const handleSaveSettings = () => {
     localStorage.setItem('admin_settings_conservative_multiple', multiples.conservative);
@@ -91,8 +107,8 @@ const AdminPanel = () => {
   };
 
   const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
+    (user.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (user.email || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -389,9 +405,9 @@ const AdminPanel = () => {
                     {filteredUsers.map((user) => (
                       <UserCard
                         key={user.id}
-                        name={user.name}
+                        name={user.full_name || 'Unnamed User'}
                         email={user.email}
-                        role={user.role}
+                        role={user.role || 'user'}
                         onRemove={() => handleRemove(user.id)}
                       />
                     ))}

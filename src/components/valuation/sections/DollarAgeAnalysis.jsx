@@ -8,27 +8,27 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
   const { dollarAge, trackBreakdown, totalWeightedAge, totalLTMEarnings } = dollarAgeData;
 
   const stability = dollarAge >= 5
-    ? { label: "Mature Catalog", sub: "High Stability", color: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500", pct: 100, bar: "from-emerald-500 to-emerald-400" }
+    ? { label: "Mature Catalog", sub: "High Stability", color: "text-[#1DB954] dark:text-[#1DB954]", dot: "bg-[#1DB954]", pct: 100, bar: "from-[#1DB954] to-[#1DB954]" }
     : dollarAge >= 3
-    ? { label: "Established Catalog", sub: "Moderate Stability", color: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500", pct: 65, bar: "from-emerald-500 to-emerald-400" }
-    : { label: "Young Catalog", sub: "Growth Phase", color: "text-orange-600 dark:text-orange-400", dot: "bg-orange-500", pct: 35, bar: "from-orange-500 to-emerald-500" };
+    ? { label: "Established Catalog", sub: "Moderate Stability", color: "text-[#1DB954] dark:text-[#1DB954]/70", dot: "bg-[#1DB954]", pct: 65, bar: "from-[#1DB954] to-[#1DB954]/70" }
+    : { label: "Young Catalog", sub: "Growth Phase", color: "text-[#1DB954] dark:text-[#1DB954]/70", dot: "bg-[#1DB954]", pct: 35, bar: "from-[#1DB954] to-[#1DB954]" };
 
   
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
       <div className="flex items-center gap-2">
-        <SectionHeader icon={Calendar} title="Dollar Age Analysis" subtitle="Weighted average age of catalog earnings" gradient="from-emerald-500 to-orange-600" />
+        <SectionHeader icon={Calendar} title="Dollar Age Analysis" subtitle="Weighted average age of catalog earnings" gradient="from-[#1DB954] to-[#1DB954]" />
         <InfoTooltip content="Dollar Age = Σ(Track Age × LTM Earnings) / Total LTM Earnings. Higher = more stable income." />
       </div>
 
       {/* Top section — big number + summaries */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {/* Dollar Age */}
-        <div className="bg-gradient-to-br from-emerald-50 to-orange-50 dark:from-emerald-900/20 dark:to-orange-900/20 border-2 border-emerald-200 dark:border-emerald-500/30 rounded-2xl p-5 text-center">
-          <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide mb-2">Dollar Age</p>
-          <p className="text-5xl font-black text-emerald-600 dark:text-emerald-400 leading-none">{dollarAge.toFixed(1)}</p>
-          <p className="text-xs text-emerald-500 mt-1">years</p>
-          <div className="mt-3 pt-3 border-t border-emerald-200 dark:border-emerald-500/30">
+        <div className="bg-gradient-to-br from-[#1DB954]/5 to-[#1DB954]/5 dark:from-[#1DB954]/20 dark:to-[#1DB954]/20 border-2 border-[#1DB954]/20 dark:border-[#1DB954]/30 rounded-2xl p-5 text-center">
+          <p className="text-xs font-bold text-[#1DB954] dark:text-[#1DB954]/70 uppercase tracking-wide mb-2">Dollar Age</p>
+          <p className="text-5xl font-black text-[#1DB954] dark:text-[#1DB954]/70 leading-none">{dollarAge.toFixed(1)}</p>
+          <p className="text-xs text-[#1DB954] mt-1">years</p>
+          <div className="mt-3 pt-3 border-t border-[#1DB954]/20 dark:border-[#1DB954]/30">
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className={`w-2 h-2 rounded-full animate-pulse ${stability.dot}`} />
               <span className={`text-xs font-bold ${stability.color}`}>{stability.label}</span>
@@ -51,9 +51,9 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
   </div>
   <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">{(totalWeightedAge / 1000).toFixed(1)}K</p>
 </div>
-          <div className="col-span-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-500/30 rounded-2xl p-3">
-            <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-1">Formula</p>
-            <p className="text-xs text-emerald-600 dark:text-emerald-500 font-mono">
+          <div className="col-span-2 bg-[#1DB954]/5 dark:bg-[#1DB954]/20 border border-[#1DB954]/20 dark:border-[#1DB954]/30 rounded-2xl p-3">
+            <p className="text-[10px] font-bold text-[#1DB954] dark:text-[#1DB954]/70 uppercase mb-1">Formula</p>
+            <p className="text-xs text-[#1DB954] dark:text-[#1DB954] font-mono">
               Σ(Track Age × LTM Earnings) ÷ Total LTM Earnings
             </p>
           </div>
@@ -66,7 +66,7 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Top Tracks Contribution</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {trackBreakdown.map((track, idx) => (
-              <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-200 dark:border-slate-700 hover:border-emerald-300 dark:hover:border-emerald-500/40 transition-colors">
+              <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-200 dark:border-slate-700 hover:border-[#1DB954]/30 dark:hover:border-[#1DB954]/40 transition-colors">
                 <div className="flex justify-between items-start gap-2 mb-2">
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white truncate">{track.name}</p>
@@ -74,7 +74,7 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
                       Released {new Date(track.releaseDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })}
                     </p>
                   </div>
-                  <span className="text-base font-black text-emerald-500 flex-shrink-0">{track.ageInYears.toFixed(1)}y</span>
+                  <span className="text-base font-black text-[#1DB954] flex-shrink-0">{track.ageInYears.toFixed(1)}y</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[10px]">
                   <div className="bg-white dark:bg-slate-900 rounded-lg p-1.5 text-center">

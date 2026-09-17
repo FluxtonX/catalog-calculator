@@ -70,18 +70,18 @@ const PLATFORM_CONFIG = {
     label: "Spotify",
     icon: SpotifyIcon,
     placeholder: "Search artist on Spotify...",
-    color: "from-emerald-500 via-green-500 to-teal-600",
+    color: "from-[#1DB954] to-[#1DB954]",
     bgPattern:
-      "radial-gradient(circle at 30% 50%, rgba(16, 185, 129, 0.25) 0%, transparent 60%)",
+      "radial-gradient(circle at 30% 50%, rgba(29, 185, 84, 0.25) 0%, transparent 60%)",
     tip: "Get official artist metrics, stream counts, and financial detailed analytics.",
-    itemCheckedText: "text-emerald-600 dark:text-emerald-400",
-    itemCheckedBg: "bg-emerald-50 dark:bg-emerald-900/30",
-    checkColor: "text-emerald-500",
-    iconBg: "bg-emerald-500/15",
-    iconColor: "text-emerald-500",
-    liveBadgeBg: "bg-emerald-500/10 border-emerald-500/20",
-    liveDot: "bg-emerald-500",
-    liveText: "text-emerald-600 dark:text-emerald-400",
+    itemCheckedText: "text-[#1DB954] dark:text-[#1DB954]",
+    itemCheckedBg: "bg-[#1DB954]/10 dark:bg-[#1DB954]/30",
+    checkColor: "text-[#1DB954]",
+    iconBg: "bg-[#1DB954]/15",
+    iconColor: "text-[#1DB954]",
+    liveBadgeBg: "bg-[#1DB954]/10 border-[#1DB954]/20",
+    liveDot: "bg-[#1DB954]",
+    liveText: "text-[#1DB954] dark:text-[#1DB954]",
   },
   youtube: {
     label: "YouTube",
@@ -91,14 +91,14 @@ const PLATFORM_CONFIG = {
     bgPattern:
       "radial-gradient(circle at 70% 50%, rgba(255, 0, 0, 0.25) 0%, transparent 60%)",
     tip: "Discover channel statistics, subscriber counts, and video performance.",
-    itemCheckedText: "text-red-600 dark:text-red-400",
-    itemCheckedBg: "bg-red-50 dark:bg-red-900/30",
-    checkColor: "text-red-500",
-    iconBg: "bg-red-500/15",
-    iconColor: "text-red-500",
-    liveBadgeBg: "bg-red-500/10 border-red-500/20",
-    liveDot: "bg-red-500",
-    liveText: "text-red-600 dark:text-red-400",
+    itemCheckedText: "text-[#FF0000] dark:text-[#FF0000]",
+    itemCheckedBg: "bg-[#FF0000]/10 dark:bg-[#FF0000]/30",
+    checkColor: "text-[#FF0000]",
+    iconBg: "bg-[#FF0000]/15",
+    iconColor: "text-[#FF0000]",
+    liveBadgeBg: "bg-[#FF0000]/10 border-[#FF0000]/20",
+    liveDot: "bg-[#FF0000]",
+    liveText: "text-[#FF0000] dark:text-[#FF0000]",
   },
   itunes: {
     label: "Apple Music",
@@ -829,8 +829,6 @@ const ValuationTool = () => {
             </div>
 
             <div className="flex gap-2 sm:gap-3 flex-col lg:flex-row">
-
-
               <div className="flex-1 relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none">
                   <Search size={18} className="text-white/70" />
@@ -1038,7 +1036,7 @@ const ValuationTool = () => {
         )}
 
         {/* Channel Selector */}
-        {!isLoading && platform === 'youtube' && showChannelSelector && youtubeChannels.length > 0 && (
+        {!isLoading && platform === "youtube" && showChannelSelector && youtubeChannels.length > 0 && (
           <ChannelSelector
             channels={youtubeChannels}
             onSelectChannel={handleChannelSelect}
@@ -1046,13 +1044,14 @@ const ValuationTool = () => {
           />
         )}
 
-
-
         {/* Artist Analysis */}
         {!isLoading && Object.keys(selectedArtists).length > 0 && (
           <div className="space-y-8">
             {Object.values(selectedArtists)
-              .filter(artistData => artistData.platform === platform || artistData.platform === 'custom')
+              .filter((artistData) => {
+                const dataPlatform = artistData.platform === "apify" ? "spotify" : artistData.platform === "apple" ? "itunes" : artistData.platform;
+                return dataPlatform === platform;
+              })
               .map((artistData, idx) => {
               const pCfg = PLATFORM_CONFIG[artistData.platform] || {
                 label: artistData.importedDistributor || "Custom Data",

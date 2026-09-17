@@ -7,6 +7,7 @@ import { getNormalizedArtistData, searchYouTube, searchItunes, searchAppleMusic,
 import { getCombinedValuation } from '../core/calculations';
 import { useArtistStore } from '../store/artistStore';
 import CfaMasterValuation from '../components/valuation/CfaMasterValuation';
+import { formatCurrency } from '../components/valuation/hooks/useValuationLogic';
 
 import imgTuneCore from '../assets/distribution logos/tunecore.png';
 import imgDistroKid from '../assets/distribution logos/distrokid.png';
@@ -23,7 +24,18 @@ import imgConcord from '../assets/distribution logos/Concord-LogoBlack-CMYK.png'
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { setSelectedArtists, setSearchQuery: setStoreSearchQuery, clearImportedData, setPlatforms: setStorePlatforms } = useArtistStore();
+  const { 
+    setSelectedArtists, 
+    setSearchQuery: setStoreSearchQuery, 
+    clearImportedData, 
+    setPlatforms: setStorePlatforms,
+    currency,
+    setCurrency,
+    royaltyShare,
+    setRoyaltyShare,
+    exchangeRates,
+    fetchExchangeRates
+  } = useArtistStore();
   
   // Option 1 State
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,24 +48,12 @@ export default function LandingPage() {
   const [estimatedValue, setEstimatedValue] = useState(null);
   const [searchedArtists, setSearchedArtists] = useState(null);
   
-  // Results Options State
-  const [currency, setCurrency] = useState('USD');
-  const [exchangeRates, setExchangeRates] = useState({ USD: 1 });
-  const [availableCurrencies, setAvailableCurrencies] = useState(['USD', 'GBP', 'EUR']);
-  const [royaltyShare, setRoyaltyShare] = useState(100);
+  const availableCurrencies = Object.keys(exchangeRates).length > 1 ? Object.keys(exchangeRates) : ['USD', 'GBP', 'EUR'];
   
   // Fetch exchange rates on mount
   useEffect(() => {
-    fetch('https://api.exchangerate-api.com/v4/latest/USD')
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.rates) {
-          setExchangeRates(data.rates);
-          setAvailableCurrencies(Object.keys(data.rates));
-        }
-      })
-      .catch(err => console.error("Failed to load exchange rates", err));
-  }, []);
+    fetchExchangeRates();
+  }, [fetchExchangeRates]);
   
   // Auto-suggest State
   const [suggestions, setSuggestions] = useState([]);
@@ -251,21 +251,7 @@ export default function LandingPage() {
     }
   };
 
-  const formatLocalCurrency = (value) => {
-    if (value === null) return "$0";
-    const adjustedValue = value * (royaltyShare / 100);
-    const rate = exchangeRates[currency] || 1;
-    
-    let symbol = '$';
-    try {
-      symbol = (0).toLocaleString('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).replace(/\d|\.|,/g, '').trim();
-    // eslint-disable-next-line no-unused-vars, no-empty
-    } catch(e) {}
-    
-    const converted = adjustedValue * rate;
-    
-    return `${symbol}${Math.round(converted).toLocaleString('en-US')}`;
-  };
+
 
   return (
     <div className="min-h-screen bg-[#05080F] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
@@ -456,10 +442,10 @@ export default function LandingPage() {
                   <>
                     <p className="text-[10px] text-[#00E5FF] font-bold tracking-widest uppercase text-center mb-2">ESTIMATED CATALOG VALUE</p>
                     <p className="text-[3.5rem] font-bold text-center tracking-tight mb-2 leading-none text-white">
-                      {formatLocalCurrency(estimatedValue)}
+                      {formatCurrency(estimatedValue)}
                     </p>
-                    <p className="text-[11px] text-white/40 text-center mb-6 max-w-sm mx-auto">
-                      This estimate is based on their top 10 songs only
+                    <p className="text-white/50 text-xs sm:text-sm font-medium uppercase mt-2 text-center mb-6">
+                      THIS ESTIMATE IS AN INDICATION BASED ON YOUR TOP 10 TRACKS
                     </p>
                   </>
                 
@@ -546,8 +532,6 @@ export default function LandingPage() {
 
                 <a 
                   href="https://www.creativefundingagency.com/application"
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="mx-auto flex w-full max-w-[380px] py-3.5 bg-gradient-to-r from-[#C29C5B] to-[#A27A3F] hover:brightness-110 rounded-xl text-[15px] font-medium text-white shadow-xl transition-all items-center justify-center gap-3"
                 >
                   Sell Your Catalog Now

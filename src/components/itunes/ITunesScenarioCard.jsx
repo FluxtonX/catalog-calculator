@@ -19,7 +19,7 @@ const ITunesScenarioCard = ({
     }`}
   >
     {isHighlighted && (
-      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white dark:bg-slate-800 rounded-full text-[10px] font-black text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 shadow-md">
+      <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white dark:bg-slate-800 rounded-full text-[10px] font-black text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 shadow-md">
         MARKET RATE
       </div>
     )}
@@ -44,7 +44,7 @@ const ITunesScenarioCard = ({
       {multiple}x Revenue Multiple
     </p>
     <p
-      className={`text-xl sm:text-3xl font-black ${isHighlighted ? "text-white" : color.includes("pink") ? "text-slate-600 dark:text-slate-400" : color.includes("blue") ? "text-blue-600 dark:text-blue-400" : "text-slate-600 dark:text-slate-400"}`}
+      className={`text-xl sm:text-3xl font-black ${isHighlighted ? "text-white" : "text-slate-900 dark:text-white"}`}
     >
       {formatCurrency(value)}
     </p>

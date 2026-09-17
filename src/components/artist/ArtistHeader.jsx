@@ -70,7 +70,7 @@ const StatPill = ({ icon: Icon, value, label, gradient, title }) => (
             <span className="font-black text-sm sm:text-xl text-white truncate leading-none">
               {typeof value === 'number' ? value.toLocaleString() : (!isNaN(Number(value)) ? Number(value).toLocaleString() : value)}
             </span>
-            <span className="text-white/60 text-[10px] sm:text-sm font-medium whitespace-nowrap hidden sm:inline leading-none">
+            <span className="text-white/60 text-[10px] sm:text-sm font-medium whitespace-nowrap leading-none">
               {label}
             </span>
           </div>
@@ -225,7 +225,7 @@ const ArtistHeader = ({
                 <StatPill
                   icon={Users}
                   value={followers}
-                  label={isItunes ? "Listeners" : "Followers"}
+                  label={isItunes ? "Listeners" : isYoutube ? "Subscribers" : "Followers"}
                   gradient={
                     isItunes
                       ? "from-slate-600 to-zinc-700"
@@ -253,7 +253,7 @@ const ArtistHeader = ({
             </div>
 
             {/* Genres */}
-            {!isItunes && genres?.filter(g => !['youtube', 'video content'].includes(g.toLowerCase()))?.length > 0 && (
+            {genres?.length > 0 && !isYoutube && (
               <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-5 sm:mb-6">
                 {genres
                   .filter(g => !['youtube', 'video content'].includes(g.toLowerCase()))

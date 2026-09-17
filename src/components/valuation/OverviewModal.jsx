@@ -33,6 +33,8 @@ import {
 import { useArtistStore } from "../../store/artistStore";
 import ChannelSelector from "../youtube/ChannelSelector";
 import CfaMasterValuation from "./CfaMasterValuation";
+import { getCombinedValuation } from "../../core/calculations";
+import { formatCurrency } from "./hooks/useValuationLogic";
 
 const SUGGESTED_ARTISTS = [
   "Taylor Swift",
@@ -356,6 +358,10 @@ const OverviewModal = ({ onClose }) => {
     }
   };
 
+  const estimatedValue = Object.keys(selectedArtists).length > 0 ? getCombinedValuation(selectedArtists) : null;
+
+
+
   // Extract master data for the banner
   const primaryArtist = selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || Object.values(selectedArtists)[0] || null;
 
@@ -380,32 +386,47 @@ const OverviewModal = ({ onClose }) => {
              <div className="absolute top-[20%] -left-[10%] w-[30%] h-[100%] bg-emerald-500/10 blur-3xl rounded-full" />
            </div>
            
-           <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-             {/* Artist Avatar */}
-             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl flex-shrink-0 bg-slate-800">
-               {primaryArtist?.image ? (
-                 <img src={primaryArtist.image} alt={primaryArtist.name} className="w-full h-full object-cover" />
-               ) : (
-                 <div className="w-full h-full flex items-center justify-center text-white/50">
-                    <Music size={48} />
-                 </div>
-               )}
-             </div>
-             
-             {/* Artist Info */}
-             <div className="text-center md:text-left text-white">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 border border-white/20 rounded-full text-xs font-semibold tracking-wider uppercase mb-3">
-                  <Sparkles size={12} className="text-emerald-400" />
-                  MUSIC STATS
+           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 w-full">
+              <div className="flex flex-col md:flex-row items-center gap-6">
+                {/* Artist Avatar */}
+                <div className="w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl flex-shrink-0 bg-slate-800">
+                  {primaryArtist?.image ? (
+                    <img src={primaryArtist.image} alt={primaryArtist.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-500">
+                      <Music2 size={40} />
+                    </div>
+                  )}
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-2 flex flex-col gap-1">
-                  <span className="text-lg md:text-xl font-semibold text-white/70">Quick overview of</span>
-                  <span>{primaryArtist?.name || "Artist"}</span>
-                </h1>
-                <p className="text-white/60 font-medium">
-                   United States • Global Catalog
-                </p>
-             </div>
+                
+                {/* Artist Info */}
+                <div className="text-center md:text-left text-white">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-3">
+                    <Sparkles size={12} className="text-[#1DB954]" />
+                    <span className="text-[10px] font-bold tracking-widest uppercase text-white/90">Music Stats</span>
+                  </div>
+                  <h1 className="text-2xl md:text-4xl font-black tracking-tight mb-1 flex flex-col">
+                    <span className="text-sm md:text-lg font-semibold text-white/70">Quick overview of</span>
+                    <span>{primaryArtist?.name || "Artist"}</span>
+                  </h1>
+                  <p className="text-white/60 font-medium text-sm">
+                     United States • Global Catalog
+                  </p>
+               </div>
+              </div>
+
+              {/* Estimated Catalog Value (Right Aligned in Header) */}
+              {!isLoading && estimatedValue && (
+                <div className="md:ml-auto flex flex-col items-center md:items-end text-center md:text-right bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl">
+                  <p className="text-[#00E5FF] text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1.5">Estimated Catalog Value</p>
+                  <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-1">
+                    {formatCurrency(estimatedValue)}
+                  </p>
+                  <p className="text-white/50 text-[10px] sm:text-xs font-medium uppercase mt-2 max-w-[200px]">
+                    THIS ESTIMATE IS AN INDICATION BASED ON YOUR TOP 10 TRACKS
+                  </p>
+                </div>
+              )}
            </div>
         </div>
 
@@ -422,7 +443,7 @@ const OverviewModal = ({ onClose }) => {
                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Popularity Score</p>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center p-2">
-                   <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
+                   <div className="w-10 h-10 rounded-full bg-[#1DB954]/5 text-[#1DB954] flex items-center justify-center mb-3">
                      <Radio size={20} />
                    </div>
                    <p className="text-3xl font-black text-slate-900 mb-1">
@@ -431,7 +452,7 @@ const OverviewModal = ({ onClose }) => {
                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Monthly Listeners</p>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center p-2">
-                   <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
+                   <div className="w-10 h-10 rounded-full bg-[#1DB954]/5 text-[#1DB954] flex items-center justify-center mb-3">
                      <Users size={20} />
                    </div>
                    <p className="text-3xl font-black text-slate-900 mb-1">

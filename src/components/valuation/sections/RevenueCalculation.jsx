@@ -9,7 +9,7 @@ const RevenueCalculation = ({
   formatNumber, formatCurrency,
 }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
-    <SectionHeader icon={Calculator} title="Revenue Calculation" subtitle="Step-by-step royalty breakdown" gradient="from-emerald-500 to-emerald-600" />
+    <SectionHeader icon={Calculator} title="Revenue Calculation" subtitle="Step-by-step royalty breakdown" gradient="from-[#1DB954] to-[#1DB954]" />
 
     <div className="space-y-3">
       <CalcRow label="Monthly Streams (Estimated)"
@@ -19,28 +19,28 @@ const RevenueCalculation = ({
       <CalcRow label="Spotify Payout Rate"
         value={`$${effectiveSpotifyRate.toFixed(4)}`}
         sub={`${geoMethodUsed === "WEIGHTED" ? "Geo-weighted" : "Global average"} Spotify payout rate`}
-        valueColor="text-emerald-600 dark:text-emerald-400"
+        valueColor="text-[#1DB954] dark:text-[#1DB954]"
       />
       <CalcRow label="Monthly Revenue"
         value={formatCurrency(monthlySpotifyRevenue)}
         sub={`${formatNumber(monthlyStreamsEst)} streams × $${effectiveSpotifyRate.toFixed(4)}`}
-        valueColor="text-emerald-600 dark:text-emerald-400"
+        valueColor="text-[#1DB954] dark:text-[#1DB954]/70"
       />
 
       {/* LTM highlight */}
-      <div className="bg-gradient-to-br from-emerald-50 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-900/20 border-2 border-emerald-300 dark:border-emerald-500/30 rounded-2xl p-5 sm:p-6">
+      <div className="bg-gradient-to-br from-[#1DB954]/5 to-[#1DB954]/5 dark:from-[#1DB954]/20 dark:to-[#1DB954]/20 border-2 border-[#1DB954] dark:border-[#1DB954]/30 rounded-2xl p-5 sm:p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <div>
-            <p className="text-sm sm:text-base font-bold text-emerald-700 dark:text-emerald-300">
+            <p className="text-sm sm:text-base font-bold text-[#1DB954] dark:text-[#1DB954]">
               Last Twelve Months (LTM) Revenue
             </p>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
+            <p className="text-xs text-[#1DB954] dark:text-[#1DB954] mt-0.5">
               {formatCurrency(monthlySpotifyRevenue)} × 12 months
               {methodUsed === "TOP_TRACKS_FEATURED_ADJ" && featuredTrackCount > 0 &&
                 ` · featured track adj: ${featuredTrackCount}/${totalTrackCount} at 25%`}
             </p>
           </div>
-          <p className="text-3xl sm:text-4xl font-black text-emerald-600 dark:text-emerald-400">
+          <p className="text-3xl sm:text-4xl font-black text-[#1DB954] dark:text-[#1DB954]">
             {formatCurrency(ltmSpotifyRevenue)}
           </p>
         </div>
