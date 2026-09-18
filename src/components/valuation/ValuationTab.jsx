@@ -269,6 +269,19 @@ useEffect(() => {
   />
 )}
 
+        {/* Login to Dashboard */}
+        <div className="flex justify-end">
+          <a
+            href="https://artists.spotify.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1DB954]/10 hover:bg-[#1DB954]/20 text-[#1DB954] text-xs sm:text-sm font-bold rounded-xl border border-[#1DB954]/20 transition-colors"
+          >
+            <LogIn size={14} />
+            Login to Spotify dashboard
+          </a>
+        </div>
+
         {/* Artist Header — 4 metric cards */}
         <ArtistHeader
           artistName={artistData.name}

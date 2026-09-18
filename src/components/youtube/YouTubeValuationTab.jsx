@@ -168,7 +168,18 @@ const YouTubeValuationTab = ({ artistData }) => {
   />
 )}
 
-
+      {/* Login to Dashboard */}
+      <div className="flex justify-end">
+        <a
+          href="https://studio.youtube.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF0000]/10 hover:bg-[#FF0000]/20 text-[#FF0000] text-xs sm:text-sm font-bold rounded-xl border border-[#FF0000]/20 transition-colors"
+        >
+          <LogIn size={14} />
+          Login to your YouTube dashboard
+        </a>
+      </div>
 
       <ValuationAssumptions
         annualViewPercentage={annualViewPercentage}
