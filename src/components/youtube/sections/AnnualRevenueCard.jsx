@@ -29,3 +29,4 @@ const AnnualRevenueCard = ({ totalAnnualRevenue, annualViewPercentage, streaming
 );
 
 export default AnnualRevenueCard;
+

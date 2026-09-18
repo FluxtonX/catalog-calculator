@@ -434,7 +434,7 @@ export default function DataImport() {
                             </div>
                             <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Unrecouped Balance</span>
                           </div>
-                          <p className={`text-2xl md:text-3xl font-black tracking-tight mt-1 ${parseFloat(extractedData.unrecoupedBalance) < 0 ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                          <p className={`text-2xl md:text-3xl font-black tracking-tight mt-1 ${parseFloat(extractedData.unrecoupedBalance) < 0 ? 'text-[#FF0000] dark:text-[#FF0000]' : 'text-emerald-600 dark:text-emerald-400'}`}>
                             {formatCurrency(extractedData.unrecoupedBalance)}
                           </p>
                           {parseFloat(extractedData.unrecoupedBalance) < 0 && (
@@ -448,11 +448,11 @@ export default function DataImport() {
                        <div className="p-6 md:p-8 flex flex-col justify-center md:border-t border-slate-100 dark:border-slate-700/50 group hover:bg-slate-50 dark:hover:bg-slate-700/20 transition-colors">
                           <div className="flex items-center gap-2 mb-2">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${parseFloat(extractedData.growthRate) > 0 ? 'bg-emerald-100 dark:bg-emerald-900/50' : 'bg-red-100 dark:bg-red-900/50'}`}>
-                              {parseFloat(extractedData.growthRate) > 0 ? <TrendingUp size={16} className="text-emerald-500" /> : <TrendingDown size={16} className="text-red-500" />}
+                              {parseFloat(extractedData.growthRate) > 0 ? <TrendingUp size={16} className="text-emerald-500" /> : <TrendingDown size={16} className="text-[#FF0000]" />}
                             </div>
                             <span className="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Period Growth</span>
                           </div>
-                          <p className={`text-2xl md:text-3xl font-black tracking-tight mt-1 ${parseFloat(extractedData.growthRate) > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
+                          <p className={`text-2xl md:text-3xl font-black tracking-tight mt-1 ${parseFloat(extractedData.growthRate) > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-[#FF0000] dark:text-[#FF0000]'}`}>
                             {parseFloat(extractedData.growthRate) > 0 ? '+' : ''}{parseFloat(extractedData.growthRate).toFixed(1)}%
                           </p>
                        </div>

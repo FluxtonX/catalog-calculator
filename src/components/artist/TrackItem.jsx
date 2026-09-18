@@ -158,7 +158,7 @@ const TrackItem = ({ track, index, platform, extractSpotifyId }) => {
           href={track.youtubeUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-red-600 hover:text-red-700 dark:text-red-400 transition-colors"
+          className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#FF0000] hover:text-[#FF0000] dark:text-[#FF0000] transition-colors"
         >
           <ExternalLink size={12} className="sm:w-[14px] sm:h-[14px]" />
           Open in YouTube

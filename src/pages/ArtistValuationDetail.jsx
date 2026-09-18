@@ -495,13 +495,13 @@
 //           <Card className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-2 border-red-300 dark:border-red-500/50 shadow-xl">
 //             <div className="flex items-start gap-4 p-5">
 //               <div className="p-3 bg-red-500/20 rounded-xl flex-shrink-0">
-//                 <Info size={24} className="text-red-600 dark:text-red-400" />
+//                 <Info size={24} className="text-[#FF0000] dark:text-[#FF0000]" />
 //               </div>
 //               <div>
-//                 <h3 className="text-lg font-bold text-red-800 dark:text-red-300 mb-2">
+//                 <h3 className="text-lg font-bold text-[#FF0000] dark:text-[#FF0000] mb-2">
 //                   Insufficient Data
 //                 </h3>
-//                 <p className="text-sm text-red-700 dark:text-red-400">
+//                 <p className="text-sm text-[#FF0000] dark:text-[#FF0000]">
 //                   No lifetime stream data available. Please enter valid stream
 //                   counts to calculate valuation.
 //                 </p>

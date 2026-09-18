@@ -220,8 +220,8 @@ export default function Auth() {
           {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-500/30 rounded-xl flex items-start gap-3">
-              <AlertCircle size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-red-600 dark:text-red-400 font-semibold">{error}</p>
+              <AlertCircle size={20} className="text-[#FF0000] dark:text-[#FF0000] flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-[#FF0000] dark:text-[#FF0000] font-semibold">{error}</p>
             </div>
           )}
 

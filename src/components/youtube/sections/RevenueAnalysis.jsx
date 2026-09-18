@@ -24,7 +24,7 @@ const RevenueAnalysis = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Col 1: Ad Revenue */}
         <div className="space-y-1">
-          <h4 className="font-bold text-red-600 dark:text-red-400 text-xs sm:text-sm uppercase tracking-wide mb-3">
+          <h4 className="font-bold text-[#FF0000] dark:text-[#FF0000] text-xs sm:text-sm uppercase tracking-wide mb-3">
             1. Channel Ad Revenue (YPP)
           </h4>
           {[
@@ -37,9 +37,9 @@ const RevenueAnalysis = ({
               <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">{row.value}</span>
             </div>
           ))}
-          <div className="flex justify-between items-center py-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl px-3 mt-2">
+          <div className="flex justify-between items-center py-2.5 bg-[#FF0000]/10 dark:bg-[#FF0000]/20 rounded-xl px-3 mt-2">
             <span className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300">Net Ad Revenue ({creatorCut}%)</span>
-            <span className="text-xs sm:text-sm font-black text-red-600 dark:text-red-400">{formatCurrency(adRevenue)}</span>
+            <span className="text-xs sm:text-sm font-black text-[#FF0000] dark:text-[#FF0000]">{formatCurrency(adRevenue)}</span>
           </div>
         </div>
 
@@ -96,3 +96,4 @@ const RevenueAnalysis = ({
 );
 
 export default RevenueAnalysis;
+

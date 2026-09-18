@@ -434,7 +434,7 @@ export default function LandingPage() {
               </button>
 
               {error && (
-                <p className="text-red-400 text-sm text-center mt-4">{error}</p>
+                <p className="text-[#FF0000] text-sm text-center mt-4">{error}</p>
               )}
 
               {/* Results */}

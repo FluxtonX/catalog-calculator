@@ -10,7 +10,7 @@ const YoutubeSaveButton = ({ hasValidData, isSaving, onSave }) => (
         px-8 sm:px-10 py-4 rounded-2xl text-base sm:text-lg font-black text-white
         shadow-xl transition-all duration-300
         ${hasValidData && !isSaving
-          ? "bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 hover:shadow-2xl hover:-translate-y-0.5"
+          ? "bg-gradient-to-r from-[#FF0000] to-[#FF0000] hover:from-[#FF0000] hover:to-[#FF0000] hover:shadow-2xl hover:-translate-y-0.5"
           : "bg-slate-300 dark:bg-slate-700 cursor-not-allowed text-slate-500 dark:text-slate-400"
         }
       `}
@@ -32,3 +32,4 @@ const YoutubeSaveButton = ({ hasValidData, isSaving, onSave }) => (
 );
 
 export default YoutubeSaveButton;
+

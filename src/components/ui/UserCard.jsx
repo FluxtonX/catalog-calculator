@@ -70,7 +70,7 @@ const UserCard = ({
             variant="outline" 
             size="sm"
             onClick={onRemove}
-            className="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:border-red-500 dark:hover:border-red-500 font-semibold w-full sm:w-auto transition-all duration-300"
+            className="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-500/30 text-[#FF0000] dark:text-[#FF0000] hover:bg-red-100 dark:hover:bg-red-900/30 hover:border-red-500 dark:hover:border-red-500 font-semibold w-full sm:w-auto transition-all duration-300"
             icon={Trash2}
           >
             Remove Admin

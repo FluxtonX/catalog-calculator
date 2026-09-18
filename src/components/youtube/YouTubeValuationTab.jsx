@@ -134,12 +134,12 @@ const YouTubeValuationTab = ({ artistData }) => {
           title="Insufficient Data"
           message="No view data available. Ensure valid YouTube data is loaded."
           accent={{
-            border: "border-red-200 dark:border-red-500/40",
-            bg: "bg-red-50 dark:bg-red-900/20",
-            iconBg: "bg-red-100 dark:bg-red-800/40",
-            icon: "text-red-600 dark:text-red-400",
-            title: "text-red-800 dark:text-red-300",
-            text: "text-red-700 dark:text-red-400",
+            border: "border-[#FF0000]/20 dark:border-[#FF0000]/40",
+            bg: "bg-[#FF0000]/10 dark:bg-[#FF0000]/20",
+            iconBg: "bg-[#FF0000]/15 dark:bg-[#FF0000]/40",
+            icon: "text-[#FF0000] dark:text-[#FF0000]",
+            title: "text-[#FF0000] dark:text-[#FF0000]",
+            text: "text-[#FF0000] dark:text-[#FF0000]",
           }}
         />
       )}
@@ -222,3 +222,4 @@ const YouTubeValuationTab = ({ artistData }) => {
 };
 
 export default YouTubeValuationTab;
+

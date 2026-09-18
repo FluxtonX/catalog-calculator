@@ -931,7 +931,7 @@ const ValuationTool = () => {
               <div className="mt-4 flex items-start gap-3 p-4 bg-red-500/20 border border-red-300/40 rounded-xl backdrop-blur-xl">
                 <AlertTriangle
                   size={18}
-                  className="text-red-200 flex-shrink-0 mt-0.5"
+                  className="text-[#FF0000] flex-shrink-0 mt-0.5"
                 />
                 <div>
                   <p className="text-white text-sm font-semibold">{error}</p>

@@ -235,9 +235,9 @@ useEffect(() => {
               border: "border-red-200 dark:border-red-500/40",
               bg: "bg-red-50 dark:bg-red-900/20",
               iconBg: "bg-red-100 dark:bg-red-800/40",
-              icon: "text-red-600 dark:text-red-400",
-              title: "text-red-800 dark:text-red-300",
-              text: "text-red-700 dark:text-red-400",
+              icon: "text-[#FF0000] dark:text-[#FF0000]",
+              title: "text-[#FF0000] dark:text-[#FF0000]",
+              text: "text-[#FF0000] dark:text-[#FF0000]",
             }}
           />
         )}
