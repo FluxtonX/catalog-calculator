@@ -1,8 +1,8 @@
 const RevenueStreams = ({ adRevenue, streamingRevenue, totalAnnualRevenue, formatCurrency }) => {
   const streams = [
-    { title: "Channel Ad Revenue", desc: "Direct monetization from owned channel videos", value: adRevenue, color: { bg: "bg-[#FF0000]/5 dark:bg-[#FF0000]/10", border: "border-[#FF0000]/20 dark:border-[#FF0000]/30", text: "text-[#FF0000] dark:text-[#FF0000]" } },
-    { title: "Content ID & Streaming", desc: "Revenue from music used across YouTube", value: streamingRevenue, color: { bg: "bg-[#FF0000]/10 dark:bg-[#FF0000]/20", border: "border-[#FF0000]/30 dark:border-[#FF0000]/40", text: "text-[#FF0000] dark:text-[#FF0000]" } },
-    { title: "Total Potential", desc: "Combined annual revenue estimate", value: totalAnnualRevenue, color: { bg: "bg-[#FF0000]/15 dark:bg-[#FF0000]/30", border: "border-[#FF0000]/40 dark:border-[#FF0000]/50", text: "text-[#FF0000] dark:text-[#FF0000]" } },
+    { title: "Channel Ad Revenue", desc: "Direct monetization from owned channel videos", value: adRevenue, color: { bg: "bg-[#CC0000]/5 dark:bg-[#CC0000]/10", border: "border-[#CC0000]/20 dark:border-[#CC0000]/30", text: "text-[#CC0000] dark:text-[#CC0000]" } },
+    { title: "Content ID & Streaming", desc: "Revenue from music used across YouTube", value: streamingRevenue, color: { bg: "bg-[#CC0000]/10 dark:bg-[#CC0000]/20", border: "border-[#CC0000]/30 dark:border-[#CC0000]/40", text: "text-[#CC0000] dark:text-[#CC0000]" } },
+    { title: "Total Potential", desc: "Combined annual revenue estimate", value: totalAnnualRevenue, color: { bg: "bg-[#CC0000]/15 dark:bg-[#CC0000]/30", border: "border-[#CC0000]/40 dark:border-[#CC0000]/50", text: "text-[#CC0000] dark:text-[#CC0000]" } },
   ];
 
   return (

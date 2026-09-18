@@ -361,7 +361,7 @@ export default function Auth() {
             <button
               onClick={handleYouTubeSignIn}
               disabled={isAnyLoading}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#FF0000] hover:bg-[#e60000] border-2 border-[#FF0000] hover:border-[#e60000] rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#CC0000] hover:bg-[#e60000] border-2 border-[#CC0000] hover:border-[#e60000] rounded-xl font-semibold text-white transition-all duration-300 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading.youtube ? (
                 <Loader2 size={20} className="animate-spin" />

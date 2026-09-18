@@ -111,8 +111,8 @@ const CfaMasterValuation = ({
               const isApple = platform === "itunes";
               
               const label = isSpotify ? "Spotify" : isApple ? "Apple Music" : "YouTube";
-              const color = isSpotify ? "text-[#1DB954]" : isApple ? "text-white" : "text-[#FF0000]";
-              const bg = isSpotify ? "bg-[#1DB954]/20" : isApple ? "bg-white/20" : "bg-[#FF0000]/20";
+              const color = isSpotify ? "text-[#1DB954]" : isApple ? "text-white" : "text-[#CC0000]";
+              const bg = isSpotify ? "bg-[#1DB954]/20" : isApple ? "bg-white/20" : "bg-[#CC0000]/20";
               
               return (
                 <div key={platform} className="flex items-center justify-between p-4 bg-white/10 rounded-2xl border border-white/10 hover:bg-white/15 transition-colors">

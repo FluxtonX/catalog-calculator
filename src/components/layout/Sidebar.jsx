@@ -38,11 +38,11 @@ const Sidebar = ({ isOpen, onClose }) => {
     youtube: {
       logo: "/logoyoutube.png",
       logoGlow: "rgba(255,0,0,0.25)",
-      navActive: "from-[#FF0000] to-[#FF0000]",
-      activeShadow: "shadow-[#FF0000]/20",
-      dot: "bg-[#FF0000]",
-      userHoverBorder: "hover:border-[#FF0000]/30 dark:hover:border-[#FF0000]/30",
-      userAvatar: "from-[#FF0000] to-[#FF0000]",
+      navActive: "from-[#CC0000] to-[#CC0000]",
+      activeShadow: "shadow-[#CC0000]/20",
+      dot: "bg-[#CC0000]",
+      userHoverBorder: "hover:border-[#CC0000]/30 dark:hover:border-[#CC0000]/30",
+      userAvatar: "from-[#CC0000] to-[#CC0000]",
     },
     itunes: {
       logo: "/logoitune.png",

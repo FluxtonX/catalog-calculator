@@ -541,7 +541,7 @@ const OverviewModal = ({ onClose }) => {
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-slate-100 cursor-pointer"
                         >
-                           <Youtube size={24} className="text-[#FF0000]" />
+                           <Youtube size={24} className="text-[#CC0000]" />
                            <div className="flex-1 min-w-0">
                              <p className="text-sm font-bold text-slate-900 truncate">YouTube</p>
                              <p className="text-xs text-slate-500 truncate">Watch on YouTube</p>
