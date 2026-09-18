@@ -1,6 +1,5 @@
 import React from "react";
 import StatCard from "../ui/StatCard";
-import { formatToMillions } from "../../components/valuation/hooks/useValuationLogic";
 import {
   DollarSign,
   Music,
@@ -28,12 +27,12 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
             icon={Users}
             label="Subscribers"
             value={stats.totalSubscribers}
-            iconBg="bg-[#CC0000]/20"
-            iconColor="text-[#CC0000]"
+            iconBg="bg-[#FF0000]/20"
+            iconColor="text-[#FF0000]"
           />
-          <StatCard icon={Eye} label="Total Views" value={stats.totalViews} iconBg="bg-[#CC0000]/20" iconColor="text-[#CC0000]" />
+          <StatCard icon={Eye} label="Total Views" value={stats.totalViews} iconBg="bg-[#FF0000]/20" iconColor="text-[#FF0000]" />
          
-          <StatCard icon={Music} label="Videos" value={stats.totalVideos} iconBg="bg-[#CC0000]/20" iconColor="text-[#CC0000]" />
+          <StatCard icon={Music} label="Videos" value={stats.totalVideos} iconBg="bg-[#FF0000]/20" iconColor="text-[#FF0000]" />
         </>
     
 ) : isItunes ? (
@@ -41,25 +40,25 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
   <>
     <StatCard
       icon={Music}
-      label="Total Tracks"
-      value={topTracks?.length || 0}
-      iconBg="bg-slate-500/20"
-      iconColor="text-slate-600 dark:text-slate-400"
+      label="Top Tracks"
+      value={stats.totalTopTracks ?? topTracks?.length ?? 0}
+      iconBg="bg-pink-500/20"
+      iconColor="text-pink-600 dark:text-pink-400"
     />
-    <StatCard
-      icon={Album}
-      label="Albums"
-      value={albums?.length || stats.totalAlbums || 0}
-      iconBg="bg-slate-500/20"
-      iconColor="text-slate-600 dark:text-slate-400"
-    />
+   <StatCard
+  icon={Album}
+  label="Albums"
+  value={albums?.length ?? stats.totalAlbums ?? 0}
+  iconBg="bg-rose-500/20"
+  iconColor="text-rose-600 dark:text-rose-400"
+/>
   
     <StatCard
       icon={Disc}
       label="Singles"
       value={singles?.length ?? stats.totalSingles ?? 0}
-      iconBg="bg-slate-500/20"
-      iconColor="text-slate-600 dark:text-slate-400"
+      iconBg="bg-purple-500/20"
+      iconColor="text-purple-600 dark:text-purple-400"
     />
   </>
       ) : isApify ? (
@@ -68,12 +67,12 @@ const ArtistStats = ({ stats, platform, topTracks, albums, singles }) => {
     <StatCard
       icon={Music}
       label="Total Streams (Top 10)"
-      value={formatToMillions(stats.totalStreams)}
+      value={stats.totalStreams}
     />
     <StatCard
       icon={TrendingUp}
       label="Avg Streams (Top 10)"
-      value={formatToMillions(stats.averageStreams)}
+      value={stats.averageStreams}
     />
     <StatCard
       icon={Music}

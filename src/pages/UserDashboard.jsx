@@ -137,8 +137,8 @@ export default function UserDashboard() {
         label: 'YouTube',
         icon: Youtube,
         color: 'from-red-500/20 to-pink-500/20',
-        iconColor: 'text-red-500 dark:text-red-400',
-        badgeColor: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
+        iconColor: 'text-[#FF0000] dark:text-[#FF0000]',
+        badgeColor: 'bg-red-100 dark:bg-red-900/30 text-[#FF0000] dark:text-[#FF0000]',
         gradientBg: 'from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20',
         borderColor: 'border-red-300 dark:border-red-500/30'
       };
@@ -288,8 +288,8 @@ export default function UserDashboard() {
         {/* Error Message */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-500/30 rounded-xl flex items-start gap-3">
-            <AlertCircle size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-red-600 dark:text-red-400 font-semibold">
+            <AlertCircle size={20} className="text-[#FF0000] dark:text-[#FF0000] flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-[#FF0000] dark:text-[#FF0000] font-semibold">
               {error}
             </p>
           </div>
@@ -599,15 +599,15 @@ function ReportPreviewModal({ report, onClose, onDownload, onDelete, formatCurre
               {/* Annual Revenue Breakdown */}
               <div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                  <BarChart size={20} className="text-red-500" />
+                  <BarChart size={20} className="text-[#FF0000]" />
                   Revenue Breakdown
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="bg-red-50 dark:bg-red-900/20 border-2 border-red-200 dark:border-red-500/30 rounded-xl p-4 text-center">
-                    <p className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">
+                    <p className="text-sm font-semibold text-[#FF0000] dark:text-[#FF0000] mb-2">
                       Ad Revenue
                     </p>
-                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                    <p className="text-2xl font-bold text-[#FF0000] dark:text-[#FF0000]">
                       {formatCurrency(data.calculations.adRevenue)}
                     </p>
                   </div>

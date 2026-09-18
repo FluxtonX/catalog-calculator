@@ -27,7 +27,7 @@ const ValuationScenarios = ({
 }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
     <div className="flex items-center gap-3 px-5 sm:px-7 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
-      <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#CC0000] to-[#CC0000]/80 shadow-md">
+      <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80 shadow-md">
         <DollarSign size={18} className="text-white" />
       </div>
       <div>
@@ -45,20 +45,20 @@ const ValuationScenarios = ({
       {/* 3 scenario cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <ScenarioCard icon={Calculator} title="Conservative" subtitle="6× Multiple" value={formatCurrency(conservativeValuation)}
-          color={{ border: "border-[#CC0000]/20 dark:border-[#CC0000]/30", bg: "bg-gradient-to-br from-[#CC0000]/5 to-[#CC0000]/10 dark:from-[#CC0000]/10 dark:to-[#CC0000]/5", iconBg: "bg-gradient-to-br from-[#CC0000] to-[#CC0000]/80", text: "text-[#CC0000] dark:text-[#CC0000]", sep: "bg-[#CC0000]/50", ring: "", badge: "" }}
+          color={{ border: "border-[#FF0000]/20 dark:border-[#FF0000]/30", bg: "bg-gradient-to-br from-[#FF0000]/5 to-[#FF0000]/10 dark:from-[#FF0000]/10 dark:to-[#FF0000]/5", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]/50", ring: "", badge: "" }}
         />
         <ScenarioCard icon={TrendingUp} title="Market Standard" subtitle="8× Multiple" value={formatCurrency(marketValuation)} featured
-          color={{ border: "border-[#CC0000]/40 dark:border-[#CC0000]/50", bg: "bg-gradient-to-br from-[#CC0000]/10 to-[#CC0000]/20 dark:from-[#CC0000]/20 dark:to-[#CC0000]/10", iconBg: "bg-gradient-to-br from-[#CC0000] to-[#CC0000]/90", text: "text-[#CC0000] dark:text-[#CC0000]", sep: "bg-[#CC0000]", ring: "ring-[#CC0000] dark:ring-[#CC0000]", badge: "bg-[#CC0000]" }}
+          color={{ border: "border-[#FF0000]/40 dark:border-[#FF0000]/50", bg: "bg-gradient-to-br from-[#FF0000]/10 to-[#FF0000]/20 dark:from-[#FF0000]/20 dark:to-[#FF0000]/10", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/90", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]", ring: "ring-[#FF0000] dark:ring-[#FF0000]", badge: "bg-[#FF0000]" }}
         />
         <ScenarioCard icon={TrendingUp} title="Premium" subtitle="10× Multiple" value={formatCurrency(premiumValuation)}
-          color={{ border: "border-[#CC0000]/30 dark:border-[#CC0000]/40", bg: "bg-gradient-to-br from-[#CC0000]/5 to-[#CC0000]/15 dark:from-[#CC0000]/15 dark:to-[#CC0000]/5", iconBg: "bg-gradient-to-br from-[#CC0000] to-[#CC0000]/80", text: "text-[#CC0000] dark:text-[#CC0000]", sep: "bg-[#CC0000]/70", ring: "", badge: "" }}
+          color={{ border: "border-[#FF0000]/30 dark:border-[#FF0000]/40", bg: "bg-gradient-to-br from-[#FF0000]/5 to-[#FF0000]/15 dark:from-[#FF0000]/15 dark:to-[#FF0000]/5", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]/70", ring: "", badge: "" }}
         />
       </div>
 
       {/* Growth-Adjusted Valuation — full width */}
       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp size={16} className="text-red-500" />
+          <TrendingUp size={16} className="text-emerald-500" />
           <h4 className="font-bold text-slate-900 dark:text-white text-sm">Growth-Adjusted Valuation</h4>
         </div>
        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
@@ -69,18 +69,18 @@ const ValuationScenarios = ({
   <div className="flex items-center gap-1.5">
     <span className="text-slate-500 dark:text-slate-400">CACC Growth (+30%)</span>
     <div className="group relative flex items-center">
-      <Info size={13} className="text-red-400 cursor-pointer flex-shrink-0" />
+      <Info size={13} className="text-blue-400 cursor-pointer flex-shrink-0" />
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-xl px-3 py-2.5 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 leading-relaxed">
-        <span className="font-bold text-red-300">CACC (Catalog Asset & Content Claims)</span> represents unclaimed revenue we have identified and located within this catalog. This recovered revenue is applied as a 30% uplift to reflect the catalog's true earning potential.
+        <span className="font-bold text-blue-300">CACC (Catalog Asset & Content Claims)</span> represents unclaimed revenue we have identified and located within this catalog. This recovered revenue is applied as a 30% uplift to reflect the catalog's true earning potential.
         <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700" />
       </div>
     </div>
   </div>
-  <span className="font-bold text-red-600 dark:text-red-400">+{formatCurrency(totalAnnualRevenue * 8 * 0.3)}</span>
+  <span className="font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(totalAnnualRevenue * 8 * 0.3)}</span>
 </div>
         <div className="flex justify-between items-center py-2 mt-1 text-xs sm:text-sm">
           <span className="font-bold text-slate-900 dark:text-white">Adjusted Valuation</span>
-          <span className="font-black text-red-600 dark:text-red-400">{formatCurrency(caccAdjustedValuation)}</span>
+          <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(caccAdjustedValuation)}</span>
         </div>
       </div>
     </div>
@@ -88,3 +88,4 @@ const ValuationScenarios = ({
 );
 
 export default ValuationScenarios;
+

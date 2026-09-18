@@ -18,13 +18,13 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
   };
 
   return (
-    <Card className="p-6 bg-white dark:bg-slate-900 border-2 border-red-200 dark:border-red-800 shadow-xl overflow-hidden relative">
+    <Card className="p-6 bg-white dark:bg-slate-900 border-2 border-[#FF0000]/20 dark:border-[#FF0000]/50 shadow-xl overflow-hidden relative">
       <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
          <Users size={120} />
       </div>
 
       <div className="flex items-center gap-3 mb-6 relative z-10">
-        <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg shadow-red-500/20">
+        <div className="p-3 bg-gradient-to-br from-[#FF0000] to-[#FF0000] rounded-xl shadow-lg shadow-[#FF0000]/20">
           <CheckCircle size={24} className="text-white" />
         </div>
         <div>
@@ -54,7 +54,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
                 }}
               />
             ) : (
-              <div className="w-full h-full bg-gradient-to-br from-red-400 to-red-500 flex items-center justify-center">
+              <div className="w-full h-full bg-gradient-to-br from-[#FF0000] to-[#FF0000] flex items-center justify-center">
                 <Users size={48} className="text-white opacity-50" />
               </div>
             )}
@@ -67,13 +67,13 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
                <h3 className="font-black text-2xl sm:text-3xl text-slate-900 dark:text-white">
                  {channel.name}
                </h3>
-               <CheckCircle size={20} className="text-red-500 shrink-0" fill="currentColor" stroke="white" />
+               <CheckCircle size={20} className="text-blue-500 shrink-0" fill="currentColor" stroke="white" />
             </div>
 
             <div className="flex flex-wrap items-center gap-4 mb-6 mt-2">
               {/* Subscribers */}
               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <Users size={18} className="text-red-500" />
+                <Users size={18} className="text-[#FF0000]" />
                 <span className="font-bold text-lg text-slate-900 dark:text-white">
                   {channel.subscribersFormatted || formatNumber(channel.subscribers)}
                 </span>
@@ -82,7 +82,7 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
 
               {/* Total Views */}
               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <Eye size={18} className="text-red-500" />
+                <Eye size={18} className="text-[#FF0000]" />
                 <span className="font-bold text-lg text-slate-900 dark:text-white">
                   {channel.totalViewsFormatted || formatNumber(channel.totalViews)}
                 </span>
@@ -99,3 +99,4 @@ const ChannelSelector = ({ channels, onSelectChannel, isLoading }) => {
 };
 
 export default ChannelSelector;
+

@@ -134,12 +134,12 @@ const YouTubeValuationTab = ({ artistData }) => {
           title="Insufficient Data"
           message="No view data available. Ensure valid YouTube data is loaded."
           accent={{
-            border: "border-red-200 dark:border-red-500/40",
-            bg: "bg-red-50 dark:bg-red-900/20",
-            iconBg: "bg-red-100 dark:bg-red-800/40",
-            icon: "text-red-600 dark:text-red-400",
-            title: "text-red-800 dark:text-red-300",
-            text: "text-red-700 dark:text-red-400",
+            border: "border-[#FF0000]/20 dark:border-[#FF0000]/40",
+            bg: "bg-[#FF0000]/10 dark:bg-[#FF0000]/20",
+            iconBg: "bg-[#FF0000]/15 dark:bg-[#FF0000]/40",
+            icon: "text-[#FF0000] dark:text-[#FF0000]",
+            title: "text-[#FF0000] dark:text-[#FF0000]",
+            text: "text-[#FF0000] dark:text-[#FF0000]",
           }}
         />
       )}
@@ -149,17 +149,17 @@ const YouTubeValuationTab = ({ artistData }) => {
     title="Sign in to Save Reports"
     message="You can view and save reports, but sign in to download PDFs and save reports."
     accent={{
-      border: "border-red-200 dark:border-red-500/40",
-      bg: "bg-red-50 dark:bg-red-900/20",
-      iconBg: "bg-red-100 dark:bg-red-800/40",
-      icon: "text-red-600 dark:text-red-400",
-      title: "text-red-800 dark:text-red-300",
-      text: "text-red-700 dark:text-red-400",
+      border: "border-green-200 dark:border-green-500/40",
+      bg: "bg-green-50 dark:bg-green-900/20",
+      iconBg: "bg-green-100 dark:bg-green-800/40",
+      icon: "text-green-600 dark:text-green-400",
+      title: "text-green-800 dark:text-green-300",
+      text: "text-green-700 dark:text-green-400",
     }}
     action={
       <button
         onClick={() => navigate("/auth", { state: { from: location } })}
-        className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-md"
+        className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-bold rounded-xl transition-colors shadow-md"
       >
         <LogIn size={14} />
         Sign In Now
@@ -168,7 +168,18 @@ const YouTubeValuationTab = ({ artistData }) => {
   />
 )}
 
-
+      {/* Login to Dashboard */}
+      <div className="flex justify-end">
+        <a
+          href="https://studio.youtube.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF0000]/10 hover:bg-[#FF0000]/20 text-[#FF0000] text-xs sm:text-sm font-bold rounded-xl border border-[#FF0000]/20 transition-colors"
+        >
+          <LogIn size={14} />
+          Login to your YouTube dashboard
+        </a>
+      </div>
 
       <ValuationAssumptions
         annualViewPercentage={annualViewPercentage}
@@ -222,3 +233,4 @@ const YouTubeValuationTab = ({ artistData }) => {
 };
 
 export default YouTubeValuationTab;
+

@@ -57,14 +57,14 @@ const CfaMasterValuation = ({
   return (
     <div className={`bg-gradient-to-br from-[#0B101A] to-[#05080F] rounded-3xl overflow-hidden shadow-2xl relative border ${compact ? "border-transparent" : "border-[#1A2333]"} mb-8 mt-4`}>
       {/* Background elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative z-10 p-6 sm:p-8 lg:p-10">
         
         {/* Required Disclaimer */}
         <div className={`flex items-start gap-3 p-4 bg-white/[0.02] border border-white/5 rounded-xl backdrop-blur-md mb-8 ${compact ? "mx-auto text-left" : ""}`}>
-          <Info size={20} className="text-emerald-400 flex-shrink-0 mt-0.5" />
+          <Info size={20} className="text-cyan-400 flex-shrink-0 mt-0.5" />
           <p className="text-white/80 text-sm font-medium leading-relaxed">
             <strong className="font-bold text-white block mb-1">ESTIMATED CATALOG VALUATION</strong>
             An estimated catalog valuation based only on publicly available streaming data.
@@ -111,8 +111,8 @@ const CfaMasterValuation = ({
               const isApple = platform === "itunes";
               
               const label = isSpotify ? "Spotify" : isApple ? "Apple Music" : "YouTube";
-              const color = isSpotify ? "text-[#1DB954]" : isApple ? "text-white" : "text-[#CC0000]";
-              const bg = isSpotify ? "bg-[#1DB954]/20" : isApple ? "bg-white/20" : "bg-[#CC0000]/20";
+              const color = isSpotify ? "text-[#1DB954]" : isApple ? "text-white" : "text-[#FF0000]";
+              const bg = isSpotify ? "bg-[#1DB954]/20" : isApple ? "bg-white/20" : "bg-[#FF0000]/20";
               
               return (
                 <div key={platform} className="flex items-center justify-between p-4 bg-white/10 rounded-2xl border border-white/10 hover:bg-white/15 transition-colors">

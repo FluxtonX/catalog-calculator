@@ -22,7 +22,7 @@ const PandoraIcon = () => (
 );
 
 const YouTubeIcon = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="#CC0000" className="shrink-0">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF0000" className="shrink-0">
     <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.5 12 3.5 12 3.5s-7.505 0-9.377.55a3.016 3.016 0 0 0-2.122 2.136C0 8.07 0 12 0 12s0 3.93.501 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.55 9.377.55 9.377.55s7.505 0 9.377-.55a3.016 3.016 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
   </svg>
 );
@@ -34,7 +34,7 @@ const ShazamIcon = () => (
 );
 
 const StatBlock = ({ label, value, forceLightMode }) => (
-  <div className={`flex flex-col gap-1.5 p-3 sm:p-4 rounded-xl border transition-colors ${forceLightMode ? 'bg-slate-50 border-slate-200' : 'bg-slate-50 border-slate-200 dark:bg-slate-800/50 dark:border-slate-700/60'}`}>
+  <div className="flex flex-col gap-1">
     <p className={`text-[10px] font-bold text-slate-500 uppercase tracking-widest truncate ${forceLightMode ? '' : 'dark:text-slate-400'}`}>{label}</p>
     <p className={`text-xl sm:text-2xl font-black text-slate-900 tracking-tight ${forceLightMode ? '' : 'dark:text-white'}`}>{formatToMillions(value || 0)}</p>
   </div>

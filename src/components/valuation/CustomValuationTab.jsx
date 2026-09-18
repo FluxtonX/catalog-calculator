@@ -68,7 +68,7 @@ const CustomValuationTab = ({ artistData }) => {
         </div>
         
         {/* Valuations */}
-        <div className="p-5 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl border border-emerald-400 shadow-lg text-white md:col-span-2">
+        <div className="p-5 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl border border-emerald-400 shadow-lg text-white md:col-span-2">
           <p className="text-xs font-bold text-emerald-100 uppercase tracking-widest mb-1">Estimated Market Value (8x)</p>
           <p className="text-4xl font-black">{formatCurrency(marketValuation)}</p>
           <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-white/20">

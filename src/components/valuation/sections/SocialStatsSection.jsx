@@ -306,7 +306,7 @@ const SocialStatsSection = ({ artistData, forceLightMode }) => {
             icon={Youtube} 
             label="YouTube Subscribers" 
             value={youtubeSubscribers} 
-            iconColorClass="text-[#CC0000]" 
+            iconColorClass="text-[#FF0000]" 
             showExact={showExact}
            forceLightMode={forceLightMode} />
           <SocialStatCard 

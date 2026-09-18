@@ -23,8 +23,7 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': 'off',
-      'no-empty': 'off',
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
 ])

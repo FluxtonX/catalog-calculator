@@ -12,6 +12,7 @@ import {
   Globe,
   ChevronDown,
   ChevronUp,
+  LogIn,
 } from "lucide-react";
 import { generateITunesValuationPDF } from "../../utils/itunesValuationPdfGenerator";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -394,7 +395,18 @@ const catalogBonus = Math.min(
   </div>
 </div>
 
-
+      {/* Login to Dashboard */}
+      <div className="flex justify-end">
+        <a
+          href="https://artists.apple.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-colors"
+        >
+          <LogIn size={14} />
+          Login to your iTunes dashboard
+        </a>
+      </div>
 
       {/* ── Detailed metrics ─────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">

@@ -25,7 +25,7 @@ const StatCard = ({
           </h3>
           {trendValue && (
             <div className={`flex items-center gap-1 text-sm font-medium ${
-              isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+              isPositive ? 'text-green-600 dark:text-green-400' : 'text-[#FF0000] dark:text-[#FF0000]'
             }`}>
               {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
               <span>{trendValue}</span>

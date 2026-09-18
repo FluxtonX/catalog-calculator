@@ -284,7 +284,7 @@ const AdminPanel = () => {
                                <span className={`px-2 py-1 rounded-full text-xs font-bold ${
                                  report.report_type === 'custom_valuation' ? 'bg-emerald-100 text-emerald-700' :
                                  report.report_type === 'itunes_valuation' ? 'bg-slate-200 text-slate-800' :
-                                 report.report_type === 'youtube_valuation' ? 'bg-red-100 text-red-700' :
+                                 report.report_type === 'youtube_valuation' ? 'bg-red-100 text-[#FF0000]' :
                                  'bg-blue-100 text-blue-700'
                                }`}>
                                  {report.report_type || 'spotify_valuation'}

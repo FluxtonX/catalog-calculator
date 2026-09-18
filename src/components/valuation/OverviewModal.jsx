@@ -379,7 +379,7 @@ const OverviewModal = ({ onClose }) => {
         </button>
 
         {/* Hero Banner Section */}
-        <div className="relative pt-12 pb-24 px-8 bg-gradient-to-br from-slate-900 via-emerald-950 to-emerald-900 flex-shrink-0">
+        <div className="relative pt-12 pb-24 px-8 bg-gradient-to-br from-slate-900 via-teal-950 to-emerald-900 flex-shrink-0">
            {/* Decorative elements */}
            <div className="absolute inset-0 overflow-hidden pointer-events-none">
              <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[150%] bg-white/5 blur-3xl rounded-full" />
@@ -436,7 +436,7 @@ const OverviewModal = ({ onClose }) => {
           {primaryArtist && (
              <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
                 <div className="flex flex-col items-center justify-center text-center p-2">
-                   <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center mb-3">
+                   <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-3">
                      <Trophy size={20} />
                    </div>
                    <p className="text-3xl font-black text-slate-900 mb-1">{primaryArtist.popularity || 'N/A'}</p>
@@ -541,7 +541,7 @@ const OverviewModal = ({ onClose }) => {
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors border border-slate-100 cursor-pointer"
                         >
-                           <Youtube size={24} className="text-[#CC0000]" />
+                           <Youtube size={24} className="text-[#FF0000]" />
                            <div className="flex-1 min-w-0">
                              <p className="text-sm font-bold text-slate-900 truncate">YouTube</p>
                              <p className="text-xs text-slate-500 truncate">Watch on YouTube</p>
@@ -583,15 +583,7 @@ const OverviewModal = ({ onClose }) => {
              <div className="space-y-6">
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
                   <StreamingStatsSection 
-                    artistData={{
-                      ...(selectedArtists.apify || selectedArtists.spotify || Object.values(selectedArtists)[0]),
-                      stats: {
-                        ...(selectedArtists.apify?.stats || {}),
-                        sp_followers: selectedArtists.apify?.stats?.sp_followers || selectedArtists.spotify?.followers?.total || selectedArtists.spotify?.followers || 0,
-                        youtube_subscribers: selectedArtists.apify?.stats?.youtube_subscribers || selectedArtists.youtube?.subscriberCount || 0,
-                        ycs_views: selectedArtists.apify?.stats?.ycs_views || selectedArtists.youtube?.viewCount || 0,
-                      }
-                    }} 
+                    artistData={selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || selectedArtists.apify || Object.values(selectedArtists)[0]} 
                     forceLightMode={true}
                   />
                 </div>

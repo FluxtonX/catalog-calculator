@@ -19,7 +19,7 @@ const InputSlider = ({
         <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
           {label}
         </label>
-        <span className="text-sm font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-md">
+        <span className="text-sm font-bold text-[#FF0000] dark:text-[#FF0000] bg-red-50 dark:bg-red-900/20 px-3 py-1 rounded-md">
           {displayValue}
         </span>
       </div>

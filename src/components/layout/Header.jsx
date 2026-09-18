@@ -35,7 +35,7 @@ const PLATFORM_META = {
     title: "YouTube Artist Catalog Valuation Tool",
     subtitle: " analytics and performance",
     icon: Youtube,
-    gradient: "from-[#CC0000] to-[#CC0000]",
+    gradient: "from-[#FF0000] to-[#FF0000]",
   },
   itunes: {
     title: "Apple Music Artist Catalog Valuation Tool",

@@ -87,18 +87,18 @@ const PLATFORM_CONFIG = {
     label: "YouTube",
     icon: YouTubeIcon,
     placeholder: "Search channel or artist on YouTube...",
-    color: "from-[#CC0000] to-[#CC0000]",
+    color: "from-[#FF0000] to-[#FF0000]",
     bgPattern:
       "radial-gradient(circle at 70% 50%, rgba(255, 0, 0, 0.25) 0%, transparent 60%)",
     tip: "Discover channel statistics, subscriber counts, and video performance.",
-    itemCheckedText: "text-[#CC0000] dark:text-[#CC0000]",
-    itemCheckedBg: "bg-[#CC0000]/10 dark:bg-[#CC0000]/30",
-    checkColor: "text-[#CC0000]",
-    iconBg: "bg-[#CC0000]/15",
-    iconColor: "text-[#CC0000]",
-    liveBadgeBg: "bg-[#CC0000]/10 border-[#CC0000]/20",
-    liveDot: "bg-[#CC0000]",
-    liveText: "text-[#CC0000] dark:text-[#CC0000]",
+    itemCheckedText: "text-[#FF0000] dark:text-[#FF0000]",
+    itemCheckedBg: "bg-[#FF0000]/10 dark:bg-[#FF0000]/30",
+    checkColor: "text-[#FF0000]",
+    iconBg: "bg-[#FF0000]/15",
+    iconColor: "text-[#FF0000]",
+    liveBadgeBg: "bg-[#FF0000]/10 border-[#FF0000]/20",
+    liveDot: "bg-[#FF0000]",
+    liveText: "text-[#FF0000] dark:text-[#FF0000]",
   },
   itunes: {
     label: "Apple Music",
@@ -738,7 +738,7 @@ const ValuationTool = () => {
               {cfg.label} · Real-Time Analytics
             </span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent tracking-tight py-2 leading-[1.3] transition-all duration-300">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-white bg-clip-text text-transparent tracking-tight leading-tight pb-2 transition-all duration-300">
             {PLATFORM_TITLES[platform]}
           </h1>
           <p className="text-sm sm:text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto transition-all duration-300">
@@ -931,7 +931,7 @@ const ValuationTool = () => {
               <div className="mt-4 flex items-start gap-3 p-4 bg-red-500/20 border border-red-300/40 rounded-xl backdrop-blur-xl">
                 <AlertTriangle
                   size={18}
-                  className="text-red-200 flex-shrink-0 mt-0.5"
+                  className="text-[#FF0000] flex-shrink-0 mt-0.5"
                 />
                 <div>
                   <p className="text-white text-sm font-semibold">{error}</p>

@@ -10,7 +10,7 @@ const ValuationAssumptions = ({
 }) => (
   <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
     <div className="flex items-center gap-3 px-5 sm:px-7 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
-      <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#CC0000] to-[#CC0000]/80 shadow-md">
+      <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80 shadow-md">
         <Settings size={18} className="text-white" />
       </div>
       <div>
@@ -28,8 +28,8 @@ const ValuationAssumptions = ({
         {/* Ad Revenue Inputs */}
         <div className="space-y-5">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="p-1.5 rounded-lg bg-[#CC0000]/10 dark:bg-[#CC0000]/20">
-              <BarChart size={14} className="text-[#CC0000]" />
+            <div className="p-1.5 rounded-lg bg-[#FF0000]/10 dark:bg-[#FF0000]/20">
+              <BarChart size={14} className="text-[#FF0000]" />
             </div>
             <h4 className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
               Ad Revenue
@@ -54,8 +54,8 @@ const ValuationAssumptions = ({
         {/* Financial Inputs */}
         <div className="space-y-5">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="p-1.5 rounded-lg bg-[#CC0000]/10 dark:bg-[#CC0000]/20">
-              <DollarSign size={14} className="text-[#CC0000]" />
+            <div className="p-1.5 rounded-lg bg-[#FF0000]/10 dark:bg-[#FF0000]/20">
+              <DollarSign size={14} className="text-[#FF0000]" />
             </div>
             <h4 className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
               Financial
@@ -81,8 +81,8 @@ const ValuationAssumptions = ({
         {/* Streaming Inputs */}
         <div className="space-y-5">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-            <div className="p-1.5 rounded-lg bg-[#CC0000]/10 dark:bg-[#CC0000]/20">
-              <Play size={14} className="text-[#CC0000]" />
+            <div className="p-1.5 rounded-lg bg-[#FF0000]/10 dark:bg-[#FF0000]/20">
+              <Play size={14} className="text-[#FF0000]" />
             </div>
             <h4 className="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
               Streaming
@@ -103,3 +103,4 @@ const ValuationAssumptions = ({
 );
 
 export default ValuationAssumptions;
+

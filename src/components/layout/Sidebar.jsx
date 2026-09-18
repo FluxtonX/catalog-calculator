@@ -38,11 +38,11 @@ const Sidebar = ({ isOpen, onClose }) => {
     youtube: {
       logo: "/logoyoutube.png",
       logoGlow: "rgba(255,0,0,0.25)",
-      navActive: "from-[#CC0000] to-[#CC0000]",
-      activeShadow: "shadow-[#CC0000]/20",
-      dot: "bg-[#CC0000]",
-      userHoverBorder: "hover:border-[#CC0000]/30 dark:hover:border-[#CC0000]/30",
-      userAvatar: "from-[#CC0000] to-[#CC0000]",
+      navActive: "from-[#FF0000] to-[#FF0000]",
+      activeShadow: "shadow-[#FF0000]/20",
+      dot: "bg-[#FF0000]",
+      userHoverBorder: "hover:border-[#FF0000]/30 dark:hover:border-[#FF0000]/30",
+      userAvatar: "from-[#FF0000] to-[#FF0000]",
     },
     itunes: {
       logo: "/logoitune.png",
@@ -345,7 +345,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                             </div>
                             <button 
                                onClick={(e) => handleDeleteHistory(item.id, e)}
-                               className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 focus:opacity-100 flex-shrink-0 mt-0.5"
+                               className="p-1.5 text-gray-400 hover:text-[#FF0000] hover:bg-red-50 dark:hover:bg-red-500/10 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 focus:opacity-100 flex-shrink-0 mt-0.5"
                                title="Delete from history"
                             >
                                <Trash2 size={14} />
@@ -426,7 +426,7 @@ const Sidebar = ({ isOpen, onClose }) => {
               className="
                 w-full group flex items-center justify-center gap-2 px-4 py-2.5
                 rounded-xl text-sm font-semibold
-                text-red-500 dark:text-red-400
+                text-[#FF0000] dark:text-[#FF0000]
                 bg-red-50 dark:bg-red-900/10
                 border border-red-100 dark:border-red-900/30
                 hover:bg-red-100 dark:hover:bg-red-900/20

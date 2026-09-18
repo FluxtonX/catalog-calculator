@@ -26,7 +26,7 @@
 //         <label className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
 //           {label}
 //         </label>
-//         <span className="text-xs sm:text-sm font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 sm:px-3 py-1 rounded-md">
+//         <span className="text-xs sm:text-sm font-bold text-[#FF0000] dark:text-[#FF0000] bg-red-50 dark:bg-red-900/20 px-2 sm:px-3 py-1 rounded-md">
 //           {displayValue}
 //         </span>
 //       </div>
@@ -210,13 +210,13 @@
 //         <Card className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-2 border-red-300 dark:border-red-500/50 shadow-xl">
 //           <div className="flex items-start gap-3 sm:gap-4 p-4 sm:p-5">
 //             <div className="p-2 sm:p-3 bg-red-500/20 rounded-xl flex-shrink-0">
-//               <Info size={20} className="sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
+//               <Info size={20} className="sm:w-6 sm:h-6 text-[#FF0000] dark:text-[#FF0000]" />
 //             </div>
 //             <div>
-//               <h3 className="text-base sm:text-lg font-bold text-red-800 dark:text-red-300 mb-1 sm:mb-2">
+//               <h3 className="text-base sm:text-lg font-bold text-[#FF0000] dark:text-[#FF0000] mb-1 sm:mb-2">
 //                 Insufficient Data
 //               </h3>
-//               <p className="text-xs sm:text-sm text-red-700 dark:text-red-400">
+//               <p className="text-xs sm:text-sm text-[#FF0000] dark:text-[#FF0000]">
 //                 No view data available. Please ensure valid YouTube data is loaded.
 //               </p>
 //             </div>
@@ -264,7 +264,7 @@
 //           {/* Ad Revenue Inputs */}
 //           <div className="space-y-4 sm:space-y-6">
 //             <h4 className="text-sm sm:text-md font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-//               <BarChart className="w-3 h-3 sm:w-4 sm:h-4 text-red-400" />
+//               <BarChart className="w-3 h-3 sm:w-4 sm:h-4 text-[#FF0000]" />
 //               Ad Revenue Inputs
 //             </h4>
 //             <InputSlider
@@ -363,7 +363,7 @@
 //       <Card className="p-4 sm:p-6 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800">
 //         <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
 //           <div className="p-2 sm:p-3 bg-gradient-to-br from-red-500/20 to-pink-500/20 rounded-xl">
-//             <DollarSign size={20} className="sm:w-6 sm:h-6 text-red-600 dark:text-red-400" />
+//             <DollarSign size={20} className="sm:w-6 sm:h-6 text-[#FF0000] dark:text-[#FF0000]" />
 //           </div>
 //           <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
 //             YouTube Comprehensive Revenue Analysis
@@ -373,7 +373,7 @@
 //         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
 //           {/* Channel Ad Revenue */}
 //           <div className="space-y-3 sm:space-y-4">
-//             <h4 className="font-semibold text-red-600 dark:text-red-400 text-sm sm:text-base">
+//             <h4 className="font-semibold text-[#FF0000] dark:text-[#FF0000] text-sm sm:text-base">
 //               1. Channel Ad Revenue (YPP)
 //             </h4>
 //             <div className="space-y-2 sm:space-y-3">
@@ -391,7 +391,7 @@
 //               </div>
 //               <div className="flex justify-between items-center py-2 border-b-2 border-red-400/50">
 //                 <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Net Ad Revenue ({creatorCut}%)</span>
-//                 <span className="font-bold text-red-600 dark:text-red-400 text-sm sm:text-base">{formatCurrency(adRevenue)}</span>
+//                 <span className="font-bold text-[#FF0000] dark:text-[#FF0000] text-sm sm:text-base">{formatCurrency(adRevenue)}</span>
 //               </div>
 //             </div>
 //           </div>
@@ -454,13 +454,13 @@
 //         </h3>
 //         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
 //           <div className="text-center p-3 sm:p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-500/30">
-//             <h4 className="font-semibold text-red-600 dark:text-red-400 mb-2 text-sm sm:text-base">
+//             <h4 className="font-semibold text-[#FF0000] dark:text-[#FF0000] mb-2 text-sm sm:text-base">
 //               Channel Ad Revenue
 //             </h4>
 //             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-2">
 //               Direct monetization from owned channel videos
 //             </p>
-//             <p className="text-base sm:text-lg font-bold text-red-600 dark:text-red-400">
+//             <p className="text-base sm:text-lg font-bold text-[#FF0000] dark:text-[#FF0000]">
 //               {formatCurrency(adRevenue)}/year
 //             </p>
 //           </div>

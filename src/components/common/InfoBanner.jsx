@@ -31,9 +31,9 @@ const InfoBanner = ({ type = "info", title, message, icon: Icon, children }) => 
       bg: "from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20",
       border: "border-red-300 dark:border-red-500/50",
       iconBg: "bg-red-500/20",
-      iconColor: "text-red-600 dark:text-red-400",
-      textColor: "text-red-700 dark:text-red-400",
-      titleColor: "text-red-800 dark:text-red-300",
+      iconColor: "text-[#FF0000] dark:text-[#FF0000]",
+      textColor: "text-[#FF0000] dark:text-[#FF0000]",
+      titleColor: "text-[#FF0000] dark:text-[#FF0000]",
     },
     success: {
       bg: "from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20",
