@@ -24,8 +24,15 @@ export default function UserDashboard() {
       setLoading(true);
       setError(null);
 
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      
+      const user = session?.user;
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
+      
       setUser(user);
 
       const { data, error: reportsError } = await supabase
