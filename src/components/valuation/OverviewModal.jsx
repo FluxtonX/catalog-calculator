@@ -67,7 +67,8 @@ const OverviewDollarAge = ({ artistsData }) => {
       </div>
       <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>
         {activePlatforms.map(([platform, data]) => {
-           const cfaResult = calculateCfaPhase1(data, platform);
+           const popularityToUse = platform === 'itunes' ? (data.popularity || 50) : data.popularity;
+           const cfaResult = calculateCfaPhase1({ ...data, popularity: popularityToUse }, platform);
            const platformName = platform === 'itunes' ? 'Apple Music' : platform === 'youtube' ? 'YouTube' : 'Spotify';
            const bgColor = platform === 'itunes' ? 'bg-slate-900' : platform === 'youtube' ? 'bg-[#FF0000]' : 'bg-[#1DB954]';
            
