@@ -256,6 +256,43 @@ async function fetchYouTubeChannelStats(channelId) {
     return null;
   }
 }
+async function fetchYouTubeTopVideos(channelId) {
+  if (!channelId || !YOUTUBE_API_KEY) return [];
+  try {
+    // 1. Get the channel's uploads playlist ID (replace UC with UU)
+    const uploadsPlaylistId = channelId.replace(/^UC/, 'UU');
+    
+    // 2. Fetch recent videos from the uploads playlist (costs 1 quota unit)
+    const playlistUrl = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${uploadsPlaylistId}&maxResults=10&key=${YOUTUBE_API_KEY}`;
+    const playlistRes = await fetch(playlistUrl);
+    if (!playlistRes.ok) {
+       console.error("YouTube Playlist fetch failed:", await playlistRes.text());
+       return [];
+    }
+    const playlistData = await playlistRes.json();
+    if (!playlistData.items || playlistData.items.length === 0) return [];
+    
+    // 3. Fetch statistics (view counts) for those videos
+    const videoIds = playlistData.items.map(item => item.snippet.resourceId.videoId).join(',');
+    const statsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet&id=${videoIds}&key=${YOUTUBE_API_KEY}`;
+    const statsRes = await fetch(statsUrl);
+    if (!statsRes.ok) return [];
+    const statsData = await statsRes.json();
+    
+    const formatter = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 });
+    
+    return statsData.items.map(item => ({
+      id: item.id,
+      title: item.snippet.title,
+      viewCount: parseInt(item.statistics.viewCount || 0, 10),
+      viewCountFormatted: formatter.format(parseInt(item.statistics.viewCount || 0, 10)),
+      thumbnail: item.snippet.thumbnails?.default?.url
+    })).sort((a, b) => b.viewCount - a.viewCount);
+  } catch (err) {
+    console.error('YouTube Data API v3 top videos fetch failed:', err);
+    return [];
+  }
+}
 
 export const getYouTubeChannelDetails = async (query, channelId) => {
   let data = { name: query };
@@ -277,14 +314,16 @@ export const getYouTubeChannelDetails = async (query, channelId) => {
   }
 
     // ── Authentic Data Enrichment ─────────────────────────────────────────────
-    // The Supabase Edge Function may not return totalViews (viewCount).
-    // We call YouTube Data API v3 directly with the real channelId to get the
-    // 100% authentic viewCount, subscriberCount, and videoCount.
     if (channelId) {
-      const realStats = await fetchYouTubeChannelStats(channelId);
+      const [realStats, topVideos] = await Promise.all([
+        fetchYouTubeChannelStats(channelId),
+        fetchYouTubeTopVideos(channelId)
+      ]);
+      
       if (realStats) {
         return {
           ...data,
+          videos: topVideos,                         // fetched top videos
           totalViews: realStats.totalViews,          // authentic view count
           subscribers: realStats.subscribers,         // authentic subscriber count
           stats: {
