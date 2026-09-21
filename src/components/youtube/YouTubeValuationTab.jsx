@@ -133,17 +133,26 @@ const YouTubeValuationTab = ({ artistData }) => {
     [artistData]
   );
 
+  const totalLTMEarnings = cfaResult.trackDetails.reduce((sum, t) => sum + t.artistAttributedAnnualRev, 0);
+  const trackBreakdown = cfaResult.trackDetails.map(t => {
+    const ltmEarnings = t.artistAttributedAnnualRev;
+    const weightedAge = t.ageInYears * ltmEarnings;
+    return {
+      name: t.title,
+      ageInYears: t.ageInYears,
+      ltmEarnings,
+      weightedAge,
+      releaseDate: ""
+    };
+  });
+  const totalWeightedAge = trackBreakdown.reduce((sum, t) => sum + t.weightedAge, 0);
+  const calculatedDollarAge = totalLTMEarnings > 0 ? totalWeightedAge / totalLTMEarnings : 0;
+
   const dollarAgeData = {
-    dollarAge: cfaResult.averageDollarAge,
-    totalWeightedAge: 0,
-    totalLTMEarnings: cfaResult.totalAnnualRevenue,
-    trackBreakdown: cfaResult.trackDetails.map(t => ({
-       name: t.title,
-       ageInYears: t.ageInYears,
-       ltmEarnings: t.artistAttributedAnnualRev,
-       weightedAge: 0,
-       releaseDate: ""
-    }))
+    dollarAge: calculatedDollarAge,
+    totalWeightedAge,
+    totalLTMEarnings,
+    trackBreakdown
   };
 
   return (
