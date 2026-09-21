@@ -58,25 +58,12 @@ const AverageCatalogAge = ({ dollarAgeData, platform = "spotify" }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="flex justify-center mb-6">
         {/* Main Number */}
-        <div className={`bg-gradient-to-br ${theme.gradientSubtle} border-2 ${theme.border} rounded-2xl p-5 text-center flex flex-col justify-center items-center`}>
-          <p className={`text-xs font-bold ${theme.text} ${theme.textDark} uppercase tracking-wide mb-2`}>Average Age</p>
-          <p className={`text-5xl font-black ${theme.text} ${theme.textDark} leading-none`}>{dollarAge.toFixed(1)}</p>
-          <p className={`text-xs ${theme.text} mt-1`}>years</p>
-        </div>
-
-        {/* Formula */}
-        <div className="sm:col-span-2 flex flex-col gap-3">
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-5 border border-slate-200 dark:border-slate-700 h-full flex flex-col justify-center">
-             <p className={`text-[10px] font-bold ${theme.text} uppercase mb-2 tracking-widest`}>Client Formula</p>
-             <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-               Sum of the ages of all tracks ÷ Total number of tracks
-             </p>
-             <p className="text-xs text-slate-400 mt-2">
-               Each track is weighted equally, regardless of revenue or streaming performance.
-             </p>
-          </div>
+        <div className={`w-full bg-gradient-to-br ${theme.gradientSubtle} border-2 ${theme.border} rounded-2xl p-8 text-center flex flex-col justify-center items-center`}>
+          <p className={`text-sm font-bold ${theme.text} ${theme.textDark} uppercase tracking-wide mb-3`}>Average Age</p>
+          <p className={`text-6xl font-black ${theme.text} ${theme.textDark} leading-none`}>{dollarAge.toFixed(1)}</p>
+          <p className={`text-sm font-medium ${theme.text} mt-2`}>years</p>
         </div>
       </div>
 
