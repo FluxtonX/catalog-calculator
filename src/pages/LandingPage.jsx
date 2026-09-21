@@ -415,6 +415,29 @@ export default function LandingPage() {
                 <p className="text-[12px] font-bold tracking-wide uppercase leading-snug">THIS ESTIMATE IS AN INDICATION BASED ON YOUR TOP 10 TRACKS</p>
               </div>
 
+              {isSearching && (
+                <div className="mb-8 w-full flex flex-col items-center">
+                  <div className="w-full max-w-sm h-8 rounded-full border border-white/20 p-1 relative bg-[#0B101A] shadow-inner">
+                    <div 
+                      className="h-full bg-[#00E5FF] rounded-full relative z-10 shadow-[0_0_15px_rgba(0,229,255,0.4)]"
+                      style={{ animation: 'fillProgress 15s cubic-bezier(0.1, 0.7, 0.1, 1) forwards' }}
+                    />
+                    <style>{`
+                      @keyframes fillProgress {
+                        0% { width: 0%; }
+                        20% { width: 40%; }
+                        50% { width: 65%; }
+                        80% { width: 73%; }
+                        100% { width: 90%; }
+                      }
+                    `}</style>
+                  </div>
+                  <div className="mt-3 text-[#00E5FF] font-bold text-lg tracking-wider">
+                    <span className="animate-pulse">Loading...</span>
+                  </div>
+                </div>
+              )}
+
               <button 
                 onClick={handleCalculate}
                 disabled={isSearching || !searchQuery.trim()}
@@ -422,7 +445,7 @@ export default function LandingPage() {
               >
                 {isSearching ? (
                   <>
-                    <div className="w-4 h-4 border-[1.5px] border-white/30 border-t-[#00FF66] rounded-full animate-spin" />
+                    <div className="w-4 h-4 border-[1.5px] border-white/30 border-t-[#00E5FF] rounded-full animate-spin" />
                     <span className="animate-pulse">Calculating...</span>
                   </>
                 ) : (
