@@ -630,6 +630,11 @@ const OverviewModal = ({ onClose }) => {
              </div>
           )}
 
+          {/* Average Catalog Age */}
+          {!isLoading && Object.keys(selectedArtists).length > 0 && (
+            <OverviewDollarAge artistsData={selectedArtists} />
+          )}
+
         </div>
       </div>
     </div>
