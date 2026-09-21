@@ -36,7 +36,6 @@ import CfaMasterValuation from "./CfaMasterValuation";
 import { getCombinedValuation, calculateCfaPhase1 } from "../../core/calculations";
 import { formatCurrency } from "./hooks/useValuationLogic";
 import TopTracksAnalysis from "../artist/TopTracksAnalysis";
-import DollarAgeAnalysis from "./sections/DollarAgeAnalysis";
 
 const SUGGESTED_ARTISTS = [
   "Taylor Swift",
@@ -63,31 +62,23 @@ const OverviewDollarAge = ({ artistsData }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-6">
       <div className="flex flex-col mb-6">
-        <h3 className="text-xl font-black text-slate-900 tracking-tight">Multi-Platform Average Catalog Age</h3>
-        <p className="text-sm text-slate-500">Compare catalog maturity and income stability across your selected platforms.</p>
+        <h3 className="text-xl font-black text-slate-900 tracking-tight">Average Catalog Age</h3>
+        <p className="text-sm text-slate-500">The arithmetic mean of individual track ages from release date.</p>
       </div>
       <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>
         {activePlatforms.map(([platform, data]) => {
            const cfaResult = calculateCfaPhase1(data, platform);
-           const dollarAgeData = {
-              dollarAge: cfaResult.averageDollarAge,
-              totalWeightedAge: 0,
-              totalLTMEarnings: cfaResult.totalAnnualRevenue,
-              trackBreakdown: cfaResult.trackDetails.map(t => ({
-                 name: t.title,
-                 ageInYears: t.ageInYears,
-                 ltmEarnings: t.artistAttributedAnnualRev,
-                 weightedAge: 0,
-                 releaseDate: ""
-              }))
-           };
+           const platformName = platform === 'itunes' ? 'Apple Music' : platform === 'youtube' ? 'YouTube' : 'Spotify';
+           const bgColor = platform === 'itunes' ? 'bg-slate-900' : platform === 'youtube' ? 'bg-[#FF0000]' : 'bg-[#1DB954]';
+           
            return (
-             <DollarAgeAnalysis 
-               key={platform} 
-               platform={platform === 'itunes' ? 'apple' : platform} 
-               dollarAgeData={dollarAgeData} 
-               formatCurrency={formatCurrency} 
-             />
+             <div key={platform} className="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col items-center justify-center text-center">
+               <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase text-white tracking-widest ${bgColor} mb-4`}>
+                 {platformName}
+               </div>
+               <p className="text-4xl font-black text-slate-900 mb-1">{cfaResult.averageDollarAge.toFixed(1)}</p>
+               <p className="text-sm text-slate-500 font-medium">years</p>
+             </div>
            );
         })}
       </div>

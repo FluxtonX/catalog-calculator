@@ -26,7 +26,6 @@ import ArtistHeader from "./sections/ArtistHeader";
 import StreamDataInput from "./sections/StreamDataInput";
 import PayoutRateCard from "./sections/PayoutRateCard";
 import RevenueCalculation from "./sections/RevenueCalculation";
-import DollarAgeAnalysis from "./sections/DollarAgeAnalysis";
 import ValuationEstimates from "./sections/ValuationEstimates";
 import PlatformContributionBanner from "./PlatformContributionBanner";
 import MethodologyNote from "./sections/MethodologyNote";
@@ -121,28 +120,6 @@ useEffect(() => {
   const featuredTrackCount = trackDetails.filter(t => t.artistRole === "FEATURED").length;
   const totalTrackCount = trackDetails.length;
   
-  const totalLTMEarnings = trackDetails.reduce((sum, t) => sum + t.artistAttributedAnnualRev, 0);
-  const trackBreakdown = trackDetails.map(t => {
-    const ltmEarnings = t.artistAttributedAnnualRev;
-    const weightedAge = t.ageInYears * ltmEarnings;
-    return {
-      name: t.title,
-      ageInYears: t.ageInYears,
-      ltmEarnings,
-      weightedAge,
-      releaseDate: ""
-    };
-  });
-  const totalWeightedAge = trackBreakdown.reduce((sum, t) => sum + t.weightedAge, 0);
-  const calculatedDollarAge = totalLTMEarnings > 0 ? totalWeightedAge / totalLTMEarnings : 0;
-
-  const dollarAgeData = {
-    dollarAge: calculatedDollarAge,
-    totalWeightedAge,
-    totalLTMEarnings,
-    trackBreakdown
-  };
-
   const conservativeValuation = lowEstimate;
   const marketValuation = midEstimate;
   const premiumValuation = highEstimate;
@@ -325,12 +302,6 @@ useEffect(() => {
           featuredTrackCount={featuredTrackCount}
           totalTrackCount={totalTrackCount}
           {...fmt}
-        />
-
-        {/* Dollar Age */}
-        <DollarAgeAnalysis
-          dollarAgeData={dollarAgeData}
-          formatCurrency={formatCurrency}
         />
 
         {/* Valuation Tiers */}

@@ -20,7 +20,6 @@ import { supabase } from "../../utils/supabase";
 import ITunesMetricCard from "./ITunesMetricCard";
 import ITunesScenarioCard from "./ITunesScenarioCard";
 import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
-import DollarAgeAnalysis from "../valuation/sections/DollarAgeAnalysis";
 
 import {
   APPLE_MUSIC_RATE,
@@ -261,33 +260,6 @@ const catalogBonus = Math.min(
       : calculations.dealScore >= 40
         ? "Moderate Interest"
         : "Developing Artist";
-
-  const cfaResult = useMemo(
-    () => calculateCfaPhase1({ ...artistData, popularity: calculations.avgTop10Popularity }, "itunes"),
-    [artistData, calculations.avgTop10Popularity]
-  );
-
-  const totalLTMEarnings = cfaResult.trackDetails.reduce((sum, t) => sum + t.artistAttributedAnnualRev, 0);
-  const trackBreakdown = cfaResult.trackDetails.map(t => {
-    const ltmEarnings = t.artistAttributedAnnualRev;
-    const weightedAge = t.ageInYears * ltmEarnings;
-    return {
-      name: t.title,
-      ageInYears: t.ageInYears,
-      ltmEarnings,
-      weightedAge,
-      releaseDate: ""
-    };
-  });
-  const totalWeightedAge = trackBreakdown.reduce((sum, t) => sum + t.weightedAge, 0);
-  const calculatedDollarAge = totalLTMEarnings > 0 ? totalWeightedAge / totalLTMEarnings : 0;
-
-  const dollarAgeData = {
-    dollarAge: calculatedDollarAge,
-    totalWeightedAge,
-    totalLTMEarnings,
-    trackBreakdown
-  };
 
   return (
     <div className="space-y-5 sm:space-y-7">
@@ -586,12 +558,6 @@ const catalogBonus = Math.min(
 
       </div>
 
-      {/* ── Dollar Age Analysis ──────────────────────────── */}
-      <DollarAgeAnalysis
-        platform="apple"
-        dollarAgeData={dollarAgeData}
-        formatCurrency={formatCurrency}
-      />
 
       {/* ── Save / Download PDF ──────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">

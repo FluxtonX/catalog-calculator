@@ -244,21 +244,13 @@ export const getAverageReleaseDate = (artistData) => {
 
 export const calculateDollarAge = (artistData, effectiveSpotifyRate, currentDate, knownLTMRevenue = null) => {
   if (!artistData?.topTracks || artistData.topTracks.length === 0) {
-    return { dollarAge: 0, totalWeightedAge: 0, totalLTMEarnings: 0, trackBreakdown: [] };
+    return { dollarAge: 0, trackBreakdown: [] };
   }
 
   const topTracks = artistData.topTracks.slice(0, 10);
   
-  // Calculate total streams for proportional distribution
-  const totalStreams = topTracks.reduce((sum, track) => {
-    let s = 0;
-    if (track.streamCount)               s = parseInt(track.streamCount);
-    else if (track.streamCountFormatted) s = parseStreamCount(track.streamCountFormatted);
-    return sum + s;
-  }, 0);
-
-  let totalWeightedAge = 0;
-  let totalLTMEarnings = 0;
+  let totalAge = 0;
+  let validTracks = 0;
   const trackBreakdown = [];
 
   topTracks.forEach((track) => {
@@ -275,49 +267,20 @@ export const calculateDollarAge = (artistData, effectiveSpotifyRate, currentDate
     const ageInMonths = getMonthsBetween(releaseDate, currentDate);
     const ageInYears = ageInMonths / 12;
 
-    // Get stream count
-    let trackStreams = 0;
-    if (track.streamCount)               trackStreams = parseInt(String(track.streamCount).replace(/,/g, "")) || 0;
-    else if (track.streamCountFormatted) trackStreams = parseStreamCount(track.streamCountFormatted);
-    else if (track.streams)              trackStreams = parseInt(String(track.streams).replace(/,/g, "")) || 0;
-    else if (track.playCount)            trackStreams = parseInt(String(track.playCount).replace(/,/g, "")) || 0;
-
-    if (trackStreams === 0) return;
-
-    // ✅ Distribute known LTM proportionally by stream share
-    // This ensures Dollar Age LTM total === main valuation LTM
-    let trackLTMEarnings;
-    if (knownLTMRevenue && totalStreams > 0) {
-      trackLTMEarnings = knownLTMRevenue * (trackStreams / totalStreams);
-    } else {
-      // Fallback to independent calculation only if no known LTM passed in
-      const ageInMonthsForDecay = getMonthsBetween(releaseDate, currentDate);
-      const trackMonthlyStreams = ageInMonthsForDecay > 0
-        ? (trackStreams / ageInMonthsForDecay) * getDecayFactor(ageInMonthsForDecay)
-        : trackStreams * 0.1;
-      const multiplier = getRevenueMultiplier(track, artistData.name);
-      trackLTMEarnings = calculateTrackRevenue(trackMonthlyStreams, effectiveSpotifyRate, multiplier) * 12;
-    }
-
-    const weightedAge = ageInYears * trackLTMEarnings;
-    totalWeightedAge += weightedAge;
-    totalLTMEarnings += trackLTMEarnings;
+    totalAge += ageInYears;
+    validTracks++;
 
     trackBreakdown.push({
       name: track.title || track.name,
       ageInYears: parseFloat(ageInYears.toFixed(2)),
-      ltmEarnings: trackLTMEarnings,
-      weightedAge,
       releaseDate: track.releaseDate || track.releaseYear ? releaseDate : null,
     });
   });
 
-  const dollarAge = totalLTMEarnings > 0 ? totalWeightedAge / totalLTMEarnings : 0;
+  const averageCatalogAge = validTracks > 0 ? totalAge / validTracks : 0;
 
   return {
-    dollarAge: parseFloat(dollarAge.toFixed(2)),
-    totalWeightedAge,
-    totalLTMEarnings,
+    dollarAge: parseFloat(averageCatalogAge.toFixed(2)), // Kept name 'dollarAge' for compatibility
     trackBreakdown,
   };
 };
