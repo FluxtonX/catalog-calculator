@@ -1,34 +1,83 @@
-
 import { Calendar } from "lucide-react";
 import SectionHeader from "../ui/SectionHeader";
 import InfoTooltip from "../ui/InfoTooltip";
 import RadixProgress from "../ui/RadixProgress";
 
-const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
+const THEME = {
+  spotify: {
+    text: "text-[#1DB954]",
+    textDark: "dark:text-[#1DB954]/70",
+    textMono: "text-[#1DB954] dark:text-[#1DB954]",
+    bg: "bg-[#1DB954]",
+    gradient: "from-[#1DB954] to-[#1DB954]",
+    gradientSubtle: "from-[#1DB954]/5 to-[#1DB954]/5 dark:from-[#1DB954]/20 dark:to-[#1DB954]/20",
+    bgSubtle: "bg-[#1DB954]/5 dark:bg-[#1DB954]/20",
+    border: "border-[#1DB954]/20 dark:border-[#1DB954]/30",
+    borderHover: "hover:border-[#1DB954]/30 dark:hover:border-[#1DB954]/40",
+    barFull: "from-[#1DB954] to-[#1DB954]",
+    barDim: "from-[#1DB954] to-[#1DB954]/70",
+    platformName: "Spotify",
+  },
+  apple: {
+    text: "text-slate-900 dark:text-white",
+    textDark: "dark:text-slate-300",
+    textMono: "text-slate-900 dark:text-white",
+    bg: "bg-slate-900 dark:bg-slate-100",
+    gradient: "from-slate-800 to-slate-900 dark:from-slate-100 dark:to-white",
+    gradientSubtle: "from-slate-100 to-slate-50 dark:from-slate-800/50 dark:to-slate-900/30",
+    bgSubtle: "bg-slate-50 dark:bg-slate-800/50",
+    border: "border-slate-200 dark:border-slate-700",
+    borderHover: "hover:border-slate-300 dark:hover:border-slate-600",
+    barFull: "from-slate-800 to-slate-900",
+    barDim: "from-slate-400 to-slate-500",
+    platformName: "Apple Music",
+  },
+  youtube: {
+    text: "text-[#FF0000]",
+    textDark: "dark:text-[#FF0000]/70",
+    textMono: "text-[#FF0000] dark:text-[#FF0000]",
+    bg: "bg-[#FF0000]",
+    gradient: "from-[#FF0000] to-[#FF0000]",
+    gradientSubtle: "from-[#FF0000]/5 to-[#FF0000]/5 dark:from-[#FF0000]/20 dark:to-[#FF0000]/20",
+    bgSubtle: "bg-[#FF0000]/5 dark:bg-[#FF0000]/20",
+    border: "border-[#FF0000]/20 dark:border-[#FF0000]/30",
+    borderHover: "hover:border-[#FF0000]/30 dark:hover:border-[#FF0000]/40",
+    barFull: "from-[#FF0000] to-[#FF0000]",
+    barDim: "from-[#FF0000] to-[#FF0000]/70",
+    platformName: "YouTube",
+  }
+};
+
+const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency, platform = "spotify" }) => {
   const { dollarAge, trackBreakdown, totalWeightedAge, totalLTMEarnings } = dollarAgeData;
+  const theme = THEME[platform === "itunes" ? "apple" : platform] || THEME.spotify;
 
   const stability = dollarAge >= 5
-    ? { label: "Mature Catalog", sub: "High Stability", color: "text-[#1DB954] dark:text-[#1DB954]", dot: "bg-[#1DB954]", pct: 100, bar: "from-[#1DB954] to-[#1DB954]" }
+    ? { label: "Mature Catalog", sub: "High Stability", color: `${theme.text} ${theme.textDark}`, dot: theme.bg, pct: 100, bar: theme.barFull }
     : dollarAge >= 3
-    ? { label: "Established Catalog", sub: "Moderate Stability", color: "text-[#1DB954] dark:text-[#1DB954]/70", dot: "bg-[#1DB954]", pct: 65, bar: "from-[#1DB954] to-[#1DB954]/70" }
-    : { label: "Young Catalog", sub: "Growth Phase", color: "text-[#1DB954] dark:text-[#1DB954]/70", dot: "bg-[#1DB954]", pct: 35, bar: "from-[#1DB954] to-[#1DB954]" };
+    ? { label: "Established Catalog", sub: "Moderate Stability", color: `${theme.text} ${theme.textDark}`, dot: theme.bg, pct: 65, bar: theme.barDim }
+    : { label: "Young Catalog", sub: "Growth Phase", color: `${theme.text} ${theme.textDark}`, dot: theme.bg, pct: 35, bar: theme.barFull };
 
-  
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
-      <div className="flex items-center gap-2">
-        <SectionHeader icon={Calendar} title="Dollar Age Analysis" subtitle="Weighted average age of catalog earnings" gradient="from-[#1DB954] to-[#1DB954]" />
-        <InfoTooltip content="Dollar Age = Σ(Track Age × LTM Earnings) / Total LTM Earnings. Higher = more stable income." />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-2">
+          <SectionHeader icon={Calendar} title={`Dollar Age Analysis`} subtitle="Weighted average age of catalog earnings" gradient={theme.gradient} />
+          <InfoTooltip content="Dollar Age = Σ(Track Age × LTM Earnings) / Total LTM Earnings. Higher = more stable income." />
+        </div>
+        <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${theme.bgSubtle} ${theme.textMono} ${theme.border} border`}>
+          {theme.platformName}
+        </div>
       </div>
 
       {/* Top section — big number + summaries */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {/* Dollar Age */}
-        <div className="bg-gradient-to-br from-[#1DB954]/5 to-[#1DB954]/5 dark:from-[#1DB954]/20 dark:to-[#1DB954]/20 border-2 border-[#1DB954]/20 dark:border-[#1DB954]/30 rounded-2xl p-5 text-center">
-          <p className="text-xs font-bold text-[#1DB954] dark:text-[#1DB954]/70 uppercase tracking-wide mb-2">Dollar Age</p>
-          <p className="text-5xl font-black text-[#1DB954] dark:text-[#1DB954]/70 leading-none">{dollarAge.toFixed(1)}</p>
-          <p className="text-xs text-[#1DB954] mt-1">years</p>
-          <div className="mt-3 pt-3 border-t border-[#1DB954]/20 dark:border-[#1DB954]/30">
+        <div className={`bg-gradient-to-br ${theme.gradientSubtle} border-2 ${theme.border} rounded-2xl p-5 text-center`}>
+          <p className={`text-xs font-bold ${theme.text} ${theme.textDark} uppercase tracking-wide mb-2`}>Dollar Age</p>
+          <p className={`text-5xl font-black ${theme.text} ${theme.textDark} leading-none`}>{dollarAge.toFixed(1)}</p>
+          <p className={`text-xs ${theme.text} mt-1`}>years</p>
+          <div className={`mt-3 pt-3 border-t ${theme.border}`}>
             <div className="flex items-center justify-center gap-1.5 mb-1">
               <span className={`w-2 h-2 rounded-full animate-pulse ${stability.dot}`} />
               <span className={`text-xs font-bold ${stability.color}`}>{stability.label}</span>
@@ -42,18 +91,18 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
         <div className="sm:col-span-2 grid grid-cols-2 gap-3">
           <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
             <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-1">Total LTM Earnings</p>
-            <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">{formatCurrency(totalLTMEarnings)}</p>
+            <p className={`text-lg sm:text-xl font-black ${theme.text}`}>{formatCurrency(totalLTMEarnings)}</p>
           </div>
-       <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
-  <div className="flex items-center gap-1 mb-1">
-    <p className="text-[10px] text-slate-400 uppercase tracking-wide">Weighted Age Sum</p>
-    <InfoTooltip content="The sum of (Track Age × LTM Earnings) for all tracks. Example: a 5-year-old track earning $10K contributes 50K to this sum. Dividing this by Total LTM Earnings gives the Dollar Age." />
-  </div>
-  <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">{(totalWeightedAge / 1000).toFixed(1)}K</p>
-</div>
-          <div className="col-span-2 bg-[#1DB954]/5 dark:bg-[#1DB954]/20 border border-[#1DB954]/20 dark:border-[#1DB954]/30 rounded-2xl p-3">
-            <p className="text-[10px] font-bold text-[#1DB954] dark:text-[#1DB954]/70 uppercase mb-1">Formula</p>
-            <p className="text-xs text-[#1DB954] dark:text-[#1DB954] font-mono">
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+            <div className="flex items-center gap-1 mb-1">
+              <p className="text-[10px] text-slate-400 uppercase tracking-wide">Weighted Age Sum</p>
+              <InfoTooltip content="The sum of (Track Age × LTM Earnings) for all tracks. Example: a 5-year-old track earning $10K contributes 50K to this sum. Dividing this by Total LTM Earnings gives the Dollar Age." />
+            </div>
+            <p className={`text-lg sm:text-xl font-black ${theme.text}`}>{(totalWeightedAge / 1000).toFixed(1)}K</p>
+          </div>
+          <div className={`col-span-2 ${theme.bgSubtle} border ${theme.border} rounded-2xl p-3`}>
+            <p className={`text-[10px] font-bold ${theme.text} ${theme.textDark} uppercase mb-1`}>Formula</p>
+            <p className={`text-xs ${theme.textMono} font-mono`}>
               Σ(Track Age × LTM Earnings) ÷ Total LTM Earnings
             </p>
           </div>
@@ -66,15 +115,15 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency }) => {
           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3">Top Tracks Contribution</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {trackBreakdown.map((track, idx) => (
-              <div key={idx} className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-200 dark:border-slate-700 hover:border-[#1DB954]/30 dark:hover:border-[#1DB954]/40 transition-colors">
+              <div key={idx} className={`bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3.5 border border-slate-200 dark:border-slate-700 ${theme.borderHover} transition-colors`}>
                 <div className="flex justify-between items-start gap-2 mb-2">
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-xs sm:text-sm text-slate-900 dark:text-white truncate">{track.name}</p>
+                    <p className={`font-semibold text-xs sm:text-sm ${theme.text} truncate`}>{track.name}</p>
                     <p className="text-[10px] text-slate-400">
-                      Released {new Date(track.releaseDate).toLocaleDateString("en-US", { year: "numeric", month: "short" })}
+                      Released {track.releaseDate ? new Date(track.releaseDate).toLocaleDateString("en-US", { year: "numeric", month: "short" }) : "N/A"}
                     </p>
                   </div>
-                  <span className="text-base font-black text-[#1DB954] flex-shrink-0">{track.ageInYears.toFixed(1)}y</span>
+                  <span className={`text-base font-black ${theme.text} flex-shrink-0`}>{track.ageInYears.toFixed(1)}y</span>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[10px]">
                   <div className="bg-white dark:bg-slate-900 rounded-lg p-1.5 text-center">

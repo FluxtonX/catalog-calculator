@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AlertTriangle, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../utils/supabase";
@@ -24,6 +24,9 @@ import RevenueAnalysis from "./sections/RevenueAnalysis";
 import RevenueStreams from "./sections/RevenueStreams";
 import ValuationScenarios from "./sections/ValuationScenarios";
 import YoutubeSaveButton from "./sections/YoutubeSaveButton";
+import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
+import DollarAgeAnalysis from "../valuation/sections/DollarAgeAnalysis";
+import { calculateCfaPhase1 } from "../../core/calculations";
 
 
 const YouTubeValuationTab = ({ artistData }) => {
@@ -125,6 +128,24 @@ const YouTubeValuationTab = ({ artistData }) => {
   }
 };
 
+  const cfaResult = useMemo(
+    () => calculateCfaPhase1(artistData, "youtube"),
+    [artistData]
+  );
+
+  const dollarAgeData = {
+    dollarAge: cfaResult.averageDollarAge,
+    totalWeightedAge: 0,
+    totalLTMEarnings: cfaResult.totalAnnualRevenue,
+    trackBreakdown: cfaResult.trackDetails.map(t => ({
+       name: t.title,
+       ageInYears: t.ageInYears,
+       ltmEarnings: t.artistAttributedAnnualRev,
+       weightedAge: 0,
+       releaseDate: ""
+    }))
+  };
+
   return (
     <div className="space-y-5 sm:space-y-6">
       {/* Alert Banners — reusing valuation/ui/AlertBanner */}
@@ -181,6 +202,8 @@ const YouTubeValuationTab = ({ artistData }) => {
         </a>
       </div>
 
+      <PlatformContributionBanner platform="youtube" />
+
       <ValuationAssumptions
         annualViewPercentage={annualViewPercentage}
         setAnnualViewPercentage={setAnnualViewPercentage}
@@ -214,6 +237,12 @@ const YouTubeValuationTab = ({ artistData }) => {
         adRevenue={metrics.adRevenue}
         streamingRevenue={metrics.streamingRevenue}
         totalAnnualRevenue={metrics.totalAnnualRevenue}
+        formatCurrency={formatCurrency}
+      />
+
+      <DollarAgeAnalysis
+        platform="youtube"
+        dollarAgeData={dollarAgeData}
         formatCurrency={formatCurrency}
       />
 

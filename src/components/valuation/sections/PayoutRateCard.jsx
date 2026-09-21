@@ -9,7 +9,7 @@ const PayoutRateCard = ({ effectiveSpotifyRate, geoMethodUsed, geoRateData }) =>
         <Globe size={18} className="text-white" />
       </div>
       <div>
-        <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Payout Rate</h2>
+        <h2 className="text-base sm:text-lg font-bold text-[#1DB954] dark:text-[#1DB954]">Payout Rate</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">
           {geoMethodUsed === "WEIGHTED" ? "Geo-weighted" : "Global average"}
         </p>

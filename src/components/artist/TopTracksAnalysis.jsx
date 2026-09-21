@@ -3,12 +3,20 @@ import React from 'react';
 const TopTracksAnalysis = ({ artistsData, forceLightMode = false }) => {
   if (!artistsData) return null;
 
+  const activePlatforms = Object.entries(artistsData).filter(([p]) => p !== 'spotify_proxy' && p !== 'youtube_proxy');
+  if (activePlatforms.length === 0) return null;
+
+  const gridClass = activePlatforms.length === 1 
+    ? 'grid-cols-1' 
+    : activePlatforms.length === 2 
+      ? 'grid-cols-1 md:grid-cols-2' 
+      : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3';
+
   return (
     <div className="w-full">
       <h2 className={`text-2xl font-bold mb-6 text-center ${forceLightMode ? 'text-slate-900' : 'text-white'}`}>Top Tracks Analysis</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Object.entries(artistsData).map(([platform, data]) => {
-          if (platform === 'spotify_proxy' || platform === 'youtube_proxy') return null;
+      <div className={`grid gap-6 w-full ${gridClass}`}>
+        {activePlatforms.map(([platform, data]) => {
           const platformName = platform === 'spotify' ? 'Spotify' : platform === 'itunes' ? 'Apple Music' : platform === 'youtube' ? 'YouTube' : platform;
           
           let displayItems = [];

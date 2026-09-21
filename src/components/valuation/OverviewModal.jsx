@@ -33,9 +33,10 @@ import {
 import { useArtistStore } from "../../store/artistStore";
 import ChannelSelector from "../youtube/ChannelSelector";
 import CfaMasterValuation from "./CfaMasterValuation";
-import { getCombinedValuation } from "../../core/calculations";
+import { getCombinedValuation, calculateCfaPhase1 } from "../../core/calculations";
 import { formatCurrency } from "./hooks/useValuationLogic";
 import TopTracksAnalysis from "../artist/TopTracksAnalysis";
+import DollarAgeAnalysis from "./sections/DollarAgeAnalysis";
 
 const SUGGESTED_ARTISTS = [
   "Taylor Swift",
@@ -52,6 +53,46 @@ const formatNum = (num) => {
   if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
   if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
   return num.toString();
+};
+
+const OverviewDollarAge = ({ artistsData }) => {
+  const activePlatforms = Object.entries(artistsData).filter(([p]) => p === 'spotify' || p === 'itunes' || p === 'youtube');
+  
+  if (activePlatforms.length === 0) return null;
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-6">
+      <div className="flex flex-col mb-6">
+        <h3 className="text-xl font-black text-slate-900 tracking-tight">Multi-Platform Dollar Age</h3>
+        <p className="text-sm text-slate-500">Compare catalog maturity and income stability across your selected platforms.</p>
+      </div>
+      <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>
+        {activePlatforms.map(([platform, data]) => {
+           const cfaResult = calculateCfaPhase1(data, platform);
+           const dollarAgeData = {
+              dollarAge: cfaResult.averageDollarAge,
+              totalWeightedAge: 0,
+              totalLTMEarnings: cfaResult.totalAnnualRevenue,
+              trackBreakdown: cfaResult.trackDetails.map(t => ({
+                 name: t.title,
+                 ageInYears: t.ageInYears,
+                 ltmEarnings: t.artistAttributedAnnualRev,
+                 weightedAge: 0,
+                 releaseDate: ""
+              }))
+           };
+           return (
+             <DollarAgeAnalysis 
+               key={platform} 
+               platform={platform === 'itunes' ? 'apple' : platform} 
+               dollarAgeData={dollarAgeData} 
+               formatCurrency={formatCurrency} 
+             />
+           );
+        })}
+      </div>
+    </div>
+  );
 };
 
 const OverviewModal = ({ onClose }) => {

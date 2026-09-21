@@ -14,7 +14,7 @@ const ValuationAssumptions = ({
         <Settings size={18} className="text-white" />
       </div>
       <div>
-        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+        <h3 className="text-base sm:text-lg font-bold text-[#FF0000] dark:text-[#FF0000]">
           Valuation Assumptions
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">

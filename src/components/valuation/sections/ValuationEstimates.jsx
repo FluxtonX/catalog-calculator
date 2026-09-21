@@ -13,7 +13,7 @@ const ValuationCard = ({ icon: Icon, title, multiple, value, accent, featured })
       <Icon size={22} className="sm:w-6 sm:h-6 text-white" />
     </div>
     <div className="flex flex-col items-center justify-center flex-1 w-full">
-      <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white mb-1">{title}</h3>
+      <h3 className="text-sm sm:text-base font-black text-[#1DB954] dark:text-[#1DB954] mb-1">{title}</h3>
       <p className={`text-[9px] sm:text-[10px] font-bold ${accent.text} uppercase tracking-widest mb-3`}>{multiple} Rev Multiple</p>
       <Separator.Root className={`w-12 h-0.5 ${accent.sep} rounded-full mb-3 mt-auto`} decorative />
       <p className={`text-xl sm:text-2xl md:text-xl lg:text-lg xl:text-2xl 2xl:text-3xl font-black tracking-tight ${accent.text} w-full px-1`}>{value}</p>
