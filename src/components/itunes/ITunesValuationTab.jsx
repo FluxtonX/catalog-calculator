@@ -263,8 +263,8 @@ const catalogBonus = Math.min(
         : "Developing Artist";
 
   const cfaResult = useMemo(
-    () => calculateCfaPhase1({ ...artistData, popularity: avgTop10Popularity }, "itunes"),
-    [artistData, avgTop10Popularity]
+    () => calculateCfaPhase1({ ...artistData, popularity: calculations.avgTop10Popularity }, "itunes"),
+    [artistData, calculations.avgTop10Popularity]
   );
 
   const totalLTMEarnings = cfaResult.trackDetails.reduce((sum, t) => sum + t.artistAttributedAnnualRev, 0);
