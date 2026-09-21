@@ -62,8 +62,8 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency, platform = "spotify"
     <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-4 sm:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <SectionHeader icon={Calendar} title={`Dollar Age Analysis`} subtitle="Weighted average age of catalog earnings" gradient={theme.gradient} />
-          <InfoTooltip content="Dollar Age = Σ(Track Age × LTM Earnings) / Total LTM Earnings. Higher = more stable income." />
+          <SectionHeader icon={Calendar} title={`Average Catalog Age`} subtitle="Weighted average age of catalog earnings" gradient={theme.gradient} />
+          <InfoTooltip content="Average Catalog Age = Σ(Track Age × LTM Earnings) / Total LTM Earnings. Higher = more stable income." />
         </div>
         <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest ${theme.bgSubtle} ${theme.textMono} ${theme.border} border`}>
           {theme.platformName}
@@ -74,7 +74,7 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency, platform = "spotify"
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         {/* Dollar Age */}
         <div className={`bg-gradient-to-br ${theme.gradientSubtle} border-2 ${theme.border} rounded-2xl p-5 text-center`}>
-          <p className={`text-xs font-bold ${theme.text} ${theme.textDark} uppercase tracking-wide mb-2`}>Dollar Age</p>
+          <p className={`text-xs font-bold ${theme.text} ${theme.textDark} uppercase tracking-wide mb-2`}>Average Catalog Age</p>
           <p className={`text-5xl font-black ${theme.text} ${theme.textDark} leading-none`}>{dollarAge.toFixed(1)}</p>
           <p className={`text-xs ${theme.text} mt-1`}>years</p>
           <div className={`mt-3 pt-3 border-t ${theme.border}`}>
@@ -96,7 +96,7 @@ const DollarAgeAnalysis = ({ dollarAgeData, formatCurrency, platform = "spotify"
           <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
             <div className="flex items-center gap-1 mb-1">
               <p className="text-[10px] text-slate-400 uppercase tracking-wide">Weighted Age Sum</p>
-              <InfoTooltip content="The sum of (Track Age × LTM Earnings) for all tracks. Example: a 5-year-old track earning $10K contributes 50K to this sum. Dividing this by Total LTM Earnings gives the Dollar Age." />
+              <InfoTooltip content="The sum of (Track Age × LTM Earnings) for all tracks. Example: a 5-year-old track earning $10K contributes 50K to this sum. Dividing this by Total LTM Earnings gives the Average Catalog Age." />
             </div>
             <p className={`text-lg sm:text-xl font-black ${theme.text}`}>{(totalWeightedAge / 1000).toFixed(1)}K</p>
           </div>

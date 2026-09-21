@@ -216,7 +216,7 @@ export const generateValuationPDF = (reportData) => {
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...amberColor);
-    doc.text('Dollar Age Analysis', 15, yPos);
+    doc.text('Average Catalog Age', 15, yPos);
     yPos += 10;
     
     // Dollar Age Summary Box
@@ -229,7 +229,7 @@ export const generateValuationPDF = (reportData) => {
     doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...textColor);
-    doc.text('Catalog Dollar Age:', 20, yPos + 8);
+    doc.text('Average Catalog Age:', 20, yPos + 8);
     
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
@@ -259,17 +259,17 @@ export const generateValuationPDF = (reportData) => {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(...textColor);
-    doc.text('What is Dollar Age?', 15, yPos);
+    doc.text('What is Average Catalog Age?', 15, yPos);
     yPos += 7;
     
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     const explanation = [
-      'Dollar Age is a weighted average that measures how long your catalog\'s earnings',
-      'have been generating income. It provides insight into catalog maturity and stability.',
+      'Average Catalog Age is a weighted average that measures how long your catalog\'s earnings',
+      'have been accumulating. It is calculated by weighting the age of each track by its earnings.',
       '',
-      'Higher Dollar Age: Earnings from older, proven tracks \u2192 More stable income',
-      'Lower Dollar Age: Earnings from newer tracks \u2192 Growth potential but less proven',
+      'Higher Average Catalog Age: Earnings from older, proven tracks → More stable income',
+      'Lower Average Catalog Age: Earnings from newer tracks → Growth potential but less proven',
       '',
       'Formula: \u03A3(Track Age × Track LTM Earnings) / Total LTM Earnings',
     ];
@@ -497,8 +497,8 @@ export const generateValuationPDF = (reportData) => {
       'Geo-weighted Spotify payout rates applied based on listener geographic',
       'distribution across regions.',
       '',
-      'Dollar Age Calculation:',
-      '  Dollar Age = \u03A3(Track Age in Years × Track LTM Earnings) / Total LTM Earnings',
+      'Average Catalog Age Calculation:',
+      '  Average Catalog Age = Σ(Track Age in Years × Track LTM Earnings) / Total LTM Earnings',
       '  Provides insight into catalog maturity and income stability.',
       '  Higher values indicate mature, stable catalogs.',
       '',

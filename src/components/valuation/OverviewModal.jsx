@@ -63,7 +63,7 @@ const OverviewDollarAge = ({ artistsData }) => {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-6">
       <div className="flex flex-col mb-6">
-        <h3 className="text-xl font-black text-slate-900 tracking-tight">Multi-Platform Dollar Age</h3>
+        <h3 className="text-xl font-black text-slate-900 tracking-tight">Multi-Platform Average Catalog Age</h3>
         <p className="text-sm text-slate-500">Compare catalog maturity and income stability across your selected platforms.</p>
       </div>
       <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>

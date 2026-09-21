@@ -522,18 +522,18 @@ function ReportPreviewModal({ report, onClose, onDownload, onDelete, formatCurre
                 </div>
               </div>
 
-              {/* Dollar Age */}
+              {/* Average Catalog Age */}
               {data.calculations.dollarAge && (
                 <div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
                     <Calendar size={20} className="text-amber-500" />
-                    Dollar Age Analysis
+                    Average Catalog Age
                   </h3>
                   <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-2 border-amber-300 dark:border-amber-500/30 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <p className="text-sm font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
-                          Catalog Dollar Age
+                          Average Catalog Age
                         </p>
                         <p className="text-xs text-amber-600 dark:text-amber-500 mt-1">
                           Weighted by LTM earnings
