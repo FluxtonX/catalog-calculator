@@ -121,7 +121,8 @@ export const calculateTrackMonthlyStreams = (track, currentDate) => {
 
 export const calculateCfaPhase1 = (artistData, platform) => {
   const currentDate = new Date();
-  const topTracks = (artistData.topTracks || []).slice(0, 10);
+  const rawTracks = artistData.topTracks || artistData.videos || [];
+  let topTracks = rawTracks.slice(0, 10);
   
   let totalAnnualRevenue = 0;
   let totalTrackAge = 0;
@@ -211,7 +212,11 @@ export const calculateCfaPhase1 = (artistData, platform) => {
   }
   // --------------------------------
 
-  if (trackDetails.length === 0 && totalAnnualRevenue > 0 && topTracks.length > 0) {
+  if (trackDetails.length === 0 && totalAnnualRevenue > 0) {
+    if (topTracks.length === 0) {
+      topTracks = Array.from({ length: 10 }).map((_, i) => ({ title: `Catalog Track ${i + 1}` }));
+    }
+    
     // Distribute platform fallback revenue across top tracks to populate Dollar Age Analysis
     const weights = [0.30, 0.20, 0.15, 0.10, 0.08, 0.05, 0.05, 0.03, 0.02, 0.02];
     
