@@ -35,6 +35,7 @@ import ChannelSelector from "../youtube/ChannelSelector";
 import CfaMasterValuation from "./CfaMasterValuation";
 import { getCombinedValuation } from "../../core/calculations";
 import { formatCurrency } from "./hooks/useValuationLogic";
+import TopTracksAnalysis from "../artist/TopTracksAnalysis";
 
 const SUGGESTED_ARTISTS = [
   "Taylor Swift",
@@ -587,6 +588,13 @@ const OverviewModal = ({ onClose }) => {
                     forceLightMode={true}
                   />
                 </div>
+             </div>
+          )}
+
+          {/* Top Tracks Analysis */}
+          {!isLoading && Object.keys(selectedArtists).length > 0 && (
+             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-6">
+                <TopTracksAnalysis artistsData={selectedArtists} forceLightMode={true} />
              </div>
           )}
 

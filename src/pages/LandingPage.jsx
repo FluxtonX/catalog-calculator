@@ -9,6 +9,7 @@ import { useArtistStore } from '../store/artistStore';
 import CfaMasterValuation from '../components/valuation/CfaMasterValuation';
 import { formatCurrency } from '../components/valuation/hooks/useValuationLogic';
 import TrackList from '../components/artist/TrackList';
+import TopTracksAnalysis from '../components/artist/TopTracksAnalysis';
 
 import imgTuneCore from '../assets/distribution logos/tunecore.png';
 import imgDistroKid from '../assets/distribution logos/distrokid.png';
@@ -572,65 +573,7 @@ export default function LandingPage() {
 
         {/* Top Tracks Section - Rendered below Option 1 row */}
         <div className={`transition-all duration-1000 ease-in-out overflow-hidden ${estimatedValue !== null && searchedArtists ? 'max-h-[2000px] opacity-100 mb-12' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
-          <div className="w-full">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">Top Tracks Analysis</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {searchedArtists && Object.entries(searchedArtists).map(([platform, data]) => {
-                if (platform === 'spotify_proxy' || platform === 'youtube_proxy') return null;
-                const platformName = platform === 'spotify' ? 'Spotify' : platform === 'itunes' ? 'Apple Music' : platform === 'youtube' ? 'YouTube' : platform;
-                let displayItems = [];
-                if (data?.topTracks?.length > 0) {
-                  displayItems = data.topTracks.slice(0, 10);
-                } else if (data?.videos?.length > 0) {
-                  displayItems = data.videos.slice(0, 10);
-                } else if (data?.popularReleases?.length > 0) {
-                  displayItems = data.popularReleases.slice(0, 10);
-                } else if (platform === 'youtube') {
-                  // Fallback for YouTube to match layout consistency
-                  const formatCompact = (num) => {
-                    if (!num) return '-';
-                    const n = Number(num);
-                    return isNaN(n) ? '-' : new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(n);
-                  };
-                  displayItems = [
-                    { title: 'Total Channel Views', streamCountFormatted: formatCompact(data.totalViews) },
-                    { title: 'Total Subscribers', streamCountFormatted: formatCompact(data.subscribers) },
-                    { title: 'Total Videos', streamCountFormatted: formatCompact(data.stats?.totalVideos) }
-                  ];
-                }
-                
-                return (
-                  <div key={platform} className="bg-[#0B101A] border border-[#1A2333] p-5 rounded-2xl shadow-xl flex flex-col h-[350px]">
-                    <h3 className="text-sm font-bold text-[#00E5FF] mb-4 tracking-wider uppercase">{platformName}</h3>
-                    <div className="overflow-y-auto pr-2 flex-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full">
-                      {displayItems.length > 0 ? (
-                        <div className="flex flex-col gap-2">
-                          {displayItems.map((item, idx) => (
-                            <div key={idx} className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5">
-                              <span className="text-white/30 font-bold w-5 text-right text-sm">{idx + 1}</span>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-white/90 truncate">{item.title || item.name || item.snippet?.title}</p>
-                                {item.album && <p className="text-[10px] text-white/40 truncate">{item.album}</p>}
-                              </div>
-                              {(item.streamCountFormatted || item.viewCountFormatted) && (
-                                <span className="text-[10px] text-[#00E5FF] font-medium px-2 py-1 bg-[#00E5FF]/10 rounded-lg whitespace-nowrap min-w-[50px] text-center">
-                                  {item.streamCountFormatted || item.viewCountFormatted}
-                                </span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center h-full text-white/40 text-xs text-center p-4 border border-dashed border-white/10 rounded-xl">
-                          Detailed data is not available for this platform.
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <TopTracksAnalysis artistsData={searchedArtists} />
         </div>
 
         {/* Divider / Trust Badges */}
