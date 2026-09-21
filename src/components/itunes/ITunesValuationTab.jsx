@@ -413,14 +413,14 @@ const catalogBonus = Math.min(
 </div>
 
       {/* Login to Dashboard */}
-      <div className="flex justify-end">
+      <div className="flex justify-center my-8">
         <a
           href="https://artists.apple.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-900 dark:text-white text-xs sm:text-sm font-bold rounded-xl border border-slate-200 dark:border-slate-700 transition-colors"
+          className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-base font-bold rounded-2xl shadow-xl hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto"
         >
-          <LogIn size={14} />
+          <LogIn size={20} />
           Login to your iTunes dashboard
         </a>
       </div>

@@ -186,14 +186,14 @@ const YouTubeValuationTab = ({ artistData }) => {
 )}
 
       {/* Login to Dashboard */}
-      <div className="flex justify-end">
+      <div className="flex justify-center my-8">
         <a
           href="https://studio.youtube.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#FF0000]/10 hover:bg-[#FF0000]/20 text-[#FF0000] text-xs sm:text-sm font-bold rounded-xl border border-[#FF0000]/20 transition-colors"
+          className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#FF0000] hover:bg-[#cc0000] text-white text-base font-bold rounded-2xl shadow-xl hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto"
         >
-          <LogIn size={14} />
+          <LogIn size={20} />
           Login to your YouTube dashboard
         </a>
       </div>
