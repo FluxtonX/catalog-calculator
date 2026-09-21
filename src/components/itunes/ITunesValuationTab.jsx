@@ -20,6 +20,7 @@ import { supabase } from "../../utils/supabase";
 import ITunesMetricCard from "./ITunesMetricCard";
 import ITunesScenarioCard from "./ITunesScenarioCard";
 import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
+import AverageCatalogAge from "../valuation/sections/AverageCatalogAge";
 
 import {
   APPLE_MUSIC_RATE,
@@ -260,6 +261,20 @@ const catalogBonus = Math.min(
       : calculations.dealScore >= 40
         ? "Moderate Interest"
         : "Developing Artist";
+
+  const cfaResult = useMemo(
+    () => calculateCfaPhase1({ ...artistData, popularity: calculations.avgTop10Popularity }, "itunes"),
+    [artistData, calculations.avgTop10Popularity]
+  );
+
+  const dollarAgeData = {
+    dollarAge: cfaResult.averageDollarAge,
+    trackBreakdown: cfaResult.trackDetails.map(t => ({
+      name: t.title,
+      ageInYears: t.ageInYears,
+      releaseDate: t.releaseDate || (t.releaseYear ? `${t.releaseYear}-01-01` : "")
+    }))
+  };
 
   return (
     <div className="space-y-5 sm:space-y-7">
@@ -558,6 +573,11 @@ const catalogBonus = Math.min(
 
       </div>
 
+      {/* ── Average Catalog Age ──────────────────────────── */}
+      <AverageCatalogAge
+        platform="apple"
+        dollarAgeData={dollarAgeData}
+      />
 
       {/* ── Save / Download PDF ──────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">

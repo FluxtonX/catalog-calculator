@@ -25,6 +25,8 @@ import RevenueStreams from "./sections/RevenueStreams";
 import ValuationScenarios from "./sections/ValuationScenarios";
 import YoutubeSaveButton from "./sections/YoutubeSaveButton";
 import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
+import AverageCatalogAge from "../valuation/sections/AverageCatalogAge";
+import { calculateCfaPhase1 } from "../../core/calculations";
 
 
 const YouTubeValuationTab = ({ artistData }) => {
@@ -126,6 +128,20 @@ const YouTubeValuationTab = ({ artistData }) => {
   }
 };
 
+  const cfaResult = useMemo(
+    () => calculateCfaPhase1(artistData, "youtube"),
+    [artistData]
+  );
+
+  const dollarAgeData = {
+    dollarAge: cfaResult.averageDollarAge,
+    trackBreakdown: cfaResult.trackDetails.map(t => ({
+      name: t.title,
+      ageInYears: t.ageInYears,
+      releaseDate: t.releaseDate || (t.releaseYear ? `${t.releaseYear}-01-01` : "")
+    }))
+  };
+
   return (
     <div className="space-y-5 sm:space-y-6">
       {/* Alert Banners — reusing valuation/ui/AlertBanner */}
@@ -220,7 +236,10 @@ const YouTubeValuationTab = ({ artistData }) => {
         formatCurrency={formatCurrency}
       />
 
-
+      <AverageCatalogAge
+        platform="youtube"
+        dollarAgeData={dollarAgeData}
+      />
 
       <ValuationScenarios
         {...metrics}

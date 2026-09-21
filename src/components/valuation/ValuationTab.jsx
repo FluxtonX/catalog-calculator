@@ -27,6 +27,7 @@ import StreamDataInput from "./sections/StreamDataInput";
 import PayoutRateCard from "./sections/PayoutRateCard";
 import RevenueCalculation from "./sections/RevenueCalculation";
 import ValuationEstimates from "./sections/ValuationEstimates";
+import AverageCatalogAge from "./sections/AverageCatalogAge";
 import PlatformContributionBanner from "./PlatformContributionBanner";
 import MethodologyNote from "./sections/MethodologyNote";
 import SaveButton from "./sections/SaveButton";
@@ -108,6 +109,15 @@ useEffect(() => {
     cfaConfidence,
     trackDetails
   } = cfaResult;
+
+  const dollarAgeData = {
+    dollarAge: averageDollarAge,
+    trackBreakdown: trackDetails.map(t => ({
+      name: t.title,
+      ageInYears: t.ageInYears,
+      releaseDate: t.releaseDate || (t.releaseYear ? `${t.releaseYear}-01-01` : "")
+    }))
+  };
 
   // We map the first track's info or aggregated info for display where appropriate
   // However, the CFA logic is top 10 track based.
@@ -302,6 +312,11 @@ useEffect(() => {
           featuredTrackCount={featuredTrackCount}
           totalTrackCount={totalTrackCount}
           {...fmt}
+        />
+
+        <AverageCatalogAge 
+          platform="spotify" 
+          dollarAgeData={dollarAgeData} 
         />
 
         {/* Valuation Tiers */}
