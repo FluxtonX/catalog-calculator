@@ -14,7 +14,7 @@ const ScenarioCard = ({ icon: Icon, title, subtitle, value, color, featured }) =
     <div className={`w-11 h-11 sm:w-14 sm:h-14 ${color.iconBg} rounded-2xl flex items-center justify-center ${featured ? "mt-6" : "mt-0"} mb-3 shadow-md`}>
       <Icon size={20} className="sm:w-6 sm:h-6 text-white" />
     </div>
-    <h4 className="text-sm sm:text-base font-black text-slate-900 dark:text-white mb-1">{title}</h4>
+    <h4 className="text-sm sm:text-base font-black text-[#FF0000] dark:text-[#FF0000] mb-1">{title}</h4>
     <p className={`text-[10px] sm:text-xs font-bold ${color.text} uppercase tracking-widest mb-3`}>{subtitle}</p>
     <Separator.Root className={`w-10 h-0.5 ${color.sep} rounded-full mb-3`} decorative />
     <p className={`text-2xl sm:text-3xl font-black ${color.text}`}>{value}</p>
@@ -31,7 +31,7 @@ const ValuationScenarios = ({
         <DollarSign size={18} className="text-white" />
       </div>
       <div>
-        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+        <h3 className="text-base sm:text-lg font-bold text-[#FF0000] dark:text-[#FF0000]">
           Professional Valuation Scenarios
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -59,11 +59,11 @@ const ValuationScenarios = ({
       <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp size={16} className="text-emerald-500" />
-          <h4 className="font-bold text-slate-900 dark:text-white text-sm">Growth-Adjusted Valuation</h4>
+          <h4 className="font-bold text-[#FF0000] dark:text-[#FF0000] text-sm">Growth-Adjusted Valuation</h4>
         </div>
        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
   <span className="text-slate-500 dark:text-slate-400">Base 8× Valuation</span>
-  <span className="font-bold text-slate-900 dark:text-white">{formatCurrency(totalAnnualRevenue * 8)}</span>
+  <span className="font-bold text-[#FF0000] dark:text-[#FF0000]">{formatCurrency(totalAnnualRevenue * 8)}</span>
 </div>
 <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
   <div className="flex items-center gap-1.5">
@@ -79,7 +79,7 @@ const ValuationScenarios = ({
   <span className="font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(totalAnnualRevenue * 8 * 0.3)}</span>
 </div>
         <div className="flex justify-between items-center py-2 mt-1 text-xs sm:text-sm">
-          <span className="font-bold text-slate-900 dark:text-white">Adjusted Valuation</span>
+          <span className="font-bold text-[#FF0000] dark:text-[#FF0000]">Adjusted Valuation</span>
           <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(caccAdjustedValuation)}</span>
         </div>
       </div>

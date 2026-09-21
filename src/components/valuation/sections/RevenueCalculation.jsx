@@ -15,6 +15,7 @@ const RevenueCalculation = ({
       <CalcRow label="Monthly Streams (Estimated)"
         value={formatNumber(monthlyStreamsEst)}
         sub={methodUsed === "RECENT_30D" ? "Based on recent 30-day streams" : methodUsed === "RECENT_28D_NORMALIZED" ? "Based on recent 28-day streams" : "Lifetime streams with age decay"}
+        valueColor="text-[#1DB954] dark:text-[#1DB954]"
       />
       <CalcRow label="Spotify Payout Rate"
         value={`$${effectiveSpotifyRate.toFixed(4)}`}

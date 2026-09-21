@@ -13,7 +13,7 @@ const RevenueAnalysis = ({
         <DollarSign size={18} className="text-white" />
       </div>
       <div>
-        <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+        <h3 className="text-base sm:text-lg font-bold text-[#FF0000] dark:text-[#FF0000]">
           YouTube Comprehensive Revenue Analysis
         </h3>
         <p className="text-xs text-slate-500 dark:text-slate-400">Ad revenue + Content ID breakdown</p>
@@ -34,7 +34,7 @@ const RevenueAnalysis = ({
           ].map((row) => (
             <div key={row.label} className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{row.label}</span>
-              <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">{row.value}</span>
+              <span className="text-xs sm:text-sm font-bold text-[#FF0000] dark:text-[#FF0000]">{row.value}</span>
             </div>
           ))}
           <div className="flex justify-between items-center py-2.5 bg-[#FF0000]/10 dark:bg-[#FF0000]/20 rounded-xl px-3 mt-2">
@@ -54,7 +54,7 @@ const RevenueAnalysis = ({
           ].map((row) => (
             <div key={row.label} className="flex justify-between items-center py-2.5 border-b border-slate-100 dark:border-slate-800">
               <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">{row.label}</span>
-              <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">{row.value}</span>
+              <span className="text-xs sm:text-sm font-bold text-[#FF0000] dark:text-[#FF0000]">{row.value}</span>
             </div>
           ))}
           <div className="flex justify-between items-center py-2.5 bg-[#FF0000]/10 dark:bg-[#FF0000]/20 rounded-xl px-3 mt-2">

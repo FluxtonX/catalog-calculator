@@ -16,7 +16,7 @@ const StreamDataInput = ({
         <Music size={18} className="text-white" />
       </div>
       <div>
-        <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">Stream Data</h2>
+        <h2 className="text-base sm:text-lg font-bold text-[#1DB954] dark:text-[#1DB954]">Stream Data</h2>
         <p className="text-xs text-slate-500 dark:text-slate-400">Enter lifetime catalog streaming data</p>
       </div>
     </div>
@@ -37,7 +37,7 @@ const StreamDataInput = ({
             type="text"
             value={formatNumber(parseFloat(lifetimeStreamsInput.replace(/,/g, "")))}
             onChange={(e) => setLifetimeStreamsInput(e.target.value.replace(/[^0-9]/g, ""))}
-            className="w-full pl-10 pr-4 py-3 sm:py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base font-mono focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-[#1DB954] transition-all"
+            className="w-full pl-10 pr-4 py-3 sm:py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[#1DB954] dark:text-[#1DB954] text-sm sm:text-base font-mono focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-[#1DB954] transition-all"
             placeholder="0"
           />
         </div>
@@ -60,7 +60,7 @@ const StreamDataInput = ({
             withPortal withFullScreenPortal portalContainer={document.body} portalId="date-picker-portal"
             dateFormat="yyyy-MM-dd" maxDate={new Date()} showMonthDropdown showYearDropdown dropdownMode="select"
             wrapperClassName="w-full block"
-            className="w-full pl-10 pr-4 py-3 sm:py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white text-sm sm:text-base font-mono focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-[#1DB954] transition-all"
+            className="w-full pl-10 pr-4 py-3 sm:py-3.5 bg-slate-50 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-[#1DB954] dark:text-[#1DB954] text-sm sm:text-base font-mono focus:outline-none focus:ring-2 focus:ring-[#1DB954] focus:border-[#1DB954] transition-all"
           />
         </div>
       </div>

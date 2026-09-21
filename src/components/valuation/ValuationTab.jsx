@@ -28,6 +28,7 @@ import PayoutRateCard from "./sections/PayoutRateCard";
 import RevenueCalculation from "./sections/RevenueCalculation";
 import DollarAgeAnalysis from "./sections/DollarAgeAnalysis";
 import ValuationEstimates from "./sections/ValuationEstimates";
+import PlatformContributionBanner from "./PlatformContributionBanner";
 import MethodologyNote from "./sections/MethodologyNote";
 import SaveButton from "./sections/SaveButton";
 
@@ -282,17 +283,7 @@ useEffect(() => {
           </a>
         </div>
 
-        {/* Artist Header — 4 metric cards */}
-        <ArtistHeader
-          artistName={artistData.name}
-          marketValuation={midEstimate}
-          monthlyStreamsEst={monthlyStreamsEst}
-          ltmSpotifyRevenue={ltmSpotifyRevenue}
-          effectiveSpotifyRate={effectiveSpotifyRate}
-          geoMethodUsed={geoMethodUsed}
-          cfaConfidence={cfaConfidence}
-          {...fmt}
-        />
+        <PlatformContributionBanner platform="spotify" />
 
         {/* 2-column: Stream Inputs + Payout Rate */}
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">

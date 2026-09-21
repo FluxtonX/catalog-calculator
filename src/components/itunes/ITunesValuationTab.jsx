@@ -19,6 +19,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../../utils/supabase";
 import ITunesMetricCard from "./ITunesMetricCard";
 import ITunesScenarioCard from "./ITunesScenarioCard";
+import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
+import DollarAgeAnalysis from "../valuation/sections/DollarAgeAnalysis";
 
 import {
   APPLE_MUSIC_RATE,
@@ -26,6 +28,7 @@ import {
   formatNumber,
   estimateMonthlyStreams,
   formatRange,
+  calculateCfaPhase1
 } from "../../core/calculations";
 
 import { Download } from "lucide-react";
@@ -259,6 +262,24 @@ const catalogBonus = Math.min(
         ? "Moderate Interest"
         : "Developing Artist";
 
+  const cfaResult = useMemo(
+    () => calculateCfaPhase1(artistData, "itunes"),
+    [artistData]
+  );
+
+  const dollarAgeData = {
+    dollarAge: cfaResult.averageDollarAge,
+    totalWeightedAge: 0,
+    totalLTMEarnings: cfaResult.totalAnnualRevenue,
+    trackBreakdown: cfaResult.trackDetails.map(t => ({
+       name: t.title,
+       ageInYears: t.ageInYears,
+       ltmEarnings: t.artistAttributedAnnualRev,
+       weightedAge: 0,
+       releaseDate: ""
+    }))
+  };
+
   return (
     <div className="space-y-5 sm:space-y-7">
       {/* ── Header banner ────────────────────────────────── */}
@@ -408,6 +429,8 @@ const catalogBonus = Math.min(
         </a>
       </div>
 
+      <PlatformContributionBanner platform="itunes" />
+
       {/* ── Detailed metrics ─────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       <div className="relative group">
@@ -467,141 +490,7 @@ const catalogBonus = Math.min(
         />
       </div>
 
-{/* ── Top 10 Tracks Breakdown ─────────────────────────── */}
-{topTracks?.length > 0 && (
-  <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-    <div className="flex items-center gap-3 p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800">
-      <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl">
-        <Music size={18} className="text-slate-900 dark:text-white" />
-      </div>
-      <div>
-        <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
-          Top {calculations.tracksUsed} Tracks — Valuation Basis
-        </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Rank-based popularity score drives stream & revenue estimate
-        </p>
-      </div>
-    </div>
 
-    <div className="divide-y divide-slate-100 dark:divide-slate-800">
-      {(topTracks ?? []).slice(0, 10).map((track, i) => {
-        const real = track.popularity ?? track.trackPopularity ?? 0;
-        const pop  = real > 0 ? real : Math.round(45 - (i * 4));
-        const streams = estimateMonthlyStreams(pop);
-        const revenue = streams * APPLE_MUSIC_RATE * 12;
-const trackName =
-  track.trackName ??
-  track.name ??
-  track.title ??
-  track.trackCensoredName ??
-  track.collectionName ??
-  "Unknown Track";
-
-const rawImage =
-  track.artworkUrl100 ??
-  track.artworkUrl60 ??
-  track.image ??
-  track.thumbnail ??
-  track.artwork ??
-  null;
-
-// iTunes returns 100x100 — upgrade to 300x300 for better quality
-const trackImage = rawImage
-  ? rawImage.replace("100x100", "300x300").replace("60x60", "300x300")
-  : null;
-        const barColor =
-          pop >= 70 ? "bg-slate-900 dark:bg-white" :
-          pop >= 40 ? "bg-slate-700 dark:bg-slate-300" :
-                      "bg-slate-400 dark:bg-slate-500";
-
-        return (
-          <div
-            key={i}
-            className="flex items-center gap-3 sm:gap-4 px-4 sm:px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-          >
-            {/* Rank */}
-            <span className="text-xs font-black text-slate-400 w-5 flex-shrink-0 text-center">
-              {i + 1}
-            </span>
-
-            {/* Track image */}
-            {trackImage ? (
-              <img
-                src={trackImage}
-                alt={trackName}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0 ring-1 ring-slate-200 dark:ring-slate-700"
-              />
-            ) : (
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center flex-shrink-0">
-                <Music size={14} className="text-white" />
-              </div>
-            )}
-
-            {/* Track name + popularity bar */}
-            <div className="flex-1 min-w-0">
-              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
-                {trackName}
-              </p>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${barColor} rounded-full transition-all duration-500`}
-                    style={{ width: `${pop}%` }}
-                  />
-                </div>
-                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 flex-shrink-0">
-                  {pop}/100
-                  {(track.popularity ?? track.trackPopularity ?? 0) === 0 && (
-                    <span className="text-slate-400 dark:text-slate-500 ml-1">(est.)</span>
-                  )}
-                </span>
-              </div>
-            </div>
-
-            {/* Est. streams */}
-            <div className="hidden sm:block text-right flex-shrink-0 w-20">
-              <p className="text-[10px] text-slate-400 font-medium">Streams/mo</p>
-              <p className="text-xs font-black text-slate-700 dark:text-slate-300">
-                {formatNumber(streams)}
-              </p>
-            </div>
-
-            {/* Est. annual revenue */}
-            <div className="text-right flex-shrink-0 w-20">
-              <p className="text-[10px] text-slate-400 font-medium">Annual Rev.</p>
-              <p className="text-xs font-black text-slate-900 dark:text-white">
-                {formatCurrency(revenue)}
-              </p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-
-    {/* Footer summary */}
-    <div className="flex items-center justify-between px-4 sm:px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800">
-      <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-        Avg Popularity:{" "}
-        <span className="text-slate-900 dark:text-white">
-          {Math.round(calculations.avgTop10Popularity)}/100
-        </span>
-      </span>
-      <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-        Total Est. Annual:{" "}
-        <span className="text-slate-900 dark:text-white">
-          {formatCurrency(
-            (topTracks ?? []).slice(0, 10).reduce((sum, t, i) => {
-              const real = t.popularity ?? t.trackPopularity ?? 0;
-              const pop  = real > 0 ? real : Math.round(45 - (i * 4));
-              return sum + estimateMonthlyStreams(pop) * APPLE_MUSIC_RATE * 12;
-            }, 0)
-          )}
-        </span>
-      </span>
-    </div>
-  </div>
-)}
       
 
       {/* ── Valuation scenarios ───────────────────────────── */}
@@ -688,6 +577,12 @@ const trackImage = rawImage
 
       </div>
 
+      {/* ── Dollar Age Analysis ──────────────────────────── */}
+      <DollarAgeAnalysis
+        platform="apple"
+        dollarAgeData={dollarAgeData}
+        formatCurrency={formatCurrency}
+      />
 
       {/* ── Save / Download PDF ──────────────────────────── */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">

@@ -7,7 +7,7 @@ const RevenueStreams = ({ adRevenue, streamingRevenue, totalAnnualRevenue, forma
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl p-5 sm:p-7">
-      <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white mb-4 sm:mb-5">
+      <h3 className="text-base sm:text-lg font-bold text-[#FF0000] dark:text-[#FF0000] mb-4 sm:mb-5">
         YouTube Revenue Streams
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
