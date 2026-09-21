@@ -211,9 +211,41 @@ export const calculateCfaPhase1 = (artistData, platform) => {
   }
   // --------------------------------
 
+  if (trackDetails.length === 0 && totalAnnualRevenue > 0 && topTracks.length > 0) {
+    // Distribute platform fallback revenue across top tracks to populate Dollar Age Analysis
+    const weights = [0.30, 0.20, 0.15, 0.10, 0.08, 0.05, 0.05, 0.03, 0.02, 0.02];
+    
+    topTracks.forEach((track, idx) => {
+      const weight = weights[idx] || (0.1);
+      const estTrackAnnualRev = totalAnnualRevenue * weight;
+      const estTrackMonthlyRev = estTrackAnnualRev / 12;
+      
+      const releaseDate = track.releaseDate || (track.releaseYear ? `${track.releaseYear}-01-01` : null);
+      const monthsLive = releaseDate ? getMonthsBetween(releaseDate, currentDate) : 24;
+      const ageInYears = monthsLive / 12;
+
+      trackDetails.push({
+        title: track.title || track.name,
+        artistRole: "PRIMARY",
+        attributionFactor: CFA_ATTRIBUTION.PRIMARY,
+        lifetimeStreams: 0,
+        estimatedMonthlyStreams: 0,
+        runRateMethod: "FALLBACK_DISTRIBUTION",
+        maturityFactor: getMaturityFactor(monthsLive),
+        geoMethod: "PLATFORM_DEFAULT",
+        geoConfidence: "LOW",
+        effectiveRate: CFA_RATES[platform]?.ROW || 0.003,
+        estTrackMonthlyRev,
+        artistAttributedMonthlyRev: estTrackMonthlyRev,
+        artistAttributedAnnualRev: estTrackAnnualRev,
+        ageInYears
+      });
+      totalTrackAge += ageInYears;
+      tracksWithAge++;
+    });
+  }
+
   const averageDollarAge = tracksWithAge > 0 ? totalTrackAge / tracksWithAge : 0;
-  
-  // Confidence determination
   if (highConfidenceCount > topTracks.length / 2) cfaConfidence = "HIGH";
   else if (medConfidenceCount > topTracks.length / 2) cfaConfidence = "MEDIUM";
 
