@@ -315,7 +315,7 @@ export default function LandingPage() {
             </div>
 
             {/* Added Login Section - ONLY SHOW AFTER SEARCH */}
-            {estimatedValue !== null && (
+            {false && estimatedValue !== null && (
               <div className="mt-12 bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-8 relative overflow-hidden flex flex-col items-center text-center group transition-colors hover:bg-white/10">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-blue-500/20 transition-colors"></div>
                 <p className="text-sm text-white/90 font-medium mb-6 leading-relaxed relative z-10">
@@ -528,7 +528,7 @@ export default function LandingPage() {
                 </div>
 
                 {/* Google Login Prompt */}
-                <div className="flex flex-col items-center justify-center mb-8 gap-3 max-w-[320px] mx-auto">
+                {/* <div className="flex flex-col items-center justify-center mb-8 gap-3 max-w-[320px] mx-auto">
                   <p className="text-white/80 text-sm text-center font-medium">
                     Want to see the more detailed valuation report? Please login.
                   </p>
@@ -556,7 +556,7 @@ export default function LandingPage() {
                     </svg>
                     Login with Google
                   </button>
-                </div>
+                </div> */}
 
                 <a 
                   href="https://www.creativefundingagency.com/application"
