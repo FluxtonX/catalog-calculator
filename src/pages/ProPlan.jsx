@@ -1,11 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import SEO from "../components/common/SEO";
 
 export default function ProPlan() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-950">
+      <SEO 
+        title="Pro Plan | Catalog Calculator" 
+        description="Upgrade to the Pro Plan for detailed PDF catalog valuation reports and advanced analytics."
+      />
       <div className="max-w-lg w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 shadow-xl text-center">
         <h1 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
           Upgrade to Pro

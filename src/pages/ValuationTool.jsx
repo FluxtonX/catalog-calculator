@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import SEO from "../components/common/SEO";
 import { useNavigate } from "react-router-dom";
 import * as Select from "@radix-ui/react-select";
 import {
@@ -726,6 +727,11 @@ const ValuationTool = () => {
   return (
     // ✅ No px — MainLayout px-6 is enough
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-4 sm:py-8">
+      <SEO 
+        title="Music Catalog Valuation Tool" 
+        description="Detailed valuation tool for artists to track streaming stats and calculate their catalog worth."
+        keywords="spotify stats, apple music valuation, youtube analytics, royalty calculator"
+      />
       <div className="max-w-7xl mx-auto px-6 space-y-6 sm:space-y-8">
         {/* ── Page Header ───────────────────────────────── */}
         <div className="text-center space-y-3 sm:space-y-4">

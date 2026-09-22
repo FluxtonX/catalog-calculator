@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import SEO from '../components/common/SEO';
 import { useNavigate } from 'react-router-dom';
 import { Search, Check, Calculator, Lock, ChevronDown, Zap, ChevronRight, CheckCircle2, ShieldCheck, Music, Hexagon, Landmark, LineChart } from 'lucide-react';
 import { supabase } from '../utils/supabase';
@@ -258,6 +259,11 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[#05080F] text-white font-sans selection:bg-cyan-500/30 overflow-x-hidden">
+      <SEO 
+        title="Music Catalog Valuation" 
+        description="Estimate the value of any music artist's catalog instantly using Spotify, Apple Music, and YouTube data."
+        keywords="music catalog, royalty calculator, spotify valuation, artist royalties"
+      />
       {/* Background Glows */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <div className="absolute top-1/4 -left-[10%] w-[40%] h-[50%] bg-purple-600/30 blur-[120px] rounded-full mix-blend-screen" />
@@ -637,6 +643,16 @@ export default function LandingPage() {
               <h3 className="text-lg font-bold text-white mb-2">Instant Insights</h3>
               <p className="text-white/60 text-sm leading-relaxed">Skip the weeks of back-and-forth. Connect your DSPs and receive a comprehensive valuation report and funding offer in seconds.</p>
             </div>
+          </div>
+        </div>
+
+        {/* SEO Content Block */}
+        <div className="py-16 border-t border-white/5 relative mt-8">
+          <div className="max-w-3xl mx-auto text-left">
+            <h3 className="text-xl font-bold text-white mb-4">What is catalogcalculator about?</h3>
+            <p className="text-white/60 text-sm leading-relaxed mb-4">
+              Catalogcalculator is about providing accurate and real-time music catalog valuations for artists, managers, and rights holders. When using catalogcalculator, you gain access to institutional-grade analytics. The primary goal of catalogcalculator is to empower creators to understand the true worth of their digital assets. Why do professionals choose catalogcalculator? Because catalogcalculator is built with an absolute focus on speed, precision, and total privacy. Thousands of music industry insiders rely on catalogcalculator for their daily music business needs. Start your financial journey with catalogcalculator today, because catalogcalculator makes catalog valuation simple, transparent, and accessible to everyone.
+            </p>
           </div>
         </div>
 

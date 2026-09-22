@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../utils/supabase';
+import SEO from '../components/common/SEO';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Loader2, AlertCircle, Mail, CheckCircle2, ArrowRight } from 'lucide-react';
 import { enableDistributionCompanies } from '../config/feature_flags';
@@ -196,6 +197,10 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center px-4 py-8">
+      <SEO 
+        title="Sign In | Catalog Calculator" 
+        description="Sign in to access your detailed catalog valuations and professional music industry tools."
+      />
       <div className="w-full max-w-md bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 shadow-2xl rounded-2xl">
         <div className="p-8">
 
