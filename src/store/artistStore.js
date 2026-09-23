@@ -47,6 +47,7 @@ export const useArtistStore = create(
         searchQuery: state.searchQuery,
         royaltyShare: state.royaltyShare,
         currency: state.currency,
+        selectedArtists: state.selectedArtists,
         // importedData and selectedDistributor are intentionally NOT persisted
         // to prevent stale distributor data from polluting fresh searches.
       }),

@@ -19,7 +19,7 @@ const PayoutRateCard = ({ effectiveSpotifyRate, geoMethodUsed, geoRateData }) =>
     <div className="p-4 sm:p-5 flex-1 space-y-4">
       {/* Big rate number */}
       <div className="text-center py-4 bg-gradient-to-br from-[#1DB954]/5 to-green-50 dark:from-[#1DB954]/20 dark:to-green-900/20 rounded-2xl border border-[#1DB954]/20 dark:border-[#1DB954]/30">
-        <p className="text-xs font-bold text-[#1DB954] dark:text-[#1DB954] uppercase tracking-wide mb-1">Effective Rate</p>
+        <p className="text-xs font-bold text-[#1DB954] dark:text-[#1DB954] uppercase tracking-wide mb-1">Effective Base Rate (USD)</p>
         <p className="text-3xl sm:text-4xl font-black text-[#1DB954] dark:text-[#1DB954]">
           ${effectiveSpotifyRate.toFixed(4)}
         </p>

@@ -3,12 +3,18 @@ import { TrendingUp, PieChart } from "lucide-react";
 import { useArtistStore } from "../../store/artistStore";
 import { getCombinedCfaValuations } from "../../core/calculations";
 
-const formatCompact = (value) => {
+const formatCompact = (value, currencyCode = 'USD') => {
   if (!value || isNaN(value)) return "$0";
-  if (value >= 1_000_000_000) return "$" + (value / 1_000_000_000).toFixed(2) + "B";
-  if (value >= 1_000_000) return "$" + (value / 1_000_000).toFixed(2) + "M";
-  if (value >= 1_000) return "$" + (value / 1_000).toFixed(1) + "K";
-  return "$" + value.toFixed(0);
+  
+  let symbol = '$';
+  try {
+    symbol = (0).toLocaleString('en-US', { style: 'currency', currency: currencyCode, maximumFractionDigits: 0 }).replace(/\d|\.|,/g, '').trim();
+  } catch(e) {}
+
+  if (value >= 1_000_000_000) return symbol + (value / 1_000_000_000).toFixed(2) + "B";
+  if (value >= 1_000_000) return symbol + (value / 1_000_000).toFixed(2) + "M";
+  if (value >= 1_000) return symbol + (value / 1_000).toFixed(1) + "K";
+  return symbol + value.toFixed(0);
 };
 
 const PLATFORM_META = {
@@ -23,6 +29,9 @@ const PLATFORM_META = {
  */
 const PlatformContributionBanner = ({ platform }) => {
   const selectedArtists = useArtistStore((s) => s.selectedArtists);
+  const royaltyShare = useArtistStore((s) => s.royaltyShare) || 100;
+  const currency = useArtistStore((s) => s.currency) || 'USD';
+  const exchangeRates = useArtistStore((s) => s.exchangeRates) || { USD: 1 };
 
   const data = useMemo(() => {
     if (!selectedArtists || Object.keys(selectedArtists).length === 0) return null;
@@ -35,9 +44,13 @@ const PlatformContributionBanner = ({ platform }) => {
   const platformData = data.breakdown[platformKey];
   if (!platformData) return null;
 
-  const totalMid = data.midEstimate || 0;
-  const platformMid = platformData.midEstimate || 0;
-  const percentage = totalMid > 0 ? ((platformMid / totalMid) * 100).toFixed(1) : 0;
+  const rawTotalMid = data.midEstimate || 0;
+  const rawPlatformMid = platformData.midEstimate || 0;
+  const percentage = rawTotalMid > 0 ? ((rawPlatformMid / rawTotalMid) * 100).toFixed(1) : 0;
+
+  const rate = exchangeRates[currency] || 1;
+  const adjustedTotalMid = rawTotalMid * (royaltyShare / 100) * rate;
+  const adjustedPlatformMid = rawPlatformMid * (royaltyShare / 100) * rate;
 
   const meta = PLATFORM_META[platformKey] || PLATFORM_META.spotify;
 
@@ -66,7 +79,7 @@ const PlatformContributionBanner = ({ platform }) => {
         <div className="flex-1">
           <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">{meta.label} (8× Mid)</p>
           <p className={`text-xl sm:text-2xl font-black ${meta.text}`}>
-            {formatCompact(platformMid)}
+            {formatCompact(adjustedPlatformMid, currency)}
           </p>
         </div>
 
@@ -77,7 +90,7 @@ const PlatformContributionBanner = ({ platform }) => {
         <div className="flex-1">
           <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Catalog Value</p>
           <p className={`text-xl sm:text-2xl font-black ${meta.text}`}>
-            {formatCompact(totalMid)}
+            {formatCompact(adjustedTotalMid, currency)}
           </p>
         </div>
 

@@ -14,5 +14,7 @@ export const usePageTitle = (title, subtitle = '') => {
     }
   }, [title, subtitle]);
 
+  
+
   return { title, subtitle };
 };

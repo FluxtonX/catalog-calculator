@@ -8,7 +8,7 @@ import { getNormalizedArtistData, searchYouTube, searchItunes, searchAppleMusic,
 import { getCombinedValuation } from '../core/calculations';
 import { useArtistStore } from '../store/artistStore';
 import CfaMasterValuation from '../components/valuation/CfaMasterValuation';
-import { formatCurrency } from '../components/valuation/hooks/useValuationLogic';
+import { formatCurrency, formatCurrencyText } from '../components/valuation/hooks/useValuationLogic';
 import TrackList from '../components/artist/TrackList';
 import TopTracksAnalysis from '../components/artist/TopTracksAnalysis';
 
@@ -321,7 +321,7 @@ export default function LandingPage() {
             </div>
 
             {/* Added Login Section - ONLY SHOW AFTER SEARCH */}
-            {false && estimatedValue !== null && (
+            {estimatedValue !== null && (
               <div className="mt-12 bg-white/5 border border-white/10 rounded-2xl p-6 lg:p-8 relative overflow-hidden flex flex-col items-center text-center group transition-colors hover:bg-white/10">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2 group-hover:bg-blue-500/20 transition-colors"></div>
                 <p className="text-sm text-white/90 font-medium mb-6 leading-relaxed relative z-10">
@@ -476,9 +476,28 @@ export default function LandingPage() {
                     <p className="text-[3.5rem] font-bold text-center tracking-tight mb-2 leading-none text-white">
                       {formatCurrency(estimatedValue)}
                     </p>
-                    <p className="text-white/50 text-xs sm:text-sm font-medium uppercase mt-2 text-center mb-6">
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-slate-500 border border-slate-700/50 bg-slate-800/30 px-2 py-0.5 rounded-full">Quick Read</span>
+                      <p className="text-sm font-medium text-slate-400/80 tracking-wide">
+                        {formatCurrencyText(estimatedValue)}
+                      </p>
+                    </div>
+                    <p className="text-white/50 text-xs sm:text-sm font-medium uppercase mt-2 text-center mb-4">
                       THIS ESTIMATE IS AN INDICATION BASED ON YOUR TOP 10 TRACKS
                     </p>
+                    
+                    <div className="flex items-start justify-center gap-3 max-w-[380px] mx-auto mb-8 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                      <div className="w-5 h-5 mt-0.5 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-cyan-400 font-bold text-xs">i</span>
+                      </div>
+                      <p className="text-xs sm:text-sm text-cyan-100/90 font-medium leading-relaxed text-left">
+                        <strong>Note:</strong> {
+                          Object.values(platforms).filter(Boolean).length > 1 
+                            ? <>This is your <strong>combined</strong> catalog valuation calculated from all of the platforms you selected above.</>
+                            : <>This is your catalog valuation calculated for <strong>{Object.entries(platforms).find(([_, active]) => active)?.[0] === 'apple' ? 'Apple Music' : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'youtube' ? 'YouTube' : 'Spotify'}</strong> only.</>
+                        }
+                      </p>
+                    </div>
                   </>
 
 

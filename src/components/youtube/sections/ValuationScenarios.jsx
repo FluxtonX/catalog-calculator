@@ -1,7 +1,8 @@
-// AFTER
 import { Calculator, TrendingUp, DollarSign, Info } from "lucide-react";
 
 import * as Separator from "@radix-ui/react-separator";
+import { useArtistStore } from "../../../store/artistStore";
+import { CFA_MULTIPLIERS } from "../../../core/calculations/constants";
 
 // eslint-disable-next-line no-unused-vars
 const ScenarioCard = ({ icon: Icon, title, subtitle, value, color, featured }) => (
@@ -23,69 +24,89 @@ const ScenarioCard = ({ icon: Icon, title, subtitle, value, color, featured }) =
 
 const ValuationScenarios = ({
   conservativeValuation, marketValuation, premiumValuation,
-  totalAnnualRevenue, caccAdjustedValuation, formatCurrency,
-}) => (
-  <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
-    <div className="flex items-center gap-3 px-5 sm:px-7 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
-      <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80 shadow-md">
-        <DollarSign size={18} className="text-white" />
-      </div>
-      <div>
-        <h3 className="text-base sm:text-lg font-bold text-[#FF0000] dark:text-[#FF0000]">
-          Professional Valuation Scenarios
-        </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Based on annual revenue of{" "}
-          <span className="font-bold text-slate-700 dark:text-slate-300">{formatCurrency(totalAnnualRevenue)}</span>
-        </p>
-      </div>
-    </div>
+  totalAnnualRevenue, caccAdjustedValuation, formatCurrency, platformName = "YouTube"
+}) => {
+  const { royaltyShare = 100, currency = 'USD' } = useArtistStore();
+  
+  let settingText = "";
+  if (royaltyShare < 100 || currency !== 'USD') {
+    settingText = ` · Adjusted for ${royaltyShare}% share${currency !== 'USD' ? ` in ${currency}` : ''}`;
+  }
 
-    <div className="p-5 sm:p-7 space-y-6">
-      {/* 3 scenario cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <ScenarioCard icon={Calculator} title="Conservative" subtitle="6× Multiple" value={formatCurrency(conservativeValuation)}
-          color={{ border: "border-[#FF0000]/20 dark:border-[#FF0000]/30", bg: "bg-gradient-to-br from-[#FF0000]/5 to-[#FF0000]/10 dark:from-[#FF0000]/10 dark:to-[#FF0000]/5", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]/50", ring: "", badge: "" }}
-        />
-        <ScenarioCard icon={TrendingUp} title="Market Standard" subtitle="8× Multiple" value={formatCurrency(marketValuation)} featured
-          color={{ border: "border-[#FF0000]/40 dark:border-[#FF0000]/50", bg: "bg-gradient-to-br from-[#FF0000]/10 to-[#FF0000]/20 dark:from-[#FF0000]/20 dark:to-[#FF0000]/10", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/90", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]", ring: "ring-[#FF0000] dark:ring-[#FF0000]", badge: "bg-[#FF0000]" }}
-        />
-        <ScenarioCard icon={TrendingUp} title="Premium" subtitle="10× Multiple" value={formatCurrency(premiumValuation)}
-          color={{ border: "border-[#FF0000]/30 dark:border-[#FF0000]/40", bg: "bg-gradient-to-br from-[#FF0000]/5 to-[#FF0000]/15 dark:from-[#FF0000]/15 dark:to-[#FF0000]/5", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]/70", ring: "", badge: "" }}
-        />
-      </div>
-
-      {/* Growth-Adjusted Valuation — full width */}
-      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700">
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp size={16} className="text-emerald-500" />
-          <h4 className="font-bold text-[#FF0000] dark:text-[#FF0000] text-sm">Growth-Adjusted Valuation</h4>
+  return (
+    <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
+      <div className="flex items-center gap-3 px-5 sm:px-7 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80 shadow-md">
+          <DollarSign size={18} className="text-white" />
         </div>
-       <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
-  <span className="text-slate-500 dark:text-slate-400">Base 8× Valuation</span>
-  <span className="font-bold text-[#FF0000] dark:text-[#FF0000]">{formatCurrency(totalAnnualRevenue * 8)}</span>
-</div>
-<div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
-  <div className="flex items-center gap-1.5">
-    <span className="text-slate-500 dark:text-slate-400">CACC Growth (+30%)</span>
-    <div className="group relative flex items-center">
-      <Info size={13} className="text-blue-400 cursor-pointer flex-shrink-0" />
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-xl px-3 py-2.5 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 leading-relaxed">
-        <span className="font-bold text-blue-300">CACC (Catalog Asset & Content Claims)</span> represents unclaimed revenue we have identified and located within this catalog. This recovered revenue is applied as a 30% uplift to reflect the catalog's true earning potential.
-        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700" />
-      </div>
-    </div>
-  </div>
-  <span className="font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(totalAnnualRevenue * 8 * 0.3)}</span>
-</div>
-        <div className="flex justify-between items-center py-2 mt-1 text-xs sm:text-sm">
-          <span className="font-bold text-[#FF0000] dark:text-[#FF0000]">Adjusted Valuation</span>
-          <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(caccAdjustedValuation)}</span>
+        <div>
+          <h3 className="text-base sm:text-lg font-bold text-[#FF0000] dark:text-[#FF0000]">
+            Professional Valuation Scenarios
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Based on annual revenue of{" "}
+            <span className="font-bold text-slate-700 dark:text-slate-300">{formatCurrency(totalAnnualRevenue)}</span>
+            {settingText}
+          </p>
         </div>
       </div>
-    </div>
+
+      <div className="p-5 sm:p-7 space-y-6">
+        {/* 3 scenario cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <ScenarioCard icon={Calculator} title="Conservative" subtitle={`${CFA_MULTIPLIERS.LOW}× Multiple`} value={formatCurrency(conservativeValuation)}
+            color={{ border: "border-[#FF0000]/20 dark:border-[#FF0000]/30", bg: "bg-gradient-to-br from-[#FF0000]/5 to-[#FF0000]/10 dark:from-[#FF0000]/10 dark:to-[#FF0000]/5", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]/50", ring: "", badge: "" }}
+          />
+          <ScenarioCard icon={TrendingUp} title="Market Standard" subtitle={`${CFA_MULTIPLIERS.MID}× Multiple`} value={formatCurrency(marketValuation)} featured
+            color={{ border: "border-[#FF0000]/40 dark:border-[#FF0000]/50", bg: "bg-gradient-to-br from-[#FF0000]/10 to-[#FF0000]/20 dark:from-[#FF0000]/20 dark:to-[#FF0000]/10", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/90", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]", ring: "ring-[#FF0000] dark:ring-[#FF0000]", badge: "bg-[#FF0000]" }}
+          />
+          <ScenarioCard icon={TrendingUp} title="Premium" subtitle={`${CFA_MULTIPLIERS.HIGH}× Multiple`} value={formatCurrency(premiumValuation)}
+            color={{ border: "border-[#FF0000]/30 dark:border-[#FF0000]/40", bg: "bg-gradient-to-br from-[#FF0000]/5 to-[#FF0000]/15 dark:from-[#FF0000]/15 dark:to-[#FF0000]/5", iconBg: "bg-gradient-to-br from-[#FF0000] to-[#FF0000]/80", text: "text-[#FF0000] dark:text-[#FF0000]", sep: "bg-[#FF0000]/70", ring: "", badge: "" }}
+          />
+        </div>
+
+        {/* Growth-Adjusted Valuation — full width */}
+        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp size={16} className="text-emerald-500" />
+            <h4 className="font-bold text-[#FF0000] dark:text-[#FF0000] text-sm">Growth-Adjusted Valuation</h4>
+          </div>
+         <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
+    <span className="text-slate-500 dark:text-slate-400">Base {CFA_MULTIPLIERS.MID}× Valuation</span>
+    <span className="font-bold text-[#FF0000] dark:text-[#FF0000]">{formatCurrency(totalAnnualRevenue * CFA_MULTIPLIERS.MID)}</span>
   </div>
-);
+  <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm">
+    <div className="flex items-center gap-1.5">
+      <span className="text-slate-500 dark:text-slate-400">CACC Growth (+{Math.round((CFA_MULTIPLIERS.ACCELERATOR - 1) * 100)}%)</span>
+      <div className="group relative flex items-center">
+        <Info size={13} className="text-blue-400 cursor-pointer flex-shrink-0" />
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-800 dark:bg-slate-700 text-white text-xs rounded-xl px-3 py-2.5 shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 leading-relaxed">
+          <span className="font-bold text-blue-300">CACC (Catalog Asset & Content Claims)</span> represents unclaimed revenue we have identified and located within this catalog. This recovered revenue is applied as a {Math.round((CFA_MULTIPLIERS.ACCELERATOR - 1) * 100)}% uplift to reflect the catalog's true earning potential.
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800 dark:border-t-slate-700" />
+        </div>
+      </div>
+    </div>
+    <span className="font-bold text-emerald-600 dark:text-emerald-400">+{formatCurrency(totalAnnualRevenue * CFA_MULTIPLIERS.MID * (CFA_MULTIPLIERS.ACCELERATOR - 1))}</span>
+  </div>
+          <div className="flex justify-between items-center py-2 mt-1 text-xs sm:text-sm">
+            <span className="font-bold text-[#FF0000] dark:text-[#FF0000]">Adjusted Valuation</span>
+            <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(caccAdjustedValuation)}</span>
+          </div>
+        </div>
+        
+        <div className="flex items-start gap-3 mt-2 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50">
+          <div className="w-5 h-5 mt-0.5 rounded-full bg-blue-100 dark:bg-blue-800/50 flex items-center justify-center flex-shrink-0">
+            <span className="text-blue-600 dark:text-blue-400 font-bold text-xs">i</span>
+          </div>
+          <p className="text-xs sm:text-sm text-blue-800 dark:text-blue-300 font-medium leading-relaxed">
+            <strong>Note:</strong> The valuation shown above represents {platformName ? `your ${platformName} catalog` : "this platform"} only. 
+            To see your complete, combined catalog valuation across all platforms, please check the <strong>Overview</strong> tab.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default ValuationScenarios;
 

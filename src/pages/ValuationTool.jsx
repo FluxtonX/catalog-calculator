@@ -324,15 +324,24 @@ const ValuationTool = () => {
   const [showOverviewModal, setShowOverviewModal] = useState(false);
 
   useEffect(() => {
-    const checkAuthAndShowModal = async () => {
-      if (hasShownModal.current) return;
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session && Object.keys(useArtistStore.getState().selectedArtists).length > 0) {
+    // 1. INSTANT check: if they have artists loaded, just pop the modal immediately.
+    // No need to wait for Supabase to resolve the session API call.
+    if (!hasShownModal.current && Object.keys(useArtistStore.getState().selectedArtists).length > 0) {
+      setShowOverviewModal(true);
+      hasShownModal.current = true;
+    }
+
+    // 2. Backup check in case they log in while on the page
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && Object.keys(useArtistStore.getState().selectedArtists).length > 0 && !hasShownModal.current) {
         setShowOverviewModal(true);
         hasShownModal.current = true;
       }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
     };
-    checkAuthAndShowModal();
   }, [selectedArtists]);
 
   const [recentSearches, setRecentSearches] = useState(() => {
@@ -726,7 +735,21 @@ const ValuationTool = () => {
 
   return (
     // ✅ No px — MainLayout px-6 is enough
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-4 sm:py-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 py-4 sm:py-8 relative">
+      
+      {/* Full-Screen Blocking Loader */}
+      {isLoading && (
+        <div className="fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-md flex items-center justify-center">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 flex flex-col items-center max-w-sm w-full mx-4 border border-slate-200 dark:border-slate-800 animate-in fade-in zoom-in duration-300">
+            <Loader2 size={48} className="animate-spin text-emerald-500 mb-5" />
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 text-center tracking-tight">Crunching the numbers...</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 text-center leading-relaxed">
+              Fetching live data and running our advanced valuation models. Please hold tight!
+            </p>
+          </div>
+        </div>
+      )}
+
       <SEO 
         title="Music Catalog Valuation Tool" 
         description="Detailed valuation tool for artists to track streaming stats and calculate their catalog worth."

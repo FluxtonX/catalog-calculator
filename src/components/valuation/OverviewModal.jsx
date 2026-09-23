@@ -33,7 +33,7 @@ import {
 import { useArtistStore } from "../../store/artistStore";
 import ChannelSelector from "../youtube/ChannelSelector";
 import CfaMasterValuation from "./CfaMasterValuation";
-import { getCombinedValuation, calculateCfaPhase1 } from "../../core/calculations";
+import { getCombinedValuation, calculateCfaPhase1, getCombinedCfaValuations } from "../../core/calculations";
 import { formatCurrency } from "./hooks/useValuationLogic";
 import TopTracksAnalysis from "../artist/TopTracksAnalysis";
 
@@ -67,8 +67,17 @@ const OverviewDollarAge = ({ artistsData }) => {
       </div>
       <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>
         {activePlatforms.map(([platform, data]) => {
-           const popularityToUse = platform === 'itunes' ? (data.popularity || 50) : data.popularity;
-           const cfaResult = calculateCfaPhase1({ ...data, popularity: popularityToUse }, platform);
+           let cfaResult = null;
+           const combined = getCombinedCfaValuations(artistsData);
+           if (combined && combined.breakdown) {
+             cfaResult = combined.breakdown[platform] || combined.breakdown[platform.toLowerCase()];
+           }
+           
+           if (!cfaResult) {
+             const popularityToUse = platform === 'itunes' ? (data.popularity || 50) : data.popularity;
+             cfaResult = calculateCfaPhase1({ ...data, popularity: popularityToUse }, platform);
+           }
+           
            const platformName = platform === 'itunes' ? 'Apple Music' : platform === 'youtube' ? 'YouTube' : 'Spotify';
            const bgColor = platform === 'itunes' ? 'bg-slate-900' : platform === 'youtube' ? 'bg-[#FF0000]' : 'bg-[#1DB954]';
            
@@ -77,7 +86,7 @@ const OverviewDollarAge = ({ artistsData }) => {
                <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase text-white tracking-widest ${bgColor} mb-4`}>
                  {platformName}
                </div>
-               <p className="text-4xl font-black text-slate-900 mb-1">{cfaResult.averageDollarAge.toFixed(1)}</p>
+               <p className="text-4xl font-black text-slate-900 mb-1">{(cfaResult.averageDollarAge || 0).toFixed(1)}</p>
                <p className="text-sm text-slate-500 font-medium">years</p>
              </div>
            );
@@ -97,6 +106,7 @@ const OverviewModal = ({ onClose }) => {
     importedData,
     selectedDistributor,
     clearImportedData,
+    royaltyShare,
   } = useArtistStore();
 
   const isInitialMount = useRef(true);
@@ -394,10 +404,30 @@ const OverviewModal = ({ onClose }) => {
 
   const estimatedValue = Object.keys(selectedArtists).length > 0 ? getCombinedValuation(selectedArtists) : null;
 
-
-
   // Extract master data for the banner
-  const primaryArtist = selectedArtists.spotify || selectedArtists.youtube || selectedArtists.itunes || Object.values(selectedArtists)[0] || null;
+  const primaryArtist = 
+    selectedArtists.spotify || 
+    selectedArtists.spotify_proxy || 
+    selectedArtists.youtube || 
+    selectedArtists.youtube_proxy || 
+    selectedArtists.itunes || 
+    Object.values(selectedArtists)[0] || 
+    null;
+
+  const getPlatformDisplayName = (platform) => {
+    switch (platform) {
+      case 'spotify': return 'Spotify';
+      case 'youtube': return 'YouTube';
+      case 'spotify_proxy':
+      case 'youtube_proxy':
+      case 'itunes':
+      case 'apple': 
+        return 'Apple Music';
+      case 'custom': return 'Custom Data';
+      default: return 'Platform';
+    }
+  };
+  const primaryPlatformName = primaryArtist ? getPlatformDisplayName(primaryArtist.platform) : '';
 
   return (
     // Modal Overlay
@@ -450,7 +480,7 @@ const OverviewModal = ({ onClose }) => {
               </div>
 
               {/* Estimated Catalog Value (Right Aligned in Header) */}
-              {!isLoading && estimatedValue && (
+              {!isLoading && estimatedValue !== null && (
                 <div className="md:ml-auto flex flex-col items-center md:items-end text-center md:text-right bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl">
                   <p className="text-[#00E5FF] text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-1.5">Estimated Catalog Value</p>
                   <p className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-1">
@@ -459,6 +489,11 @@ const OverviewModal = ({ onClose }) => {
                   <p className="text-white/50 text-[10px] sm:text-xs font-medium uppercase mt-2 max-w-[200px]">
                     THIS ESTIMATE IS AN INDICATION BASED ON YOUR TOP 10 TRACKS
                   </p>
+                  <div className="mt-3 px-3 py-1.5 bg-white/10 rounded-lg border border-white/5">
+                    <p className="text-[#00E5FF] text-[10px] font-bold uppercase tracking-wide">
+                      {primaryPlatformName} @ {royaltyShare}% Royalty Share
+                    </p>
+                  </div>
                 </div>
               )}
            </div>
@@ -468,7 +503,12 @@ const OverviewModal = ({ onClose }) => {
           
           {/* Top Overlapping Stats Card */}
           {primaryArtist && (
-             <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+             <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100 relative mt-4">
+                {/* Platform Badge */}
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-md border border-slate-700">
+                  Data from {primaryPlatformName}
+                </div>
+                
                 <div className="flex flex-col items-center justify-center text-center p-2">
                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-3">
                      <Trophy size={20} />

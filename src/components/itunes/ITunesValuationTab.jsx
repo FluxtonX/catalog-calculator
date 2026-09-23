@@ -18,17 +18,18 @@ import { generateITunesValuationPDF } from "../../utils/itunesValuationPdfGenera
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../../utils/supabase";
 import ITunesMetricCard from "./ITunesMetricCard";
-import ITunesScenarioCard from "./ITunesScenarioCard";
 import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
 import AverageCatalogAge from "../valuation/sections/AverageCatalogAge";
+import ValuationEstimates from "../valuation/sections/ValuationEstimates";
+import { formatCurrency, formatNumber } from "../valuation/hooks/useValuationLogic";
+import { useArtistStore } from "../../store/artistStore";
 
 import {
   APPLE_MUSIC_RATE,
-  formatCurrency,
-  formatNumber,
   estimateMonthlyStreams,
   formatRange,
-  calculateCfaPhase1
+  calculateCfaPhase1,
+  getCombinedCfaValuations
 } from "../../core/calculations";
 
 import { Download } from "lucide-react";
@@ -37,6 +38,7 @@ const ITunesValuationTab = ({ artistData }) => {
   const { name, image, topTracks, albums, singles, stats, popularity, genres } =
     artistData;
   const [showMethodology, setShowMethodology] = useState(false);
+  const { selectedArtists } = useArtistStore();
 
   // ── ADD THESE ──────────────────────────────────────────
   const navigate = useNavigate();
@@ -262,10 +264,19 @@ const catalogBonus = Math.min(
         ? "Moderate Interest"
         : "Developing Artist";
 
-  const cfaResult = useMemo(
-    () => calculateCfaPhase1({ ...artistData, popularity: calculations.avgTop10Popularity }, "itunes"),
-    [artistData, calculations.avgTop10Popularity]
-  );
+  const cfaResult = useMemo(() => {
+    const combined = getCombinedCfaValuations(selectedArtists);
+    if (combined && combined.breakdown) {
+      const p = artistData.platform || "itunes";
+      if (combined.breakdown[p]) return combined.breakdown[p];
+      if (combined.breakdown[p.toLowerCase()]) return combined.breakdown[p.toLowerCase()];
+      if (combined.breakdown["itunes"]) return combined.breakdown["itunes"];
+      if (combined.breakdown["apple"]) return combined.breakdown["apple"];
+      // If we got here, none of the keys worked.
+      console.error("CFA Breakdown keys available:", Object.keys(combined.breakdown), "Looking for:", p);
+    }
+    return calculateCfaPhase1({ ...artistData, popularity: calculations.avgTop10Popularity }, "itunes");
+  }, [selectedArtists, artistData, calculations.avgTop10Popularity]);
 
   const dollarAgeData = {
     dollarAge: cfaResult.averageDollarAge,
@@ -342,42 +353,30 @@ const catalogBonus = Math.min(
 <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-4 mt-5 sm:mt-6 overflow-visible">
     {[
       {
-        label: "Monthly Streams (est.)",
-        value: formatRange(
-          calculations.monthlyStreamsLow,
-          calculations.monthlyStreamsHigh,
-          formatNumber,
-        ),
-        note: `Range modeled from top ${calculations.tracksUsed} track volatility`,
+        label: "Catalog Value (est.)",
+        value: formatCurrency(cfaResult.midEstimate || 0),
+        note: `Based on cross-platform inference`,
         tooltip: {
-          title: "Monthly Streams (Est.)",
-          body: `Estimated from the average popularity of the top ${calculations.tracksUsed} tracks using (popularity/100)^2.5 × 10M, then expanded into a low/high band using observed track-to-track volatility.`,
+          title: "Catalog Value (Est.)",
+          body: `Estimated value using the CFA Phase 1 formula, mathematically inferred from proxy platform data if direct streaming metrics are unavailable.`,
         },
       },
       {
         label: "Monthly Revenue (est.)",
-        value: formatRange(
-          calculations.monthlyRevenueLow,
-          calculations.monthlyRevenueHigh,
-          formatCurrency,
-        ),
-        note: "$0.0080 per stream × stream range",
+        value: formatCurrency((cfaResult.totalAnnualRevenue || 0) / 12),
+        note: "Derived from LTM revenue",
         tooltip: {
           title: "Monthly Revenue (Est.)",
-          body: "Revenue is shown as a range: low/high monthly streams × $0.008 Apple Music average payout rate.",
+          body: "Average monthly revenue calculated from the inferred annual run-rate.",
         },
       },
       {
         label: "LTM Revenue (est.)",
-        value: formatRange(
-          calculations.ltmRevenueLow,
-          calculations.ltmRevenueHigh,
-          formatCurrency,
-        ),
-        note: `Incl. +${calculations.catalogBonus.toFixed(0)}% catalog bonus`,
+        value: formatCurrency(cfaResult.totalAnnualRevenue || 0),
+        note: `Annual revenue run-rate`,
         tooltip: {
           title: "LTM Revenue (Est.)",
-          body: `LTM revenue is shown as a range: monthly revenue range × 12, then adjusted upward by a catalog depth bonus of +${calculations.catalogBonus.toFixed(0)}% based on total albums and singles (max +50%).`,
+          body: `Last twelve months (LTM) revenue mathematically inferred based on proxy platform data to estimate Apple Music performance.`,
         },
       },
     ].map(({ label, value, note, tooltip }) => (
@@ -489,50 +488,15 @@ const catalogBonus = Math.min(
 
       
 
-      {/* ── Valuation scenarios ───────────────────────────── */}
-      <div>
-        <div className="flex items-center gap-3 mb-4 sm:mb-5">
-          <div className="p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl">
-            <BarChart3 size={20} className="text-slate-900 dark:text-white" />
-          </div>
-          <div>
-            <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-              Valuation Scenarios
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Based on Apple Music payout rates & catalog analysis
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-          <ITunesScenarioCard
-            label="Conservative"
-            multiple={6}
-            value={calculations.conservative}
-            color="from-slate-700 to-slate-900"
-            icon={TrendingUp}
-            isHighlighted={false}
-          />
-          <ITunesScenarioCard
-            label="Market"
-            multiple={8}
-            value={calculations.market}
-            color="from-slate-800 to-slate-900"
-            gradient="bg-gradient-to-br from-slate-800 via-zinc-800 to-slate-900"
-            icon={DollarSign}
-            isHighlighted={true}
-          />
-          <ITunesScenarioCard
-            label="Premium"
-            multiple={10}
-            value={calculations.premium}
-            color="from-slate-700 to-slate-900"
-            icon={Star}
-            isHighlighted={false}
-          />
-        </div>
-      </div>
+      {/* ── CFA Estimated Catalog Valuation ───────────────────────────── */}
+      <ValuationEstimates
+        lowEstimate={cfaResult.lowEstimate}
+        midEstimate={cfaResult.midEstimate}
+        highEstimate={cfaResult.highEstimate}
+        acceleratorValue={cfaResult.acceleratorValue}
+        formatCurrency={formatCurrency}
+        platformName="Apple Music"
+      />
 
       {/* ── Revenue breakdown bar ────────────────────────── */}
       <div className="bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xl">

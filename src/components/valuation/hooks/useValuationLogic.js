@@ -73,3 +73,31 @@ export const formatCurrency = (num) => {
   
   return `${symbol}${Math.round(converted).toLocaleString('en-US')}`;
 };
+
+export const formatCurrencyText = (num) => {
+  if (num === null || num === undefined) return "$0";
+  
+  const { royaltyShare = 100, currency = 'USD', exchangeRates = { USD: 1 } } = useArtistStore.getState();
+  
+  const adjustedValue = num * (royaltyShare / 100);
+  const rate = exchangeRates[currency] || 1;
+  const converted = Math.round(adjustedValue * rate);
+  
+  let symbol = '$';
+  try {
+    symbol = (0).toLocaleString('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).replace(/\d|\.|,/g, '').trim();
+  } catch(e) {}
+  
+  if (converted >= 1e9) {
+    const formatted = Number((converted / 1e9).toFixed(2)).toString();
+    return `≈ ${symbol}${formatted} billion`;
+  } else if (converted >= 1e6) {
+    const formatted = Number((converted / 1e6).toFixed(2)).toString();
+    return `≈ ${symbol}${formatted} million`;
+  } else if (converted >= 1e3) {
+    const formatted = Number((converted / 1e3).toFixed(2)).toString();
+    return `≈ ${symbol}${formatted} thousand`;
+  }
+  
+  return `${symbol}${converted.toLocaleString('en-US')}`;
+};

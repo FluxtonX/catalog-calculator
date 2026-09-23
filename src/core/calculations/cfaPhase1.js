@@ -104,7 +104,7 @@ export const calculateTrackMonthlyStreams = (track, currentDate) => {
   }
 
   // THIRD: Lifetime Streams adjusted by track age and maturity factor
-  if (!lifetimeStreams) return { est: 0, method: "NONE", maturityFactor: null, ageInYears: 0, monthsLive: 0, lifetimeStreams: 0 };
+  if (!lifetimeStreams) return { est: 0, method: "NONE", maturityFactor: null, ageInYears, monthsLive, lifetimeStreams: 0 };
 
   const avgMonthly = lifetimeStreams / monthsLive;
   const estMonthly = Math.round(avgMonthly * maturityFactor);

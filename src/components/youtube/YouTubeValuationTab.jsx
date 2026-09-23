@@ -9,10 +9,9 @@ import { useLocation } from "react-router-dom";
 import {
   parseViewCount,
   calculateYouTubeMetrics,
-  formatNumber,
-  formatCurrency,
   CONTENT_ID_MULTIPLIER,
 } from "../../core/calculations";
+import { formatNumber, formatCurrency } from "../valuation/hooks/useValuationLogic";
 
 // Reuse valuation UI components
 import AlertBanner from "../valuation/ui/AlertBanner";
@@ -22,7 +21,7 @@ import ValuationAssumptions from "./sections/ValuationAssumptions";
 import AnnualRevenueCard from "./sections/AnnualRevenueCard";
 import RevenueAnalysis from "./sections/RevenueAnalysis";
 import RevenueStreams from "./sections/RevenueStreams";
-import ValuationScenarios from "./sections/ValuationScenarios";
+import ValuationEstimates from "../valuation/sections/ValuationEstimates";
 import YoutubeSaveButton from "./sections/YoutubeSaveButton";
 import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
 import AverageCatalogAge from "../valuation/sections/AverageCatalogAge";
@@ -241,10 +240,13 @@ const YouTubeValuationTab = ({ artistData }) => {
         dollarAgeData={dollarAgeData}
       />
 
-      <ValuationScenarios
-        {...metrics}
-        totalAnnualRevenue={metrics.totalAnnualRevenue}
+      <ValuationEstimates
+        lowEstimate={cfaResult.lowEstimate}
+        midEstimate={cfaResult.midEstimate}
+        highEstimate={cfaResult.highEstimate}
+        acceleratorValue={cfaResult.acceleratorValue}
         formatCurrency={formatCurrency}
+        platformName="YouTube"
       />
 
       <YoutubeSaveButton

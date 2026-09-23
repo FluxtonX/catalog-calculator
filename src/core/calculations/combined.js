@@ -151,10 +151,16 @@ export const getCombinedCfaValuations = (selectedArtists) => {
     const cfaResult = result.breakdown[key];
     const platformStr = key;
     
+    // Always use anchor's track details and age for Apple Music / Custom 
+    // because they often lack real track release dates or use dummy tracks
+    const anchor = successfulPlatforms.find(r => r.platform === 'spotify' || r.platform === 'spotify_proxy') || successfulPlatforms[0];
+    
+    if (anchor && (platformStr === 'itunes' || platformStr === 'apple' || cfaResult.cfaConfidence === 'LOW' || cfaResult.cfaConfidence === 'POPULARITY_INFERENCE')) {
+       cfaResult.averageDollarAge = anchor.averageDollarAge || cfaResult.averageDollarAge;
+       cfaResult.trackDetails = anchor.trackDetails || cfaResult.trackDetails;
+    }
+    
     if (cfaResult.totalAnnualRevenue === 0 && successfulPlatforms.length > 0) {
-      // Find the most reliable platform to infer from
-      const anchor = successfulPlatforms.find(r => r.platform === 'spotify' || r.platform === 'spotify_proxy') || successfulPlatforms[0];
-      
       const ratios = {
         'spotify': 1.0,
         'itunes': 0.40,
@@ -162,12 +168,10 @@ export const getCombinedCfaValuations = (selectedArtists) => {
         'custom': 1.0
       };
       
-      // The anchor might be a proxy, so strip the suffix for ratio lookup
       const anchorType = anchor.platform.replace('_proxy', '');
       const anchorRatio = ratios[anchorType] || 1.0;
       const targetRatio = ratios[platformStr] || 1.0;
       
-      // Mathematically infer the missing revenue
       const inferredRevenue = anchor.totalAnnualRevenue * (targetRatio / anchorRatio);
       
       cfaResult.totalAnnualRevenue = inferredRevenue;
@@ -176,7 +180,6 @@ export const getCombinedCfaValuations = (selectedArtists) => {
       cfaResult.highEstimate = inferredRevenue * CFA_MULTIPLIERS.HIGH;
       cfaResult.cfaConfidence = "ARTIST_CROSS_PLATFORM_INFERENCE";
       
-      // Accumulate the newly inferred non-zero sums
       result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
       result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
       result.lowEstimate += cfaResult.lowEstimate || 0;

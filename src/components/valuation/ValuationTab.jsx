@@ -326,6 +326,7 @@ useEffect(() => {
           highEstimate={highEstimate}
           acceleratorValue={acceleratorValue}
           formatCurrency={formatCurrency}
+          platformName="Spotify"
         />
 
       </div>
