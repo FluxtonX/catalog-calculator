@@ -1,0 +1,580 @@
+{
+  "platform": "apify",
+  "id": "6jJ0s89eD6GaHleKKya26X",
+  "name": "Katy Perry",
+  "image": "https://i.scdn.co/image/ab6761610000e5ebcd50e745cf782f905769f482",
+  "images": [
+    {
+      "url": "https://i.scdn.co/image/ab6761610000e5ebcd50e745cf782f905769f482",
+      "height": 640,
+      "width": 640
+    },
+    {
+      "url": "https://i.scdn.co/image/ab6761610000f178cd50e745cf782f905769f482",
+      "height": 160,
+      "width": 160
+    },
+    {
+      "url": "https://i.scdn.co/image/ab67616100005174cd50e745cf782f905769f482",
+      "height": 320,
+      "width": 320
+    }
+  ],
+  "followers": "42.4M",
+  "followersRaw": 42362553,
+  "monthlyListeners": "91.0M",
+  "monthlyListenersRaw": 91007917,
+  "popularity": 12,
+  "popularityFormatted": "#12 Worldwide",
+  "genres": [],
+  "spotifyUrl": "https://open.spotify.com/artist/6jJ0s89eD6GaHleKKya26X",
+  "youtubeUrl": "https://open.spotify.com/artist/6jJ0s89eD6GaHleKKya26X",
+  "apifyUrl": "https://open.spotify.com/artist/6jJ0s89eD6GaHleKKya26X",
+  "verified": true,
+  "topTracks": [
+    {
+      "id": "2009X8GyWTqyxIdzAEYW6N",
+      "rank": 1,
+      "title": "The One That Got Away",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 227333,
+      "durationFormatted": "3:47",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/2009X8GyWTqyxIdzAEYW6N",
+      "youtubeUrl": "https://open.spotify.com/track/2009X8GyWTqyxIdzAEYW6N",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1965738595,
+      "streamCountFormatted": "2.0B"
+    },
+    {
+      "id": "3avYqdwHKEq8beXbeWCKqJ",
+      "rank": 2,
+      "title": "Last Friday Night (T.G.I.F.)",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 230733,
+      "durationFormatted": "3:50",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/3avYqdwHKEq8beXbeWCKqJ",
+      "youtubeUrl": "https://open.spotify.com/track/3avYqdwHKEq8beXbeWCKqJ",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 2066388744,
+      "streamCountFormatted": "2.1B"
+    },
+    {
+      "id": "0pOZYYEJawmTAPtkzYKSa2",
+      "rank": 3,
+      "title": "Legendary Lovers",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 224216,
+      "durationFormatted": "3:44",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/0pOZYYEJawmTAPtkzYKSa2",
+      "youtubeUrl": "https://open.spotify.com/track/0pOZYYEJawmTAPtkzYKSa2",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 230843408,
+      "streamCountFormatted": "230.8M"
+    },
+    {
+      "id": "1y4eb6hmAvsqlDOl3fx9kk",
+      "rank": 4,
+      "title": "Hot N Cold",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 220226,
+      "durationFormatted": "3:40",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/1y4eb6hmAvsqlDOl3fx9kk",
+      "youtubeUrl": "https://open.spotify.com/track/1y4eb6hmAvsqlDOl3fx9kk",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1553503123,
+      "streamCountFormatted": "1.6B"
+    },
+    {
+      "id": "4jbmgIyjGoXjY01XxatOx6",
+      "rank": 5,
+      "title": "Dark Horse",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 215672,
+      "durationFormatted": "3:35",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/4jbmgIyjGoXjY01XxatOx6",
+      "youtubeUrl": "https://open.spotify.com/track/4jbmgIyjGoXjY01XxatOx6",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 2089276652,
+      "streamCountFormatted": "2.1B"
+    },
+    {
+      "id": "4r6eNCsrZnQWJzzvFh4nlg",
+      "rank": 6,
+      "title": "Firework",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 227893,
+      "durationFormatted": "3:47",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/4r6eNCsrZnQWJzzvFh4nlg",
+      "youtubeUrl": "https://open.spotify.com/track/4r6eNCsrZnQWJzzvFh4nlg",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1628857711,
+      "streamCountFormatted": "1.6B"
+    },
+    {
+      "id": "6KOEK6SeCEZOQkLj5M1PxH",
+      "rank": 7,
+      "title": "California Gurls",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 234653,
+      "durationFormatted": "3:54",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/6KOEK6SeCEZOQkLj5M1PxH",
+      "youtubeUrl": "https://open.spotify.com/track/6KOEK6SeCEZOQkLj5M1PxH",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1429152844,
+      "streamCountFormatted": "1.4B"
+    },
+    {
+      "id": "27tNWlhdAryQY04Gb2ZhUI",
+      "rank": 8,
+      "title": "Roar",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 223546,
+      "durationFormatted": "3:43",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/27tNWlhdAryQY04Gb2ZhUI",
+      "youtubeUrl": "https://open.spotify.com/track/27tNWlhdAryQY04Gb2ZhUI",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1625400542,
+      "streamCountFormatted": "1.6B"
+    },
+    {
+      "id": "005lwxGU1tms6HGELIcUv9",
+      "rank": 9,
+      "title": "I Kissed A Girl",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 179640,
+      "durationFormatted": "2:59",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/005lwxGU1tms6HGELIcUv9",
+      "youtubeUrl": "https://open.spotify.com/track/005lwxGU1tms6HGELIcUv9",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1346528036,
+      "streamCountFormatted": "1.3B"
+    },
+    {
+      "id": "5jzKL4BDMClWqRguW5qZvh",
+      "rank": 10,
+      "title": "Teenage Dream",
+      "album": null,
+      "albumImage": null,
+      "releaseYear": null,
+      "releaseDate": null,
+      "duration": 227741,
+      "durationFormatted": "3:47",
+      "previewUrl": null,
+      "spotifyUrl": "https://open.spotify.com/track/5jzKL4BDMClWqRguW5qZvh",
+      "youtubeUrl": "https://open.spotify.com/track/5jzKL4BDMClWqRguW5qZvh",
+      "popularity": 100,
+      "explicit": false,
+      "streamCount": 1255735230,
+      "streamCountFormatted": "1.3B"
+    }
+  ],
+  "relatedArtists": [],
+  "albums": [
+    {
+      "id": "5Xd0KCzb0EJtPbUEiyxYVH",
+      "name": "1432",
+      "image": null,
+      "releaseDate": "2024-12-20",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/5Xd0KCzb0EJtPbUEiyxYVH"
+    },
+    {
+      "id": "3jxt1S4JtW4uFalBwlfehS",
+      "name": "143",
+      "image": null,
+      "releaseDate": "2024-09-20",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/3jxt1S4JtW4uFalBwlfehS"
+    },
+    {
+      "id": "4E0vDZuTPYYySw3TcVi6H0",
+      "name": "One Of The Boys (15th Anniversary Edition)",
+      "image": null,
+      "releaseDate": "2023-06-20",
+      "releaseYear": "2023",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/4E0vDZuTPYYySw3TcVi6H0"
+    },
+    {
+      "id": "47zMF6LrXQ8odi6Xv1unC0",
+      "name": "Smile",
+      "image": null,
+      "releaseDate": "2020-08-28",
+      "releaseYear": "2020",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/47zMF6LrXQ8odi6Xv1unC0"
+    },
+    {
+      "id": "0UlbGi4oAth8s6rwaGSU8Z",
+      "name": "Witness (Deluxe)",
+      "image": null,
+      "releaseDate": "2017-06-09",
+      "releaseYear": "2017",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/0UlbGi4oAth8s6rwaGSU8Z"
+    },
+    {
+      "id": "5MQBzs5YlZlE28mD9yUItn",
+      "name": "PRISM (Deluxe)",
+      "image": null,
+      "releaseDate": "2013-10-18",
+      "releaseYear": "2013",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/5MQBzs5YlZlE28mD9yUItn"
+    },
+    {
+      "id": "3jB9yFDwRe3KhtGnHXJntk",
+      "name": "PRISM",
+      "image": null,
+      "releaseDate": "2013-01-01",
+      "releaseYear": "2013",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/3jB9yFDwRe3KhtGnHXJntk"
+    },
+    {
+      "id": "5BvgP623rtvlc0HDcpzquz",
+      "name": "Teenage Dream: The Complete Confection",
+      "image": null,
+      "releaseDate": "2012-03-12",
+      "releaseYear": "2012",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/5BvgP623rtvlc0HDcpzquz"
+    },
+    {
+      "id": "3BoUxfC7YhxNq3TpOfnRif",
+      "name": "Teenage Dream",
+      "image": null,
+      "releaseDate": "2010-01-01",
+      "releaseYear": "2010",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/3BoUxfC7YhxNq3TpOfnRif"
+    },
+    {
+      "id": "1qAoFDC9NoiJ3zD5lst6pG",
+      "name": "Unplugged (Live At MTV Unplugged, New York, NY/2009)",
+      "image": null,
+      "releaseDate": "2009-11-13",
+      "releaseYear": "2009",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/1qAoFDC9NoiJ3zD5lst6pG"
+    }
+  ],
+  "singles": [
+    {
+      "id": "4iY3IDPSVSMmxyAyb3qoTP",
+      "name": "Watch It Burn",
+      "image": null,
+      "releaseDate": "2026-06-25",
+      "releaseYear": "2026",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/4iY3IDPSVSMmxyAyb3qoTP"
+    },
+    {
+      "id": "42b71Pe6e44mkpU7MuWqJi",
+      "name": "Legendary Lovers (Save Me) (feat. Chief Keef)",
+      "image": null,
+      "releaseDate": "2026-05-29",
+      "releaseYear": "2026",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/42b71Pe6e44mkpU7MuWqJi"
+    },
+    {
+      "id": "5JvfHXiAioipSTjXAHMXrX",
+      "name": "bandaids",
+      "image": null,
+      "releaseDate": "2025-11-07",
+      "releaseYear": "2025",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/5JvfHXiAioipSTjXAHMXrX"
+    },
+    {
+      "id": "56ZRSnpSNktoMERdzBjdS3",
+      "name": "I'M HIS, HE'S MINE (feat. Doechii)",
+      "image": null,
+      "releaseDate": "2024-09-13",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/56ZRSnpSNktoMERdzBjdS3"
+    },
+    {
+      "id": "6UEGp3MQnsKoK9rwKcKBUo",
+      "name": "LIFETIMES",
+      "image": null,
+      "releaseDate": "2024-08-08",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/6UEGp3MQnsKoK9rwKcKBUo"
+    },
+    {
+      "id": "6zSIkJTqQm06zGCunKbmaR",
+      "name": "WOMAN’S WORLD EP",
+      "image": null,
+      "releaseDate": "2024-07-15",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "ep",
+      "spotifyUrl": "https://open.spotify.com/album/6zSIkJTqQm06zGCunKbmaR"
+    },
+    {
+      "id": "0aFSLGHaCuEfBPyF6AFofM",
+      "name": "WOMAN’S WORLD",
+      "image": null,
+      "releaseDate": "2024-07-11",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/0aFSLGHaCuEfBPyF6AFofM"
+    },
+    {
+      "id": "6AkWdIHq1og7xa6dLrzHeQ",
+      "name": "Where We Started",
+      "image": null,
+      "releaseDate": "2022-03-31",
+      "releaseYear": "2022",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/6AkWdIHq1og7xa6dLrzHeQ"
+    },
+    {
+      "id": "7Bm6JstkS27sFuX9UPbXfQ",
+      "name": "When I'm Gone (with Katy Perry) [VIP Mix]",
+      "image": null,
+      "releaseDate": "2022-02-18",
+      "releaseYear": "2022",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/7Bm6JstkS27sFuX9UPbXfQ"
+    },
+    {
+      "id": "5itVTi6rI3MlOcWBxROxd9",
+      "name": "When I’m Gone (with Katy Perry)",
+      "image": null,
+      "releaseDate": "2021-12-29",
+      "releaseYear": "2021",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/5itVTi6rI3MlOcWBxROxd9"
+    }
+  ],
+  "popularReleases": [
+    {
+      "id": "3jB9yFDwRe3KhtGnHXJntk",
+      "name": "PRISM",
+      "image": null,
+      "releaseDate": "2013-01-01",
+      "releaseYear": "2013",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/3jB9yFDwRe3KhtGnHXJntk"
+    },
+    {
+      "id": "5BvgP623rtvlc0HDcpzquz",
+      "name": "Teenage Dream: The Complete Confection",
+      "image": null,
+      "releaseDate": "2012-03-12",
+      "releaseYear": "2012",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/5BvgP623rtvlc0HDcpzquz"
+    },
+    {
+      "id": "5MQBzs5YlZlE28mD9yUItn",
+      "name": "PRISM (Deluxe)",
+      "image": null,
+      "releaseDate": "2013-10-18",
+      "releaseYear": "2013",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/5MQBzs5YlZlE28mD9yUItn"
+    },
+    {
+      "id": "0r2BUyPTmpbfuz4rR39mLl",
+      "name": "One Of The Boys",
+      "image": null,
+      "releaseDate": "2008-06-17",
+      "releaseYear": "2008",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/0r2BUyPTmpbfuz4rR39mLl"
+    },
+    {
+      "id": "47zMF6LrXQ8odi6Xv1unC0",
+      "name": "Smile",
+      "image": null,
+      "releaseDate": "2020-08-28",
+      "releaseYear": "2020",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/47zMF6LrXQ8odi6Xv1unC0"
+    },
+    {
+      "id": "0UlbGi4oAth8s6rwaGSU8Z",
+      "name": "Witness (Deluxe)",
+      "image": null,
+      "releaseDate": "2017-06-09",
+      "releaseYear": "2017",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/0UlbGi4oAth8s6rwaGSU8Z"
+    },
+    {
+      "id": "30UjBkRwwBeCdspCGPBB8V",
+      "name": "Harleys In Hawaii",
+      "image": null,
+      "releaseDate": "2019-10-16",
+      "releaseYear": "2019",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/30UjBkRwwBeCdspCGPBB8V"
+    },
+    {
+      "id": "4iY3IDPSVSMmxyAyb3qoTP",
+      "name": "Watch It Burn",
+      "image": null,
+      "releaseDate": "2026-06-25",
+      "releaseYear": "2026",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/4iY3IDPSVSMmxyAyb3qoTP"
+    },
+    {
+      "id": "42b71Pe6e44mkpU7MuWqJi",
+      "name": "Legendary Lovers (Save Me) (feat. Chief Keef)",
+      "image": null,
+      "releaseDate": "2026-05-29",
+      "releaseYear": "2026",
+      "totalTracks": 0,
+      "type": "single",
+      "spotifyUrl": "https://open.spotify.com/album/42b71Pe6e44mkpU7MuWqJi"
+    },
+    {
+      "id": "3jxt1S4JtW4uFalBwlfehS",
+      "name": "143",
+      "image": null,
+      "releaseDate": "2024-09-20",
+      "releaseYear": "2024",
+      "totalTracks": 0,
+      "type": "album",
+      "spotifyUrl": "https://open.spotify.com/album/3jxt1S4JtW4uFalBwlfehS"
+    }
+  ],
+  "topCities": [
+    {
+      "country": "GB",
+      "city": "London",
+      "numberOfListeners": 1047528
+    },
+    {
+      "country": "BR",
+      "city": "São Paulo",
+      "numberOfListeners": 1023022
+    },
+    {
+      "country": "PH",
+      "city": "Quezon City",
+      "numberOfListeners": 982869
+    },
+    {
+      "country": "MY",
+      "city": "Kuala Lumpur",
+      "numberOfListeners": 878176
+    },
+    {
+      "country": "ID",
+      "city": "Jakarta",
+      "numberOfListeners": 873933
+    }
+  ],
+  "stats": {
+    "totalFollowers": 42362553,
+    "monthlyListeners": 91007917,
+    "worldRank": 12,
+    "popularity": 12,
+    "totalGenres": 0,
+    "totalTopTracks": 10,
+    "totalRelatedArtists": 0,
+    "totalAlbums": 10,
+    "totalSingles": 10,
+    "totalPopularReleases": 10,
+    "averageTrackPopularity": 15191,
+    "totalStreams": "15.2B",
+    "averageStreams": "1.5B"
+  },
+  "biography": "Since Katy Perry’s Capitol Records debut in 2008 with One of the Boys, she has racked up a cumulative 115 billion streams alongside worldwide sales of over 70 million adjusted albums and 143 million tracks. The biggest-selling female artist in Capitol history, Katy is one of only twelve artists in history to have surpassed 100 million certified units with their solo single releases – and the first-ever Capitol Records recording artist to achieve the elite status of having 10 million RIAA-certified units for a single in 2015. She was also the first artist in RIAA history to earn three RIAA Diamond singles – for “Firework,” “Dark Horse” and “Roar.” Since then, she’s added a few more to her collection with “California Gurls” (feat. Snoop Dogg), “E.T”, and both “Teenage Dream” the SINGLE AND ALBUM going DIAMOND. Katy now has six singles and one album for a total of SEVEN Diamond-certified titles.",
+  "externalLinks": [
+    {
+      "label": "facebook",
+      "url": "https://facebook.com/katyperry"
+    },
+    {
+      "label": "instagram",
+      "url": "https://instagram.com/katyperry"
+    },
+    {
+      "label": "twitter",
+      "url": "https://twitter.com/katyperry"
+    }
+  ]
+}

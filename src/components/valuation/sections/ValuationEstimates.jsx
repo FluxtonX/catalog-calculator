@@ -24,11 +24,36 @@ const ValuationCard = ({ icon: Icon, title, multiple, value, accent, featured })
 );
 
 const ValuationEstimates = ({ lowEstimate, midEstimate, highEstimate, acceleratorValue, formatCurrency, platformName }) => {
-  const { royaltyShare = 100, currency = 'USD' } = useArtistStore();
+  const { royaltyShare = 100, currency = 'USD', landingPageFormattedValue, platforms } = useArtistStore();
   
   let settingText = "";
   if (royaltyShare < 100 || currency !== 'USD') {
     settingText = ` · Adjusted for ${royaltyShare}% share${currency !== 'USD' ? ` in ${currency}` : ''}`;
+  }
+
+  // Juggar: Match specific platform from landing page using exact breakdown
+  let finalLow = lowEstimate;
+  let finalMid = midEstimate;
+  let finalHigh = highEstimate;
+  let finalAccel = acceleratorValue;
+
+  const activePlatformsList = Array.isArray(platforms) 
+    ? platforms 
+    : Object.entries(platforms || {}).filter(([_, active]) => active).map(([p]) => p);
+
+  if (activePlatformsList.length === 1 && landingPageFormattedValue !== null) {
+    const activePlatformName = activePlatformsList[0];
+    const isThisPlatform = 
+      ((activePlatformName === 'apple' || activePlatformName === 'itunes') && (platformName?.toLowerCase().includes('apple') || platformName?.toLowerCase().includes('itunes'))) ||
+      (activePlatformName === 'youtube' && platformName?.toLowerCase().includes('youtube')) ||
+      (activePlatformName === 'spotify' && platformName?.toLowerCase().includes('spotify'));
+      
+    if (isThisPlatform && landingPageFormattedValue > 0) {
+      finalMid = landingPageFormattedValue;
+      finalLow = landingPageFormattedValue * (CFA_MULTIPLIERS.LOW / CFA_MULTIPLIERS.MID);
+      finalHigh = landingPageFormattedValue * (CFA_MULTIPLIERS.HIGH / CFA_MULTIPLIERS.MID);
+      finalAccel = landingPageFormattedValue * (CFA_MULTIPLIERS.HIGH * (CFA_MULTIPLIERS.ACCELERATOR || 1.3) / CFA_MULTIPLIERS.MID);
+    }
   }
 
   const isYouTube = platformName?.toLowerCase().includes("youtube");
@@ -61,10 +86,10 @@ const ValuationEstimates = ({ lowEstimate, midEstimate, highEstimate, accelerato
         gradient={colors.main} 
       />
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-4">
-        <ValuationCard icon={Shield} title="Low Estimate" multiple={`${CFA_MULTIPLIERS.LOW}×`} value={formatCurrency(lowEstimate)} accent={colors.accentNorm} />
-        <ValuationCard icon={TrendingUp} title="Mid Estimate" multiple={`${CFA_MULTIPLIERS.MID}×`} value={formatCurrency(midEstimate)} featured accent={colors.accentMid} />
-        <ValuationCard icon={Star} title="High Estimate" multiple={`${CFA_MULTIPLIERS.HIGH}×`} value={formatCurrency(highEstimate)} accent={colors.accentNorm} />
-        <ValuationCard icon={TrendingUp} title="Catalog Accelerator" multiple={`+${Math.round((CFA_MULTIPLIERS.ACCELERATOR - 1) * 100)}%`} value={formatCurrency(acceleratorValue)} accent={colors.accentNorm} />
+        <ValuationCard icon={Shield} title="Low Estimate" multiple={`${CFA_MULTIPLIERS.LOW}×`} value={formatCurrency(finalLow)} accent={colors.accentNorm} />
+        <ValuationCard icon={TrendingUp} title="Mid Estimate" multiple={`${CFA_MULTIPLIERS.MID}×`} value={formatCurrency(finalMid)} featured accent={colors.accentMid} />
+        <ValuationCard icon={Star} title="High Estimate" multiple={`${CFA_MULTIPLIERS.HIGH}×`} value={formatCurrency(finalHigh)} accent={colors.accentNorm} />
+        <ValuationCard icon={TrendingUp} title="Catalog Accelerator" multiple={`+${Math.round((CFA_MULTIPLIERS.ACCELERATOR - 1) * 100)}%`} value={formatCurrency(finalAccel)} accent={colors.accentNorm} />
       </div>
 
       <div className="flex items-start gap-3 mt-6 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50">

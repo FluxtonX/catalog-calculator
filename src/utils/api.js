@@ -286,7 +286,8 @@ async function fetchYouTubeTopVideos(channelId) {
       title: item.snippet.title,
       viewCount: parseInt(item.statistics.viewCount || 0, 10),
       viewCountFormatted: formatter.format(parseInt(item.statistics.viewCount || 0, 10)),
-      thumbnail: item.snippet.thumbnails?.default?.url
+      thumbnail: item.snippet.thumbnails?.default?.url,
+      releaseDate: item.snippet.publishedAt ? item.snippet.publishedAt.split('T')[0] : null
     })).sort((a, b) => b.viewCount - a.viewCount);
   } catch (err) {
     console.error('YouTube Data API v3 top videos fetch failed:', err);

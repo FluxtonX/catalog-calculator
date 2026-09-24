@@ -1,0 +1,47 @@
+{
+  "platform": "spotify",
+  "id": "6jJ0s89eD6GaHleKKya26X",
+  "name": "Katy Perry",
+  "image": "https://i.scdn.co/image/ab6761610000e5ebcd50e745cf782f905769f482",
+  "images": [
+    {
+      "url": "https://i.scdn.co/image/ab6761610000e5ebcd50e745cf782f905769f482",
+      "height": 640,
+      "width": 640
+    },
+    {
+      "url": "https://i.scdn.co/image/ab67616100005174cd50e745cf782f905769f482",
+      "height": 320,
+      "width": 320
+    },
+    {
+      "url": "https://i.scdn.co/image/ab6761610000f178cd50e745cf782f905769f482",
+      "height": 160,
+      "width": 160
+    }
+  ],
+  "followers": "0",
+  "followersRaw": 0,
+  "popularity": 0,
+  "popularityFormatted": "0/100",
+  "genres": [],
+  "spotifyUrl": "https://open.spotify.com/artist/6jJ0s89eD6GaHleKKya26X",
+  "verified": false,
+  "topTracks": [],
+  "relatedArtists": [],
+  "albums": [],
+  "singles": [],
+  "stats": {
+    "totalFollowers": 0,
+    "popularity": 0,
+    "totalGenres": 0,
+    "totalTopTracks": 0,
+    "totalRelatedArtists": 0,
+    "totalAlbums": 0,
+    "totalSingles": 0,
+    "averageTrackPopularity": 0,
+    "monthlyListeners": "N/A",
+    "worldRank": "N/A",
+    "streamCounts": "N/A - use Apify function"
+  }
+}

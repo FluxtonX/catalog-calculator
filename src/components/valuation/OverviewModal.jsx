@@ -107,6 +107,8 @@ const OverviewModal = ({ onClose }) => {
     selectedDistributor,
     clearImportedData,
     royaltyShare,
+    landingPageFormattedValue,
+    landingPagePlatformName,
   } = useArtistStore();
 
   const isInitialMount = useRef(true);
@@ -402,7 +404,9 @@ const OverviewModal = ({ onClose }) => {
     }
   };
 
-  const estimatedValue = Object.keys(selectedArtists).length > 0 ? getCombinedValuation(selectedArtists) : null;
+  const estimatedValue = landingPageFormattedValue !== null 
+    ? landingPageFormattedValue 
+    : (Object.keys(selectedArtists).length > 0 ? getCombinedValuation(selectedArtists) : null);
 
   // Extract master data for the banner
   const primaryArtist = 
@@ -491,7 +495,7 @@ const OverviewModal = ({ onClose }) => {
                   </p>
                   <div className="mt-3 px-3 py-1.5 bg-white/10 rounded-lg border border-white/5">
                     <p className="text-[#00E5FF] text-[10px] font-bold uppercase tracking-wide">
-                      {primaryPlatformName} @ {royaltyShare}% Royalty Share
+                      {landingPagePlatformName ? `${landingPagePlatformName} @ ${royaltyShare}% Royalty Share` : `${primaryPlatformName} @ ${royaltyShare}% Royalty Share`}
                     </p>
                   </div>
                 </div>

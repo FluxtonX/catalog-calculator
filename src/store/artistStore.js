@@ -14,6 +14,8 @@ export const useArtistStore = create(
       royaltyShare: 100, // Persisted user royalty share setting
       currency: 'USD', // Persisted user currency setting
       exchangeRates: { USD: 1 }, // In-memory exchange rates
+      landingPageFormattedValue: null,
+      landingPagePlatformName: null,
       
       setSearchQuery: (query) => set({ searchQuery: query }),
       setSelectedArtist: (artist) => set({ selectedArtist: artist }),
@@ -24,6 +26,7 @@ export const useArtistStore = create(
       setSelectedDistributor: (dist) => set({ selectedDistributor: dist }),
       setRoyaltyShare: (share) => set({ royaltyShare: share }),
       setCurrency: (currency) => set({ currency }),
+      setLandingPageData: (val, platformName) => set({ landingPageFormattedValue: val, landingPagePlatformName: platformName }),
       fetchExchangeRates: async () => {
         try {
           const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
@@ -48,6 +51,10 @@ export const useArtistStore = create(
         royaltyShare: state.royaltyShare,
         currency: state.currency,
         selectedArtists: state.selectedArtists,
+        platform: state.platform,
+        platforms: state.platforms,
+        landingPageFormattedValue: state.landingPageFormattedValue,
+        landingPagePlatformName: state.landingPagePlatformName,
         // importedData and selectedDistributor are intentionally NOT persisted
         // to prevent stale distributor data from polluting fresh searches.
       }),

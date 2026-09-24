@@ -37,7 +37,9 @@ export default function LandingPage() {
     royaltyShare,
     setRoyaltyShare,
     exchangeRates,
-    fetchExchangeRates
+    fetchExchangeRates,
+    setPlatform,
+    setLandingPageData
   } = useArtistStore();
   
   // Option 1 State
@@ -53,10 +55,11 @@ export default function LandingPage() {
   
   const availableCurrencies = Object.keys(exchangeRates).length > 1 ? Object.keys(exchangeRates) : ['USD', 'GBP', 'EUR'];
   
-  // Fetch exchange rates on mount
+  // Fetch exchange rates on mount and reset royalty share to 100% on refresh
   useEffect(() => {
     fetchExchangeRates();
-  }, [fetchExchangeRates]);
+    setRoyaltyShare(100);
+  }, [fetchExchangeRates, setRoyaltyShare]);
   
   // Auto-suggest State
   const [suggestions, setSuggestions] = useState([]);
@@ -184,10 +187,23 @@ export default function LandingPage() {
       setEstimatedValue(val);
       setSearchedArtists(artistsMap);
       
+      const platformName = Object.values(platforms).filter(Boolean).length > 1 
+        ? 'COMBINED PLATFORMS' 
+        : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'apple' 
+          ? 'APPLE MUSIC' 
+          : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'youtube' 
+            ? 'YOUTUBE' 
+            : 'SPOTIFY';
+      
+      setLandingPageData(val, platformName);
+      
       clearImportedData();
       setStoreSearchQuery(searchQuery);
       setSelectedArtists(artistsMap);
       setStorePlatforms(activePlatforms);
+      if (activePlatforms.length > 0) {
+        setPlatform(activePlatforms[0]);
+      }
       
       // Scroll down to results after successful calculation
       setTimeout(() => {
@@ -485,6 +501,20 @@ export default function LandingPage() {
                     <p className="text-white/50 text-xs sm:text-sm font-medium uppercase mt-2 text-center mb-4">
                       THIS ESTIMATE IS AN INDICATION BASED ON YOUR TOP 10 TRACKS
                     </p>
+
+                    <div className="flex justify-center mb-6">
+                      <div className="px-3 py-1.5 bg-white/10 rounded-lg border border-white/5 inline-block">
+                        <p className="text-[#00E5FF] text-[10px] font-bold uppercase tracking-wide text-center">
+                          {useArtistStore.getState().landingPagePlatformName || (Object.values(platforms).filter(Boolean).length > 1 
+                            ? 'COMBINED PLATFORMS' 
+                            : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'apple' 
+                              ? 'APPLE MUSIC' 
+                              : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'youtube' 
+                                ? 'YOUTUBE' 
+                                : 'SPOTIFY')} @ {royaltyShare}% ROYALTY SHARE
+                        </p>
+                      </div>
+                    </div>
                     
                     <div className="flex items-start justify-center gap-3 max-w-[380px] mx-auto mb-8 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
                       <div className="w-5 h-5 mt-0.5 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0">

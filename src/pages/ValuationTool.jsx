@@ -366,7 +366,22 @@ const ValuationTool = () => {
     if (isInitialMount.current) {
       isInitialMount.current = false;
 
-      // Case 1: came from Landing Page — selectedArtists already populated, skip re-fetch
+      // Per user request: after login, pre auto-search across ALL three platforms
+      if (searchQuery.trim()) {
+        const ALL_PLATFORMS = ['spotify', 'itunes', 'youtube'];
+        if (platforms.length !== 3) {
+          setPlatforms(ALL_PLATFORMS);
+        }
+        
+        const missing = ALL_PLATFORMS.some(p => !selectedArtists[p]);
+        if (missing) {
+          // Auto-fetch missing platforms gracefully without clearing existing Landing Page data
+          handleSearch(true);
+          return;
+        }
+      }
+
+      // Case 1: came from Landing Page — selectedArtists already completely populated, skip re-fetch
       if (Object.keys(selectedArtists).length > 0) {
         return; // Data is already there, just render it
       }
@@ -465,6 +480,12 @@ const ValuationTool = () => {
     switch (plt) {
       case "spotify":
         return await getNormalizedArtistData(query);
+      case "spotify_proxy":
+        const proxyData = await getNormalizedArtistData(query);
+        return { ...proxyData, platform: plt };
+      case "youtube_proxy":
+        const ytProxy = await searchYouTube(query);
+        return { ...ytProxy, platform: plt };
       case "youtube": {
         const result = await searchYouTube(query);
         if (result.type === "channel_list")
@@ -504,7 +525,7 @@ const ValuationTool = () => {
     }
   };
 
-  const handleSearch = async () => {
+  const handleSearch = async (fetchOnlyMissing = false) => {
     if (!searchQuery.trim()) {
       setError("Please enter a search query");
       return;
@@ -516,31 +537,52 @@ const ValuationTool = () => {
 
     setIsLoading(true);
     setError(null);
-    setSelectedArtist(null);
-    setSelectedArtists({});
-    // If user is doing a manual fresh search (not an auto-redirect from DataImport),
-    // clear any stale custom distributor data so it doesn't pollute the results.
-    clearImportedData();
-    setShowSuggestionsDropdown(false);
-    setShowChannelSelector(false);
-    setYoutubeChannels([]);
+    
+    if (!fetchOnlyMissing) {
+      setSelectedArtist(null);
+      setSelectedArtists({});
+      // If user is doing a manual fresh search (not an auto-redirect from DataImport),
+      // clear any stale custom distributor data so it doesn't pollute the results.
+      clearImportedData();
+      setShowSuggestionsDropdown(false);
+      setShowChannelSelector(false);
+      setYoutubeChannels([]);
+    }
+    
     let hasChannelList = false;
     
     // Professional Message State (we can use the error state but style it nicely if it's just a warning)
     let publicArtistMissingWarning = null;
 
     try {
+      const platformsToFetch = fetchOnlyMissing 
+        ? platforms.filter(p => !selectedArtists[p])
+        : platforms;
+        
+      if (platformsToFetch.length === 0) {
+        setIsLoading(false);
+        return;
+      }
+      
+      const actualFetchList = [...platformsToFetch];
+      if (platformsToFetch.includes('itunes') && !platforms.includes('spotify') && !selectedArtists['spotify'] && !selectedArtists['spotify_proxy']) {
+        actualFetchList.push('spotify_proxy');
+      }
+      if (platformsToFetch.includes('itunes') && !platforms.includes('youtube') && !selectedArtists['youtube'] && !selectedArtists['youtube_proxy']) {
+        actualFetchList.push('youtube_proxy');
+      }
+
       const results = await Promise.allSettled(
-        platforms.map(p => doSearchForPlatform(searchQuery, p))
+        actualFetchList.map(p => doSearchForPlatform(searchQuery, p))
       );
       
-      const newSelectedArtists = {};
+      const newSelectedArtists = fetchOnlyMissing ? { ...selectedArtists } : {};
       let youtubeChannelsData = [];
       let foundValidPublicArtist = false;
 
       
       results.forEach((res, i) => {
-        const p = platforms[i];
+        const p = actualFetchList[i];
         if (res.status === 'fulfilled') {
           const data = res.value;
           if (data?.type === "channel_list") {

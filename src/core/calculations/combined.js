@@ -107,8 +107,21 @@ export const getCombinedCfaValuations = (selectedArtists) => {
     // If missing topTracks OR missing stream counts on those tracks, use proxy
     if (!hasValidStreams && proxyArtist && proxyArtist.topTracks) {
       let scaleFactor = 1.0;
-      if (platformStr === 'itunes') scaleFactor = 0.40;
-      if (platformStr === 'youtube') scaleFactor = 1.20;
+      // To achieve Target Revenue = Spotify Revenue * Ratio
+      // Target Revenue = (Spotify Streams * 0.004) * Ratio
+      // Platform Revenue = (Spotify Streams * scaleFactor) * Platform Rate
+      // scaleFactor = (0.004 * Ratio) / Platform Rate
+      
+      if (platformStr === 'itunes' || platformStr === 'apple') {
+        // Ratio = 0.40, Platform Rate = 0.01
+        // scaleFactor = (0.004 * 0.40) / 0.01 = 0.16
+        scaleFactor = 0.16;
+      }
+      if (platformStr === 'youtube') {
+        // Ratio = 1.20, Platform Rate = ~0.00164
+        // scaleFactor = (0.004 * 1.20) / 0.00164 = 2.92
+        scaleFactor = 2.92;
+      }
 
       artist.topTracks = proxyArtist.topTracks.map(track => {
         // Parse the stream value from any of the known properties
