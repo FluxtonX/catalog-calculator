@@ -134,6 +134,7 @@ const OverviewModal = ({ onClose }) => {
     setSearchQuery,
     selectedArtists,
     setSelectedArtists,
+    platform,
     platforms,
     importedData,
     selectedDistributor,
@@ -440,12 +441,12 @@ const OverviewModal = ({ onClose }) => {
     ? landingPageFormattedValue 
     : (Object.keys(selectedArtists).length > 0 ? getCombinedValuation(selectedArtists) : null);
 
-  // Extract master data for the banner
+  // Extract master data for the banner, prioritizing the landing page platform
   const primaryArtist = 
+    selectedArtists[platform] || 
+    (platform === 'apple' ? selectedArtists.itunes : null) ||
     selectedArtists.spotify || 
-    selectedArtists.spotify_proxy || 
     selectedArtists.youtube || 
-    selectedArtists.youtube_proxy || 
     selectedArtists.itunes || 
     Object.values(selectedArtists)[0] || 
     null;
@@ -464,6 +465,13 @@ const OverviewModal = ({ onClose }) => {
     }
   };
   const primaryPlatformName = primaryArtist ? getPlatformDisplayName(primaryArtist.platform) : '';
+
+  const activePlatformsList = Object.entries(selectedArtists)
+    .filter(([p]) => p === platform && p !== 'itunes' && p !== 'apple') // Strictly only the landing page platform, completely ignoring Apple
+    .sort((a, b) => {
+      const order = { 'spotify': 1, 'youtube': 2 };
+      return (order[a[0]] || 99) - (order[b[0]] || 99);
+    });
 
   return (
     // Modal Overlay
@@ -537,19 +545,19 @@ const OverviewModal = ({ onClose }) => {
 
         <div className="flex-1 p-6 sm:p-8 -mt-14 relative z-20 space-y-8">
           
-          {/* Top Overlapping Stats Card */}
-          {primaryArtist && (
-             <div className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100 relative mt-4">
+          {/* Top Overlapping Stats Cards */}
+          {activePlatformsList.length > 0 && activePlatformsList.map(([platKey, platArtist]) => (
+             <div key={platKey} className="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 p-6 grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-slate-100 relative mt-6">
                 {/* Platform Badge */}
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-md border border-slate-700">
-                  Data from {primaryPlatformName}
+                  Data from {getPlatformDisplayName(platKey)}
                 </div>
                 
                 <div className="flex flex-col items-center justify-center text-center p-2">
                    <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center mb-3">
                      <Trophy size={20} />
                    </div>
-                   <p className="text-3xl font-black text-slate-900 mb-1">{primaryArtist.popularity || 'N/A'}</p>
+                   <p className="text-3xl font-black text-slate-900 mb-1">{platArtist.popularity || 'N/A'}</p>
                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Popularity Score</p>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center p-2">
@@ -557,21 +565,25 @@ const OverviewModal = ({ onClose }) => {
                      <Radio size={20} />
                    </div>
                    <p className="text-3xl font-black text-slate-900 mb-1">
-                      {primaryArtist.monthlyListeners ? formatNum(primaryArtist.monthlyListeners) : 'N/A'}
+                      {platArtist.monthlyListeners ? formatNum(platArtist.monthlyListeners) : (platArtist.stats?.totalViews ? formatNum(platArtist.stats.totalViews) : 'N/A')}
                    </p>
-                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Monthly Listeners</p>
+                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      {platKey === 'youtube' ? 'Total Views' : 'Monthly Listeners'}
+                   </p>
                 </div>
                 <div className="flex flex-col items-center justify-center text-center p-2">
                    <div className="w-10 h-10 rounded-full bg-[#1DB954]/5 text-[#1DB954] flex items-center justify-center mb-3">
                      <Users size={20} />
                    </div>
                    <p className="text-3xl font-black text-slate-900 mb-1">
-                      {primaryArtist.followers ? formatNum(primaryArtist.followers) : 'N/A'}
+                      {platArtist.followers ? formatNum(platArtist.followers) : 'N/A'}
                    </p>
-                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Followers</p>
+                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      {platKey === 'youtube' ? 'Subscribers' : 'Total Followers'}
+                   </p>
                 </div>
              </div>
-          )}
+          ))}
 
           {/* Search Card Removed Per User Request */}
 
