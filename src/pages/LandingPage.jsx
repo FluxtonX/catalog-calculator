@@ -442,9 +442,9 @@ export default function LandingPage() {
 
               {isSearching && (
                 <div className="mb-8 w-full flex flex-col items-center">
-                  <div className="w-full max-w-sm h-8 rounded-full border border-white/20 p-1 relative bg-[#0B101A] shadow-inner">
+                  <div className="w-full max-w-sm h-1 rounded-full bg-white/5 overflow-hidden relative border border-white/5">
                     <div 
-                      className="h-full bg-[#00E5FF] rounded-full relative z-10 shadow-[0_0_15px_rgba(0,229,255,0.4)]"
+                      className="h-full bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-300 rounded-full"
                       style={{ animation: 'fillProgress 15s cubic-bezier(0.1, 0.7, 0.1, 1) forwards' }}
                     />
                     <style>{`
@@ -457,8 +457,9 @@ export default function LandingPage() {
                       }
                     `}</style>
                   </div>
-                  <div className="mt-3 text-[#00E5FF] font-bold text-lg tracking-wider">
-                    <span className="animate-pulse">Loading...</span>
+                  <div className="mt-4 flex flex-col items-center gap-1">
+                    <p className="text-white/60 font-semibold text-[10px] tracking-[0.2em] uppercase">Analyzing Catalog</p>
+                    <p className="text-cyan-400/80 font-medium text-[9px] tracking-widest animate-pulse">PLEASE WAIT...</p>
                   </div>
                 </div>
               )}
