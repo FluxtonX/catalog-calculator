@@ -46,17 +46,39 @@ const PlatformContributionBanner = ({ platform }) => {
 
   const rawTotalMid = data.midEstimate || 0;
   const rawPlatformMid = platformData.midEstimate || 0;
-  const percentage = rawTotalMid > 0 ? ((rawPlatformMid / rawTotalMid) * 100).toFixed(1) : 0;
+
+  const activeKeys = Object.keys(data.breakdown)
+    .filter(k => !k.includes("_proxy") && (data.breakdown[k].midEstimate || 0) > 0)
+    .sort();
+
+  // Only show if there are multiple platforms contributing
+  if (activeKeys.length < 2) return null;
+
+  let percentage = "0.0";
+  if (rawTotalMid > 0 && activeKeys.includes(platformKey)) {
+    let sumPercentages = 0;
+    const percentages = {};
+    
+    for (let i = 0; i < activeKeys.length - 1; i++) {
+      const key = activeKeys[i];
+      const pMid = data.breakdown[key].midEstimate || 0;
+      const p = parseFloat(((pMid / rawTotalMid) * 100).toFixed(1));
+      percentages[key] = p;
+      sumPercentages += p;
+    }
+    
+    const lastKey = activeKeys[activeKeys.length - 1];
+    // This perfectly ensures that all shares sum up to exactly 100.0%
+    percentages[lastKey] = parseFloat((100.0 - sumPercentages).toFixed(1));
+    
+    percentage = percentages[platformKey].toFixed(1);
+  }
 
   const rate = exchangeRates[currency] || 1;
   const adjustedTotalMid = rawTotalMid * (royaltyShare / 100) * rate;
   const adjustedPlatformMid = rawPlatformMid * (royaltyShare / 100) * rate;
 
   const meta = PLATFORM_META[platformKey] || PLATFORM_META.spotify;
-
-  // Only show if there are multiple platforms contributing
-  const activePlatforms = Object.keys(data.breakdown).filter(k => !k.includes("_proxy")).length;
-  if (activePlatforms < 2) return null;
 
   return (
     <div className={`bg-gradient-to-r ${meta.bgFrom} ${meta.bgTo} dark:from-slate-800/50 dark:to-slate-900/30 rounded-2xl border-2 ${meta.border} dark:border-slate-700 p-4 sm:p-5 mb-5`}>
