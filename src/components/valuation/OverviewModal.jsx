@@ -55,7 +55,12 @@ const formatNum = (num) => {
 };
 
 const OverviewDollarAge = ({ artistsData }) => {
-  const activePlatforms = Object.entries(artistsData).filter(([p]) => p === 'spotify' || p === 'itunes' || p === 'youtube');
+  const activePlatforms = Object.entries(artistsData)
+    .filter(([p]) => p === 'spotify' || p === 'itunes' || p === 'youtube')
+    .sort((a, b) => {
+      const order = { 'spotify': 1, 'youtube': 2, 'itunes': 3 };
+      return (order[a[0]] || 99) - (order[b[0]] || 99);
+    });
   
   if (activePlatforms.length === 0) return null;
 
@@ -68,14 +73,41 @@ const OverviewDollarAge = ({ artistsData }) => {
       <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>
         {activePlatforms.map(([platform, data]) => {
            let cfaResult = null;
-           const combined = getCombinedCfaValuations(artistsData);
-           if (combined && combined.breakdown) {
-             cfaResult = combined.breakdown[platform] || combined.breakdown[platform.toLowerCase()];
-           }
            
-           if (!cfaResult) {
-             const popularityToUse = platform === 'itunes' ? (data.popularity || 50) : data.popularity;
-             cfaResult = calculateCfaPhase1({ ...data, popularity: popularityToUse }, platform);
+           if (platform === 'spotify') {
+             // Jugaad trick: Pass the exact same payload ValuationTab receives to get identical results
+             const spotifyPayload = {
+               name: data.name,
+               image: data.image,
+               topTracks: data.topTracks,
+               albums: data.albums, // Notice singles/popularReleases are omitted here, which affects age!
+               monthlyListeners: data.monthlyListeners,
+               stats: data.stats,
+               platform: data.platform,
+               topCities: data.topCities,
+             };
+             cfaResult = calculateCfaPhase1(spotifyPayload, "spotify");
+           } else if (platform === 'youtube') {
+             // Jugaad trick: Pass the exact same payload YouTubeValuationTab receives
+             const youtubePayload = {
+               name: data.name,
+               image: data.image,
+               totalViews: data.stats?.totalViews || 0,
+               followers: data.followers,
+               popularity: data.popularity,
+               platform: data.platform,
+               importedDistributor: data.importedDistributor,
+             };
+             cfaResult = calculateCfaPhase1(youtubePayload, "youtube");
+           } else {
+             const combined = getCombinedCfaValuations(artistsData);
+             if (combined && combined.breakdown) {
+               cfaResult = combined.breakdown[platform] || combined.breakdown[platform.toLowerCase()] || combined.breakdown['itunes'];
+             }
+             if (!cfaResult) {
+               const popularityToUse = platform === 'itunes' ? (data.popularity || 50) : data.popularity;
+               cfaResult = calculateCfaPhase1({ ...data, popularity: popularityToUse }, platform);
+             }
            }
            
            const platformName = platform === 'itunes' ? 'Apple Music' : platform === 'youtube' ? 'YouTube' : 'Spotify';
