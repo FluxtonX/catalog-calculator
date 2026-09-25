@@ -467,7 +467,7 @@ const OverviewModal = ({ onClose }) => {
   const primaryPlatformName = primaryArtist ? getPlatformDisplayName(primaryArtist.platform) : '';
 
   const activePlatformsList = Object.entries(selectedArtists)
-    .filter(([p]) => p === platform && p !== 'itunes' && p !== 'apple') // Strictly only the landing page platform, completely ignoring Apple
+    .filter(([p]) => platforms.includes(p) && p !== 'itunes' && p !== 'apple') // Show ALL platforms explicitly selected by the user, except Apple
     .sort((a, b) => {
       const order = { 'spotify': 1, 'youtube': 2 };
       return (order[a[0]] || 99) - (order[b[0]] || 99);
