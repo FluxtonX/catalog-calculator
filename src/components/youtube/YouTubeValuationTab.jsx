@@ -26,6 +26,7 @@ import YoutubeSaveButton from "./sections/YoutubeSaveButton";
 import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
 import AverageCatalogAge from "../valuation/sections/AverageCatalogAge";
 import { calculateCfaPhase1 } from "../../core/calculations";
+import { useArtistStore } from "../../store/artistStore";
 
 
 const YouTubeValuationTab = ({ artistData }) => {
@@ -134,11 +135,19 @@ const YouTubeValuationTab = ({ artistData }) => {
 
   const dollarAgeData = {
     dollarAge: cfaResult.averageDollarAge,
-    trackBreakdown: cfaResult.trackDetails.map(t => ({
-      name: t.title,
-      ageInYears: t.ageInYears,
-      releaseDate: t.releaseDate || (t.releaseYear ? `${t.releaseYear}-01-01` : "")
-    }))
+    trackBreakdown: cfaResult.trackDetails.map((t, i) => {
+      // Safely grab real track names from Spotify or iTunes in the global store
+      const storeState = useArtistStore.getState();
+      const realTracks = storeState.selectedArtists.spotify?.topTracks || 
+                         storeState.selectedArtists.itunes?.topTracks || [];
+      const realName = realTracks[i]?.title || realTracks[i]?.name || t.title;
+
+      return {
+        name: realName,
+        ageInYears: t.ageInYears,
+        releaseDate: t.releaseDate || (t.releaseYear ? `${t.releaseYear}-01-01` : "")
+      };
+    })
   };
 
   return (
