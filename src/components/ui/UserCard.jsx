@@ -8,6 +8,7 @@ const UserCard = ({
   name, 
   email, 
   role = 'user',
+  onRoleChange,
   onRemove 
 }) => {
   const isAdmin = role === 'admin';
@@ -64,18 +65,42 @@ const UserCard = ({
           </div>
         </div>
 
-        {/* Action Button */}
-        {onRemove && isAdmin && (
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={onRemove}
-            className="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-500/30 text-[#FF0000] dark:text-[#FF0000] hover:bg-red-100 dark:hover:bg-red-900/30 hover:border-red-500 dark:hover:border-red-500 font-semibold w-full sm:w-auto transition-all duration-300"
-            icon={Trash2}
-          >
-            Remove Admin
-          </Button>
-        )}
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {role !== 'admin' ? (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onRoleChange('admin')}
+              className="bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-300 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 hover:border-emerald-500 dark:hover:border-emerald-500 font-semibold w-full sm:w-auto transition-all duration-300"
+              icon={Shield}
+            >
+              Make Admin
+            </Button>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => onRoleChange('user')}
+              className="bg-slate-50 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-500 font-semibold w-full sm:w-auto transition-all duration-300"
+              icon={User}
+            >
+              Demote to User
+            </Button>
+          )}
+
+          {onRemove && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={onRemove}
+              className="bg-red-50 dark:bg-red-900/20 border-2 border-red-300 dark:border-red-500/30 text-[#FF0000] dark:text-[#FF0000] hover:bg-red-100 dark:hover:bg-red-900/30 hover:border-red-500 dark:hover:border-red-500 font-semibold transition-all duration-300 px-2"
+              title="Remove Access (Ban)"
+            >
+              <Trash2 size={16} />
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   );

@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { UserPlus, RefreshCw, Users, Mail, Shield, Search, Sparkles, Settings, FileText, Save, Database } from 'lucide-react';
+import { UserPlus, RefreshCw, Users, Mail, Shield, Search, Sparkles, Settings, FileText, Save, Database, Globe } from 'lucide-react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import UserCard from '../components/ui/UserCard';
 import { supabase } from '../utils/supabase';
 
 const AdminPanel = () => {
-  const [activeTab, setActiveTab] = useState('settings');
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('admin_active_tab') || 'settings';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('admin_active_tab', activeTab);
+  }, [activeTab]);
   
   // User Management State
   const [email, setEmail] = useState('');
   const [selectedRole, setSelectedRole] = useState('user');
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState([]);
+  const [allUsers, setAllUsers] = useState([]); // All authenticated users
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
   // Settings State
@@ -64,21 +71,52 @@ const AdminPanel = () => {
   useEffect(() => {
     if (activeTab === 'reports') {
       fetchAllReports();
-    } else if (activeTab === 'users') {
+      if (allUsers.length === 0) fetchUsers(); // Need users list to cross-reference names
+    } else if (activeTab === 'users' || activeTab === 'public_users') {
       fetchUsers();
     }
   }, [activeTab]);
 
+  const [invitedEmails, setInvitedEmails] = useState([]);
+
   const fetchUsers = async () => {
     setIsLoadingUsers(true);
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // 1. Fetch all profiles (try secure RPC first to get auth.users dates)
+      let profilesData = [];
+      const { data: rpcData, error: rpcError } = await supabase.rpc('get_all_users_admin');
       
-      if (error) throw error;
-      setUsers(data || []);
+      if (!rpcError && rpcData) {
+        profilesData = rpcData;
+      } else {
+        // Fallback if SQL hasn't been run yet
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('profiles')
+          .select('*');
+        if (fallbackError) throw fallbackError;
+        profilesData = fallbackData || [];
+      }
+      
+      // 2. Fetch invitations to know who was explicitly invited
+      const { data: invitesData, error: invitesError } = await supabase
+        .from('invitations')
+        .select('email');
+        
+      if (invitesError && invitesError.code !== '42P01') { 
+        // Ignore 42P01 (table doesn't exist yet) to not crash before they run the SQL
+        console.error('Invites fetch error:', invitesError);
+      }
+      
+      const invitedList = (invitesData || []).map(i => i.email.toLowerCase());
+      setInvitedEmails(invitedList);
+      
+      // Filter out random public users! Only show admins OR explicitly invited people
+      const filtered = (profilesData || []).filter(u => 
+        u.role === 'admin' || (u.email && invitedList.includes(u.email.toLowerCase()))
+      );
+      
+      setUsers(filtered);
+      setAllUsers(profilesData || []);
     } catch (err) {
       console.error('Failed to fetch users', err);
     } finally {
@@ -95,20 +133,74 @@ const AdminPanel = () => {
     window.location.reload();
   };
 
-  const handleInvite = () => {
-    console.log('Inviting user:', email, selectedRole);
-    setEmail('');
-    alert(`Invitation sent to ${email} as ${selectedRole}!`);
+  const handleInvite = async () => {
+    if (!email) return;
+    try {
+      // 1. Record the invitation in the database so we know to show them in the list!
+      const { error: inviteError } = await supabase
+        .from('invitations')
+        .upsert({ email: email.toLowerCase(), role: selectedRole });
+        
+      if (inviteError) throw inviteError;
+
+      // 2. Send the actual magic link
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth`, 
+        }
+      });
+      
+      if (error) throw error;
+      
+      alert(`Magic link invitation sent to ${email}! They will now appear in your active users list when they sign in.`);
+      setEmail('');
+      fetchUsers(); // Refresh the list
+    } catch (err) {
+      console.error("Invite error:", err);
+      alert(`Error inviting user: ${err.message}`);
+    }
   };
 
-  const handleRemove = (userId) => {
-    console.log('Removing user:', userId);
-    alert('User removed successfully!');
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', userId);
+        
+      if (error) throw error;
+      
+      // Update local state
+      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+    } catch (err) {
+      console.error("Role update error:", err);
+      alert(`Error updating role: ${err.message}\n(Make sure you have an RLS policy that allows Admins to update profiles!)`);
+    }
+  };
+
+  const handleRemove = async (userId) => {
+    if (!window.confirm("Are you sure you want to ban this user? They will lose access to the system.")) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: 'banned' }) // or you could delete the row entirely
+        .eq('id', userId);
+        
+      if (error) throw error;
+      
+      setUsers(users.filter(u => u.id !== userId));
+    } catch (err) {
+      console.error("Remove user error:", err);
+      alert(`Error removing user: ${err.message}`);
+    }
   };
 
   const filteredUsers = users.filter(user => 
-    (user.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (user.email || '').toLowerCase().includes(searchQuery.toLowerCase())
+    (user.role !== 'banned') && // Hide banned users
+    ((user.full_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (user.email || '').toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   return (
@@ -161,7 +253,17 @@ const AdminPanel = () => {
                 : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
             }`}
           >
-            <Users size={18} /> Manage Users
+            <Users size={18} /> Manage Team
+          </button>
+          <button
+            onClick={() => setActiveTab('public_users')}
+            className={`flex items-center gap-2 px-6 py-3 rounded-full font-bold transition-all ${
+              activeTab === 'public_users'
+                ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30'
+                : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
+            }`}
+          >
+            <Globe size={18} /> All Users
           </button>
         </div>
 
@@ -299,9 +401,18 @@ const AdminPanel = () => {
                                   You <span className="text-xs text-slate-500 font-normal">({currentUser.email})</span>
                                 </span>
                               ) : (
-                                <span className="font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
-                                  User {report.user_id ? report.user_id.substring(0, 5) : 'Unknown'}
-                                </span>
+                                (() => {
+                                  // Find the user in our globally fetched allUsers array
+                                  const matchingUser = allUsers.find(u => u.id === report.user_id);
+                                  const displayName = matchingUser?.full_name || (matchingUser?.email ? matchingUser.email.split('@')[0] : `User ${report.user_id?.substring(0, 5)}`);
+                                  const fullEmail = matchingUser?.email || '';
+                                  
+                                  return (
+                                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                                      {displayName} {fullEmail && <span className="text-xs text-slate-500 font-normal">({fullEmail})</span>}
+                                    </span>
+                                  );
+                                })()
                               )}
                             </td>
                           </tr>
@@ -408,6 +519,7 @@ const AdminPanel = () => {
                         name={user.full_name || 'Unnamed User'}
                         email={user.email}
                         role={user.role || 'user'}
+                        onRoleChange={(newRole) => handleRoleChange(user.id, newRole)}
                         onRemove={() => handleRemove(user.id)}
                       />
                     ))}
@@ -419,6 +531,92 @@ const AdminPanel = () => {
                 )}
               </div>
             </Card>
+          </div>
+        )}
+
+        {/* =======================
+            TAB 4: ALL PUBLIC USERS
+            ======================= */}
+        {activeTab === 'public_users' && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <Card className="bg-white dark:bg-slate-900 border-2 border-amber-200 dark:border-amber-800/30 shadow-xl overflow-hidden">
+                <div className="bg-amber-50 dark:bg-amber-900/10 p-6 border-b border-amber-100 dark:border-amber-800/30 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                      <Globe className="text-amber-500" />
+                      All Authenticated Users
+                    </h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                      A global list of every user who has ever logged into the platform.
+                    </p>
+                  </div>
+                  <button onClick={fetchUsers} className="p-2 text-slate-400 hover:text-amber-500 transition-colors">
+                    <RefreshCw size={20} className={isLoadingUsers ? "animate-spin" : ""} />
+                  </button>
+                </div>
+                
+                <div className="p-0 overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">
+                        <th className="p-4">User Details</th>
+                        <th className="p-4">Email</th>
+                        <th className="p-4">Role</th>
+                        <th className="p-4">Signed Up</th>
+                        <th className="p-4">Last Login</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700/50">
+                      {allUsers.length === 0 ? (
+                         <tr>
+                           <td colSpan={4} className="p-8 text-center text-slate-500">
+                              {isLoadingUsers ? "Loading users..." : "No users found in the system."}
+                           </td>
+                         </tr>
+                      ) : (
+                        allUsers.map(user => {
+                          const displayName = user.full_name || (user.email ? user.email.split('@')[0] : 'Unknown');
+                          const initial = displayName.charAt(0).toUpperCase();
+                          return (
+                          <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+                            <td className="p-4">
+                              <div className="flex items-center gap-3">
+                                {user.avatar_url ? (
+                                  <img src={user.avatar_url} alt={displayName} className="w-8 h-8 rounded-full border border-slate-300" />
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-500 font-bold text-xs">
+                                    {initial}
+                                  </div>
+                                )}
+                                <span className="font-semibold text-slate-900 dark:text-white">{displayName}</span>
+                              </div>
+                            </td>
+                            <td className="p-4 text-sm text-slate-600 dark:text-slate-400">
+                              {user.email}
+                            </td>
+                            <td className="p-4">
+                               <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                                 user.role === 'admin' ? 'bg-emerald-100 text-emerald-700' :
+                                 user.role === 'banned' ? 'bg-red-100 text-[#FF0000]' :
+                                 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                               }`}>
+                                 {user.role || 'user'}
+                               </span>
+                            </td>
+                            <td className="p-4 text-sm text-slate-600 dark:text-slate-400">
+                              {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'Unknown'}
+                            </td>
+                            <td className="p-4 text-sm text-slate-500 dark:text-slate-400">
+                              {user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString() : 'Unknown'}
+                            </td>
+                          </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+             </Card>
           </div>
         )}
 

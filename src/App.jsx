@@ -100,8 +100,15 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/admin" element={<AdminPanel />} />
             <Route path="/dashboard" element={<UserDashboard />} />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute requiredRole="admin">
+                  <AdminPanel />
+                </ProtectedRoute>
+              } 
+            />
           </Route>
 
           {/* 404 */}
