@@ -187,13 +187,10 @@ export default function LandingPage() {
       setEstimatedValue(val);
       setSearchedArtists(artistsMap);
       
-      const platformName = Object.values(platforms).filter(Boolean).length > 1 
-        ? 'COMBINED PLATFORMS' 
-        : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'apple' 
-          ? 'APPLE MUSIC' 
-          : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'youtube' 
-            ? 'YOUTUBE' 
-            : 'SPOTIFY';
+      const activeKeys = Object.entries(platforms).filter(([_, active]) => active).map(([k]) => k);
+      const platformName = activeKeys.length > 0 
+        ? activeKeys.map(k => k === 'apple' ? 'APPLE MUSIC' : k === 'youtube' ? 'YOUTUBE' : 'SPOTIFY').join(' + ')
+        : 'SPOTIFY';
       
       setLandingPageData(val, platformName);
       
@@ -506,13 +503,8 @@ export default function LandingPage() {
                     <div className="flex justify-center mb-6">
                       <div className="px-3 py-1.5 bg-white/10 rounded-lg border border-white/5 inline-block">
                         <p className="text-[#00E5FF] text-[10px] font-bold uppercase tracking-wide text-center">
-                          {useArtistStore.getState().landingPagePlatformName || (Object.values(platforms).filter(Boolean).length > 1 
-                            ? 'COMBINED PLATFORMS' 
-                            : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'apple' 
-                              ? 'APPLE MUSIC' 
-                              : Object.entries(platforms).find(([_, active]) => active)?.[0] === 'youtube' 
-                                ? 'YOUTUBE' 
-                                : 'SPOTIFY')} @ {royaltyShare}% ROYALTY SHARE
+                          {useArtistStore.getState().landingPagePlatformName || 
+(Object.entries(platforms).filter(([_, active]) => active).map(([k]) => k === 'apple' ? 'APPLE MUSIC' : k === 'youtube' ? 'YOUTUBE' : 'SPOTIFY').join(' + ') || 'SPOTIFY')} @ {royaltyShare}% ROYALTY SHARE
                         </p>
                       </div>
                     </div>
