@@ -363,20 +363,26 @@ export async function searchSoundcharts(query) {
 }
 
 // Data Normalization Layer: Chartmetric + Apify + Soundcharts
-export async function getNormalizedArtistData(query) {
+export async function getNormalizedArtistData(query, isProxy = false) {
   try {
-    const [cmResult, apifyResult, scResult] = await Promise.allSettled([
-      invokeEdgeFunction('chartmetric', { query }),
-      invokeEdgeFunction('apify', { query }),
-      searchSoundcharts(query)
-    ]);
+    const promises = [
+      invokeEdgeFunction('apify', { query })
+    ];
+    
+    // Skip chartmetric and soundcharts if this is just a proxy search (e.g. for Apple Music math streams)
+    if (!isProxy) {
+      promises.push(invokeEdgeFunction('chartmetric', { query }));
+      promises.push(searchSoundcharts(query));
+    }
+
+    const [apifyResult, cmResult, scResult] = await Promise.allSettled(promises);
     
     let result = {};
-    if (apifyResult.status === 'fulfilled' && apifyResult.value) {
+    if (apifyResult?.status === 'fulfilled' && apifyResult.value) {
       result = { ...apifyResult.value };
     }
     
-    if (cmResult.status === 'fulfilled' && cmResult.value) {
+    if (cmResult?.status === 'fulfilled' && cmResult.value) {
       const cm = cmResult.value;
       const apifyStats = result.stats || {};
       result = {
@@ -409,7 +415,7 @@ export async function getNormalizedArtistData(query) {
     }
     
     // Inject Soundcharts Data (Radio Spins)
-    if (scResult.status === 'fulfilled' && scResult.value) {
+    if (scResult?.status === 'fulfilled' && scResult.value) {
       const sc = scResult.value;
       result.sc_career_stage = sc.sc_career_stage;
       result.sc_growth_level = sc.sc_growth_level;

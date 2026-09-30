@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -65,6 +66,34 @@ serve(async (req) => {
 
     console.log(`[Chartmetric] Searching for: ${query}`);
 
+    // Initialize Supabase Client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_ANON_KEY') || '';
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check Cache First
+    const normalizedQuery = query.toLowerCase().trim();
+    const cacheId = `chartmetric_${normalizedQuery}`;
+    
+    const { data: cacheData, error: cacheError } = await supabase
+      .from('api_cache')
+      .select('*')
+      .eq('id', cacheId)
+      .single();
+
+    if (cacheData && !cacheError) {
+      const updatedAt = new Date(cacheData.updated_at).getTime();
+      const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+      if (updatedAt > sevenDaysAgo) {
+        console.log(`[Chartmetric] Cache hit for: ${query}`);
+        return new Response(JSON.stringify(cacheData.data), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    console.log(`[Chartmetric] Cache miss (or expired) for: ${query}. Fetching from API...`);
+
     const token = await getChartmetricToken();
     const authHeader = { Authorization: `Bearer ${token}` };
 
@@ -92,12 +121,8 @@ serve(async (req) => {
     const artistMatch: any = artists[0];
     const artistId = artistMatch.id;
 
-    // 2. Get artist detailed stats, Facebook stats, and Audience stats in parallel
-    const [detailRes, fbRes, audRes] = await Promise.all([
-      fetch(`https://api.chartmetric.com/api/artist/${artistId}`, { headers: authHeader }),
-      fetch(`https://api.chartmetric.com/api/artist/${artistId}/stat/facebook`, { headers: authHeader }),
-      fetch(`https://api.chartmetric.com/api/artist/${artistId}/where-people-listen`, { headers: authHeader })
-    ]);
+    // 2. Get artist detailed stats (Dropped expensive FB and Audience fetches to save credits)
+    const detailRes = await fetch(`https://api.chartmetric.com/api/artist/${artistId}`, { headers: authHeader });
     
     let detailObj: any = null;
     let cmStats: any = null;
@@ -108,44 +133,8 @@ serve(async (req) => {
     }
 
     let fbFollowers = 0;
-    if (fbRes.ok) {
-      try {
-        const fbData = await fbRes.json();
-        const likes = fbData.obj?.likes || [];
-        if (likes.length > 0) {
-          fbFollowers = likes[likes.length - 1].value || 0;
-        }
-      } catch (e) {
-        console.error("Error parsing facebook stats:", e);
-      }
-    }
-
     let primaryMarket = null;
     let secondaryMarket = null;
-    if (audRes.ok) {
-      try {
-        const audData = await audRes.json();
-        const countries = audData.obj?.countries || {};
-        
-        const countryStats: {name: string, listeners: number}[] = [];
-        for (const [countryName, dataPoints] of Object.entries(countries)) {
-           const points = dataPoints as any[];
-           if (points && points.length > 0) {
-              const latest = points[points.length - 1];
-              if (latest && latest.listeners) {
-                 countryStats.push({ name: countryName, listeners: latest.listeners });
-              }
-           }
-        }
-        
-        countryStats.sort((a, b) => b.listeners - a.listeners);
-        
-        if (countryStats.length > 0) primaryMarket = countryStats[0].name.toUpperCase();
-        if (countryStats.length > 1) secondaryMarket = countryStats[1].name.toUpperCase();
-      } catch (e) {
-        console.error("Error parsing audience stats:", e);
-      }
-    }
 
     // Combine data to match the expected format used in the app
     const result = {
@@ -196,6 +185,18 @@ serve(async (req) => {
     };
 
     console.log(`[Chartmetric] Found data for: ${result.name}`);
+
+    // Save to cache (MUST await so Deno does not terminate before saving)
+    if (supabase) {
+      const { error } = await supabase.from('api_cache').upsert({
+        id: cacheId,
+        query: normalizedQuery,
+        platform: 'chartmetric',
+        data: result,
+        updated_at: new Date().toISOString()
+      });
+      if (error) console.error("[Chartmetric] Error caching result:", error);
+    }
 
     return new Response(JSON.stringify(result), {
       status: 200,

@@ -1,0 +1,1 @@
+ALTER TABLE public.api_cache DISABLE ROW LEVEL SECURITY;

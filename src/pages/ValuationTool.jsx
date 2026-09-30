@@ -481,7 +481,7 @@ const ValuationTool = () => {
       case "spotify":
         return await getNormalizedArtistData(query);
       case "spotify_proxy":
-        const proxyData = await getNormalizedArtistData(query);
+        const proxyData = await getNormalizedArtistData(query, true);
         return { ...proxyData, platform: plt };
       case "youtube_proxy":
         const ytProxy = await searchYouTube(query);
