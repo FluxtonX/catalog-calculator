@@ -46,7 +46,7 @@ function getUserFriendlyErrorMessage(rawError, status) {
 }
 
 // Wrapper to call Edge Functions with real error extraction
-async function invokeEdgeFunction(functionName, body) {
+export async function invokeEdgeFunction(functionName, body) {
   const headers = await getAuthHeaders();
   const response = await fetch(`${SUPABASE_URL}/functions/v1/${functionName}`, {
     method: 'POST',
@@ -59,15 +59,20 @@ async function invokeEdgeFunction(functionName, body) {
 
   if (!response.ok) {
     let rawError = `Edge Function ${functionName} returned ${response.status}`;
+    let rawDetails = null;
     try {
       const errorData = await response.json();
       rawError = errorData.error || errorData.message || rawError;
+      rawDetails = errorData.details || null;
     // eslint-disable-next-line no-unused-vars
     } catch (err) {
       // Ignored
     }
     const userFriendlyMessage = getUserFriendlyErrorMessage(rawError, response.status);
-    throw new Error(userFriendlyMessage);
+    const errorObj = new Error(userFriendlyMessage);
+    errorObj.rawError = rawError;
+    errorObj.details = rawDetails;
+    throw errorObj;
   }
 
   return await response.json();
@@ -379,7 +384,47 @@ export async function getNormalizedArtistData(query, isProxy = false) {
     
     let result = {};
     if (apifyResult?.status === 'fulfilled' && apifyResult.value) {
-      result = { ...apifyResult.value };
+      if (apifyResult.value.error) {
+        const errorText = typeof apifyResult.value.error === 'string' ? apifyResult.value.error : '';
+        const detailsText = typeof apifyResult.value.details === 'string' ? apifyResult.value.details : '';
+        if (errorText.toLowerCase().includes('premium') || detailsText.toLowerCase().includes('premium')) {
+          console.log("Spotify Premium sync error detected. Passing through to UI.");
+          result = { platform: 'spotify', topTracks: [], error: 'premium_sync_pending', details: detailsText };
+        } else {
+          // Fallback: If Apify fails with generic error, use direct Spotify API
+          console.warn("Apify failed or returned error. Falling back to direct Spotify API.");
+          try {
+            const spotifyFallback = await invokeEdgeFunction('spotify', { query });
+            if (spotifyFallback && !spotifyFallback.error) {
+              result = { ...spotifyFallback };
+            }
+          } catch (err) {
+            console.error("Spotify fallback failed:", err);
+          }
+        }
+      } else {
+        result = { ...apifyResult.value };
+      }
+    } else {
+      // Fallback: If Apify rejects (e.g. timeout or 500 error)
+      const errReason = apifyResult?.reason;
+      const errorText = typeof errReason?.rawError === 'string' ? errReason.rawError : '';
+      const detailsText = typeof errReason?.details === 'string' ? errReason.details : '';
+      
+      if (errorText.toLowerCase().includes('premium') || detailsText.toLowerCase().includes('premium')) {
+        console.log("Spotify Premium sync error detected in rejection. Passing through to UI.");
+        result = { platform: 'spotify', topTracks: [], error: 'premium_sync_pending', details: detailsText };
+      } else {
+        console.warn("Apify failed or returned error. Falling back to direct Spotify API.");
+        try {
+          const spotifyFallback = await invokeEdgeFunction('spotify', { query });
+          if (spotifyFallback && !spotifyFallback.error) {
+            result = { ...spotifyFallback };
+          }
+        } catch (err) {
+          console.error("Spotify fallback failed:", err);
+        }
+      }
     }
     
     if (cmResult?.status === 'fulfilled' && cmResult.value) {
@@ -426,7 +471,7 @@ export async function getNormalizedArtistData(query, isProxy = false) {
       result.hasSoundchartsData = true;
     }
     
-    if (Object.keys(result).length === 0) {
+    if (Object.keys(result).length === 0 && !result.error) {
       throw new Error("Could not find artist on Chartmetric or Apify.");
     }
     
@@ -740,9 +785,6 @@ export async function getItunesArtist(artistId, usePremium = true) {
     throw error;
   }
 }
-
-
-
 
 
 

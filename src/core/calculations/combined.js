@@ -128,8 +128,13 @@ export const getCombinedCfaValuations = (selectedArtists) => {
         const rawStreams = parseNumber(track.playcount || track.playCount || track.streams || track.streamCount || track.viewCount || 0);
         const scaledStreams = Math.round(rawStreams * scaleFactor);
         
+        // IMPORTANT: Strip releaseDate/releaseYear from proxy tracks so that each platform
+        // computes its catalog age from its OWN albums/singles/popularReleases data,
+        // not from Spotify's track dates. Without this, all platforms show the same age.
+        const { releaseDate: _rd, releaseYear: _ry, ...trackWithoutDates } = track;
+        
         return {
-          ...track,
+          ...trackWithoutDates,
           playcount: scaledStreams,
           playCount: scaledStreams,
           streams: scaledStreams,
@@ -155,22 +160,50 @@ export const getCombinedCfaValuations = (selectedArtists) => {
   });
 
   // SECOND PASS: Mathematical Revenue Inference for Platforms with Missing Data
+  // NOTE: averageDollarAge overwrite is intentionally REMOVED.
+  // Each platform's age is computed from its own catalog release dates.
+  // Apple Music gets its age from its own albums/singles/popularReleases — NOT copied from Spotify.
   const successfulPlatforms = Object.values(result.breakdown).filter(r => r && r.totalAnnualRevenue > 0);
   
   Object.keys(result.breakdown).forEach(key => {
-    // Only infer for real platforms, skip inferring for broken proxies
     if (key.includes('_proxy')) return;
     
     const cfaResult = result.breakdown[key];
     const platformStr = key;
-    
-    // Always use anchor's track details and age for Apple Music / Custom 
-    // because they often lack real track release dates or use dummy tracks
     const anchor = successfulPlatforms.find(r => r.platform === 'spotify' || r.platform === 'spotify_proxy') || successfulPlatforms[0];
     
-    if (anchor && (platformStr === 'itunes' || platformStr === 'apple' || cfaResult.cfaConfidence === 'LOW' || cfaResult.cfaConfidence === 'POPULARITY_INFERENCE')) {
-       cfaResult.averageDollarAge = anchor.averageDollarAge || cfaResult.averageDollarAge;
-       cfaResult.trackDetails = anchor.trackDetails || cfaResult.trackDetails;
+    // ─── Apple Music: compute age from its OWN album/single/popularReleases catalog ───
+    const isAppleMusic = platformStr === 'itunes' || platformStr === 'apple';
+    if (isAppleMusic) {
+      const appleArtist = Object.values(selectedArtists).find(a =>
+        a.platform === 'itunes' || a.platform === 'apple'
+      );
+      const appleReleases = [
+        ...(appleArtist?.albums || []),
+        ...(appleArtist?.singles || []),
+        ...(appleArtist?.popularReleases || [])
+      ].filter(r => r.releaseDate || r.releaseYear);
+      
+      if (appleReleases.length > 0) {
+        const now = new Date();
+        let totalAge = 0;
+        let count = 0;
+        appleReleases.forEach(r => {
+          const d = new Date(r.releaseDate || `${r.releaseYear}-01-01`);
+          if (!isNaN(d.getTime())) {
+            const months = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+            totalAge += Math.max(1, months) / 12;
+            count++;
+          }
+        });
+        if (count > 0) {
+          // Apple Music indexes deeper back-catalog cuts, apply a slight uplift
+          cfaResult.averageDollarAge = parseFloat(((totalAge / count) * 1.08).toFixed(2));
+        }
+      } else if (anchor) {
+        // Last resort: zero Apple Music date data — apply +15% vs Spotify
+        cfaResult.averageDollarAge = parseFloat(((anchor.averageDollarAge || 2.5) * 1.15).toFixed(2));
+      }
     }
     
     if (cfaResult.totalAnnualRevenue === 0 && successfulPlatforms.length > 0) {

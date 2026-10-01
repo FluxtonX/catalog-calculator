@@ -622,7 +622,7 @@ export default function LandingPage() {
         </div>
 
         {/* Top Tracks Section - Rendered below Option 1 row */}
-        <div className={`transition-all duration-1000 ease-in-out overflow-hidden max-w-[1132px] mx-auto w-full ${estimatedValue !== null && searchedArtists ? 'max-h-[2000px] opacity-100 mb-12' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
+        <div className={`transition-all duration-1000 ease-in-out overflow-hidden max-w-[1132px] mx-auto w-full translate-x-[150px] ${estimatedValue !== null && searchedArtists ? 'max-h-[2000px] opacity-100 mb-12' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
           <TopTracksAnalysis artistsData={searchedArtists} />
         </div>
 

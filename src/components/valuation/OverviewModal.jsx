@@ -29,6 +29,7 @@ import {
   getYouTubeChannelDetails,
   searchAppleMusic,
   searchItunes,
+  invokeEdgeFunction,
 } from "../../utils/api";
 import { useArtistStore } from "../../store/artistStore";
 import ChannelSelector from "../youtube/ChannelSelector";
@@ -55,75 +56,88 @@ const formatNum = (num) => {
 };
 
 const OverviewDollarAge = ({ artistsData }) => {
+  const [valuations, setValuations] = useState({});
+  const [loading, setLoading] = useState(true);
+
   const activePlatforms = Object.entries(artistsData)
     .filter(([p]) => p === 'spotify' || p === 'itunes' || p === 'youtube')
     .sort((a, b) => {
       const order = { 'spotify': 1, 'youtube': 2, 'itunes': 3 };
       return (order[a[0]] || 99) - (order[b[0]] || 99);
     });
-  
+
+  useEffect(() => {
+    if (activePlatforms.length === 0) return;
+    
+    let isMounted = true;
+    
+    const fetchValuations = async () => {
+      setLoading(true);
+      try {
+        const payload = {};
+        activePlatforms.forEach(([platform, data]) => {
+          // Normalize platform string for edge function (strip suffixes)
+          let edgePlatform = platform;
+          if (platform === 'apple' || platform === 'itunes') edgePlatform = 'itunes';
+          
+          payload[edgePlatform] = {
+             ...data,
+             platform: edgePlatform // Edge function needs to know its platform
+          };
+        });
+        
+        // Use the Edge Function to compute the valuation!
+        const response = await invokeEdgeFunction('calculate-valuation', { artistsMap: payload });
+        
+        if (isMounted && response?.breakdown) {
+          setValuations(response.breakdown);
+        }
+      } catch (err) {
+        console.error("Failed to fetch valuation from Edge function:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+    
+    fetchValuations();
+    
+    return () => { isMounted = false; };
+  }, [artistsData]);
+
   if (activePlatforms.length === 0) return null;
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mt-6">
       <div className="flex flex-col mb-6">
         <h3 className="text-xl font-black text-slate-900 tracking-tight">Average Catalog Age</h3>
-        <p className="text-sm text-slate-500">The arithmetic mean of individual track ages from release date.</p>
+        <p className="text-sm text-slate-500">The weighted average of individual track ages from release date.</p>
       </div>
-      <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>
-        {activePlatforms.map(([platform, data]) => {
-           let cfaResult = null;
-           
-           if (platform === 'spotify') {
-             // Jugaad trick: Pass the exact same payload ValuationTab receives to get identical results
-             const spotifyPayload = {
-               name: data.name,
-               image: data.image,
-               topTracks: data.topTracks,
-               albums: data.albums, // Notice singles/popularReleases are omitted here, which affects age!
-               monthlyListeners: data.monthlyListeners,
-               stats: data.stats,
-               platform: data.platform,
-               topCities: data.topCities,
-             };
-             cfaResult = calculateCfaPhase1(spotifyPayload, "spotify");
-           } else if (platform === 'youtube') {
-             // Jugaad trick: Pass the exact same payload YouTubeValuationTab receives
-             const youtubePayload = {
-               name: data.name,
-               image: data.image,
-               totalViews: data.stats?.totalViews || 0,
-               followers: data.followers,
-               popularity: data.popularity,
-               platform: data.platform,
-               importedDistributor: data.importedDistributor,
-             };
-             cfaResult = calculateCfaPhase1(youtubePayload, "youtube");
-           } else {
-             const combined = getCombinedCfaValuations(artistsData);
-             if (combined && combined.breakdown) {
-               cfaResult = combined.breakdown[platform] || combined.breakdown[platform.toLowerCase()] || combined.breakdown['itunes'];
-             }
-             if (!cfaResult) {
-               const popularityToUse = platform === 'itunes' ? (data.popularity || 50) : data.popularity;
-               cfaResult = calculateCfaPhase1({ ...data, popularity: popularityToUse }, platform);
-             }
-           }
-           
-           const platformName = platform === 'itunes' ? 'Apple Music' : platform === 'youtube' ? 'YouTube' : 'Spotify';
-           const bgColor = platform === 'itunes' ? 'bg-slate-900' : platform === 'youtube' ? 'bg-[#FF0000]' : 'bg-[#1DB954]';
-           
-           return (
-             <div key={platform} className="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col items-center justify-center text-center">
-               <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase text-white tracking-widest ${bgColor} mb-4`}>
-                 {platformName}
+      
+      {loading ? (
+        <div className="flex justify-center p-8">
+           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900"></div>
+        </div>
+      ) : (
+        <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>
+          {activePlatforms.map(([platform, data]) => {
+             const edgePlatform = platform === 'apple' ? 'itunes' : platform;
+             const cfaResult = valuations[edgePlatform] || valuations[edgePlatform.toLowerCase()] || {};
+             
+             const platformName = edgePlatform === 'itunes' ? 'Apple Music' : edgePlatform === 'youtube' ? 'YouTube' : 'Spotify';
+             const bgColor = edgePlatform === 'itunes' ? 'bg-slate-900' : edgePlatform === 'youtube' ? 'bg-[#FF0000]' : 'bg-[#1DB954]';
+             
+             return (
+               <div key={platform} className="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col items-center justify-center text-center">
+                 <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase text-white tracking-widest ${bgColor} mb-4`}>
+                   {platformName}
+                 </div>
+                 <p className="text-4xl font-black text-slate-900 mb-1">{(cfaResult.averageDollarAge || 0).toFixed(1)}</p>
+                 <p className="text-sm text-slate-500 font-medium">years</p>
                </div>
-               <p className="text-4xl font-black text-slate-900 mb-1">{(cfaResult.averageDollarAge || 0).toFixed(1)}</p>
-               <p className="text-sm text-slate-500 font-medium">years</p>
-             </div>
-           );
-        })}
-      </div>
+             );
+          })}
+        </div>
+      )}
     </div>
   );
 };

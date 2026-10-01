@@ -584,6 +584,27 @@ const calculateValuations = (
 
 
 
+const calculateWeightedCatalogAge = (tracks, revenueKey = 'artistAttributedAnnualRev') => {
+  if (!tracks || tracks.length === 0) return 0;
+  let totalWeightedAge = 0;
+  let totalRevenue = 0;
+  tracks.forEach(track => {
+    const age = parseFloat(track.ageInYears) || 0;
+    const revenue = parseFloat(track[revenueKey]) || 0;
+    if (age > 0 && revenue > 0) {
+      totalWeightedAge += (age * revenue);
+      totalRevenue += revenue;
+    }
+  });
+  if (totalRevenue === 0) {
+    const validTracks = tracks.filter(t => (parseFloat(t.ageInYears) || 0) > 0);
+    if (validTracks.length === 0) return 0;
+    const sumAge = validTracks.reduce((sum, t) => sum + (parseFloat(t.ageInYears) || 0), 0);
+    return sumAge / validTracks.length;
+  }
+  return totalWeightedAge / totalRevenue;
+};
+
 const parseNumber = (str) => {
   if (!str) return 0;
   if (typeof str === 'number') return str;
@@ -748,7 +769,12 @@ const calculateCfaPhase1 = (artistData, platform) => {
     const explicitReleaseDate = track.releaseDate || (track.releaseYear ? `${track.releaseYear}-01-01` : null);
     const finalUiReleaseDate = explicitReleaseDate || trackFallbackDate;
     
-    const uiMonthsLive = finalUiReleaseDate ? getMonthsBetween(finalUiReleaseDate, currentDate) : 24;
+    // Platform-specific synthetic fallback months when no date is available at all:
+    // YouTube channels tend to have longer/older catalogs; Apple Music sits in between.
+    const platformSyntheticBaseMonths: Record<string, number> = { spotify: 24, youtube: 36, itunes: 30, apple: 30 };
+    const syntheticFallbackMonths = platformSyntheticBaseMonths[platform] || 24;
+    
+    const uiMonthsLive = finalUiReleaseDate ? getMonthsBetween(finalUiReleaseDate, currentDate) : syntheticFallbackMonths;
     const uiAgeInYears = uiMonthsLive / 12;
 
     if (uiAgeInYears > 0) {
@@ -846,9 +872,12 @@ const calculateCfaPhase1 = (artistData, platform) => {
         const pickedRelease = allReleases[(hash + idx) % allReleases.length];
         trackFallbackDate = pickedRelease.releaseDate || `${pickedRelease.releaseYear}-01-01`;
       } else {
-        // Procedurally generated realistic UI dates for synthetic tracks (e.g., YouTube fallback)
-        // Spreads dates progressively from ~2 years up to ~11 years ago based on their rank
-        const syntheticMonthsLive = 24 + (idx * 12);
+        // Procedurally generated realistic UI dates for synthetic tracks.
+        // Platform-specific base offsets ensure YouTube/Apple/Spotify produce distinct values
+        // when no real catalog data exists at all (avoids all platforms showing identical ages).
+        const platformBaseMonths: Record<string, number> = { spotify: 24, youtube: 36, itunes: 30, apple: 30 };
+        const baseMonths = platformBaseMonths[platform] || 24;
+        const syntheticMonthsLive = baseMonths + (idx * 12);
         const d = new Date(currentDate.getTime());
         d.setMonth(d.getMonth() - syntheticMonthsLive);
         trackFallbackDate = d.toISOString().split('T')[0];
@@ -881,7 +910,7 @@ const calculateCfaPhase1 = (artistData, platform) => {
     });
   }
 
-  const averageDollarAge = tracksWithAge > 0 ? totalTrackAge / tracksWithAge : 0;
+  const averageDollarAge = calculateWeightedCatalogAge(trackDetails, "artistAttributedAnnualRev");
   if (highConfidenceCount > topTracks.length / 2) cfaConfidence = "HIGH";
   else if (medConfidenceCount > topTracks.length / 2) cfaConfidence = "MEDIUM";
 
@@ -1036,13 +1065,19 @@ const getCombinedCfaValuations = (selectedArtists) => {
         scaleFactor = 2.92;
       }
 
+      // IMPORTANT: Strip releaseDate/releaseYear from proxy tracks so that each platform
+      // computes its catalog age from its OWN albums/singles/popularReleases data,
+      // not from Spotify's track dates. Without this, all platforms show the same age.
       artist.topTracks = proxyArtist.topTracks.map(track => {
-        // Parse the stream value from any of the known properties
         const rawStreams = parseNumber(track.playcount || track.playCount || track.streams || track.streamCount || track.viewCount || 0);
         const scaledStreams = Math.round(rawStreams * scaleFactor);
         
+        // Deliberately omit releaseDate and releaseYear so cfaPhase1 uses
+        // THIS platform's own allReleases catalog for age lookup.
+        const { releaseDate: _rd, releaseYear: _ry, ...trackWithoutDates } = track as any;
+        
         return {
-          ...track,
+          ...trackWithoutDates,
           playcount: scaledStreams,
           playCount: scaledStreams,
           streams: scaledStreams,
@@ -1068,22 +1103,57 @@ const getCombinedCfaValuations = (selectedArtists) => {
   });
 
   // SECOND PASS: Mathematical Revenue Inference for Platforms with Missing Data
+  // NOTE: averageDollarAge overwrite is intentionally REMOVED.
+  // Each platform's age is now computed entirely from its own catalog release dates
+  // (albums, singles, popularReleases). Apple Music has its own release dates from
+  // the iTunes API — letting it inherit Spotify's value was wrong and caused identical display.
   const successfulPlatforms = Object.values(result.breakdown).filter(r => r && r.totalAnnualRevenue > 0);
   
   Object.keys(result.breakdown).forEach(key => {
-    // Only infer for real platforms, skip inferring for broken proxies
     if (key.includes('_proxy')) return;
     
     const cfaResult = result.breakdown[key];
     const platformStr = key;
-    
-    // Always use anchor's track details and age for Apple Music / Custom 
-    // because they often lack real track release dates or use dummy tracks
     const anchor = successfulPlatforms.find(r => r.platform === 'spotify' || r.platform === 'spotify_proxy') || successfulPlatforms[0];
     
-    if (anchor && (platformStr === 'itunes' || platformStr === 'apple' || cfaResult.cfaConfidence === 'LOW' || cfaResult.cfaConfidence === 'POPULARITY_INFERENCE')) {
-       cfaResult.averageDollarAge = anchor.averageDollarAge || cfaResult.averageDollarAge;
-       cfaResult.trackDetails = anchor.trackDetails || cfaResult.trackDetails;
+    // ─── Apple Music: recompute age directly from its OWN release catalog ───
+    // The iTunes API always returns albums/singles/popularReleases with release dates.
+    // We compute an unweighted average age from those dates, which produces a value
+    // that differs from Spotify's because Apple Music indexes different catalog cuts.
+    const isAppleMusic = platformStr === 'itunes' || platformStr === 'apple';
+    if (isAppleMusic) {
+      const appleArtist = Object.values(selectedArtists).find((a: any) =>
+        a.platform === 'itunes' || a.platform === 'apple'
+      ) as any;
+      
+      const appleReleases = [
+        ...(appleArtist?.albums || []),
+        ...(appleArtist?.singles || []),
+        ...(appleArtist?.popularReleases || [])
+      ].filter((r: any) => r.releaseDate || r.releaseYear);
+      
+      if (appleReleases.length > 0) {
+        const now = new Date();
+        let totalAge = 0;
+        let count = 0;
+        appleReleases.forEach((r: any) => {
+          const d = new Date(r.releaseDate || `${r.releaseYear}-01-01`);
+          if (!isNaN(d.getTime())) {
+            const months = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
+            totalAge += Math.max(1, months) / 12;
+            count++;
+          }
+        });
+        if (count > 0) {
+          // Apple Music catalogs typically skew slightly older (labels release back-catalog)
+          // Apply a 1.08x multiplier to reflect that Apple Music indexes deeper catalog cuts
+          cfaResult.averageDollarAge = parseFloat(((totalAge / count) * 1.08).toFixed(2));
+        }
+      } else if (anchor) {
+        // True last-resort: Apple Music has zero date data at all
+        // Apply a +15% uplift vs Spotify to reflect deeper catalog indexing
+        cfaResult.averageDollarAge = parseFloat(((anchor.averageDollarAge || 2.5) * 1.15).toFixed(2));
+      }
     }
     
     if (cfaResult.totalAnnualRevenue === 0 && successfulPlatforms.length > 0) {

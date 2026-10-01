@@ -7,6 +7,8 @@ import {
 } from './constants';
 import { getCityRegion } from './spotify';
 import { isFeaturedTrack } from './featuredTrackUtils';
+import { calculateWeightedCatalogAge } from '../../utils/catalogAge';
+
 export const parseNumber = (str) => {
   if (!str) return 0;
   if (typeof str === 'number') return str;
@@ -313,7 +315,7 @@ export const calculateCfaPhase1 = (artistData, platform) => {
     });
   }
 
-  const averageDollarAge = tracksWithAge > 0 ? totalTrackAge / tracksWithAge : 0;
+  const averageDollarAge = calculateWeightedCatalogAge(trackDetails, "artistAttributedAnnualRev");
   if (highConfidenceCount > topTracks.length / 2) cfaConfidence = "HIGH";
   else if (medConfidenceCount > topTracks.length / 2) cfaConfidence = "MEDIUM";
 
