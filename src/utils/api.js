@@ -381,49 +381,18 @@ export async function getNormalizedArtistData(query, isProxy = false) {
     }
 
     const [apifyResult, cmResult, scResult] = await Promise.allSettled(promises);
-    
     let result = {};
     if (apifyResult?.status === 'fulfilled' && apifyResult.value) {
-      if (apifyResult.value.error) {
-        const errorText = typeof apifyResult.value.error === 'string' ? apifyResult.value.error : '';
-        const detailsText = typeof apifyResult.value.details === 'string' ? apifyResult.value.details : '';
-        if (errorText.toLowerCase().includes('premium') || detailsText.toLowerCase().includes('premium')) {
-          console.log("Spotify Premium sync error detected. Passing through to UI.");
-          result = { platform: 'spotify', topTracks: [], error: 'premium_sync_pending', details: detailsText };
-        } else {
-          // Fallback: If Apify fails with generic error, use direct Spotify API
-          console.warn("Apify failed or returned error. Falling back to direct Spotify API.");
-          try {
-            const spotifyFallback = await invokeEdgeFunction('spotify', { query });
-            if (spotifyFallback && !spotifyFallback.error) {
-              result = { ...spotifyFallback };
-            }
-          } catch (err) {
-            console.error("Spotify fallback failed:", err);
-          }
-        }
-      } else {
-        result = { ...apifyResult.value };
-      }
+      result = { ...apifyResult.value, platform: 'spotify' };
     } else {
-      // Fallback: If Apify rejects (e.g. timeout or 500 error)
-      const errReason = apifyResult?.reason;
-      const errorText = typeof errReason?.rawError === 'string' ? errReason.rawError : '';
-      const detailsText = typeof errReason?.details === 'string' ? errReason.details : '';
-      
-      if (errorText.toLowerCase().includes('premium') || detailsText.toLowerCase().includes('premium')) {
-        console.log("Spotify Premium sync error detected in rejection. Passing through to UI.");
-        result = { platform: 'spotify', topTracks: [], error: 'premium_sync_pending', details: detailsText };
-      } else {
-        console.warn("Apify failed or returned error. Falling back to direct Spotify API.");
-        try {
-          const spotifyFallback = await invokeEdgeFunction('spotify', { query });
-          if (spotifyFallback && !spotifyFallback.error) {
-            result = { ...spotifyFallback };
-          }
-        } catch (err) {
-          console.error("Spotify fallback failed:", err);
+      console.warn("Spotify edge function failed. Falling back to direct Spotify API.");
+      try {
+        const spotifyFallback = await invokeEdgeFunction('spotify', { query });
+        if (spotifyFallback && !spotifyFallback.error) {
+          result = { ...spotifyFallback };
         }
+      } catch (err) {
+        console.error("Spotify fallback failed:", err);
       }
     }
     
