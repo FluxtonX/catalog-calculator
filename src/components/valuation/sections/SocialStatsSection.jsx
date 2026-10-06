@@ -3,7 +3,6 @@ import {
   Instagram, 
   Youtube, 
   Twitter, 
-  Facebook, 
   Music,
   TrendingUp,
   BarChart2,
@@ -135,8 +134,7 @@ const SocialStatsSection = ({ artistData, forceLightMode }) => {
   const spotifyFollowers = stats?.sp_followers || stats?.spotifyFollowers || artistData?.followers || 0;
   const youtubeSubscribers = stats?.youtube_subscribers || stats?.youtubeSubscribers || stats?.totalSubscribers || 0;
   const xFollowers = stats?.twitter_followers || stats?.twitterFollowers || stats?.xFollowers || 0;
-  const facebookFollowers = stats?.facebook_fans || stats?.facebookFollowers || stats?.facebookLikes || 0;
-  const radioSpins = stats?.radio_spins || 0;
+    const radioSpins = stats?.radio_spins || 0;
 
   // Render Spotify Logo SVG
   const SpotifyLogo = ({ size = 20, className = "" }) => (
@@ -314,13 +312,6 @@ const SocialStatsSection = ({ artistData, forceLightMode }) => {
             label="X Followers" 
             value={xFollowers} 
             iconColorClass="text-black dark:text-white" 
-            showExact={showExact}
-           forceLightMode={forceLightMode} />
-          <SocialStatCard 
-            icon={Facebook} 
-            label="Facebook Followers" 
-            value={facebookFollowers} 
-            iconColorClass="text-[#1877F2]" 
             showExact={showExact}
            forceLightMode={forceLightMode} />
         </div>

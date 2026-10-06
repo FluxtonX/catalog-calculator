@@ -321,7 +321,7 @@ export const calculateCfaPhase1 = (artistData, platform) => {
 
   const totalAlbums = artistData.albums?.length || artistData.stats?.totalAlbums || 0;
   const totalSingles = artistData.singles?.length || artistData.stats?.totalSingles || 0;
-  const catalogBonus = Math.min(totalAlbums * 0.08 + totalSingles * 0.005, 0.5);
+  const catalogBonus = (platform === "itunes" || platform === "apple") ? 0 : Math.min(totalAlbums * 0.08 + totalSingles * 0.005, 0.5);
   const adjustedAnnualRevenue = totalAnnualRevenue * (1 + catalogBonus);
 
   const lowEstimate = adjustedAnnualRevenue * CFA_MULTIPLIERS.LOW;

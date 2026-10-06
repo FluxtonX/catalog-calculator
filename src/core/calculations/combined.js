@@ -172,37 +172,13 @@ export const getCombinedCfaValuations = (selectedArtists) => {
     const platformStr = key;
     const anchor = successfulPlatforms.find(r => r.platform === 'spotify' || r.platform === 'spotify_proxy') || successfulPlatforms[0];
     
-    // ─── Apple Music: compute age from its OWN album/single/popularReleases catalog ───
+    // ─── Apple Music: Fallback to Spotify's weighted age ───
     const isAppleMusic = platformStr === 'itunes' || platformStr === 'apple';
     if (isAppleMusic) {
-      const appleArtist = Object.values(selectedArtists).find(a =>
-        a.platform === 'itunes' || a.platform === 'apple'
-      );
-      const appleReleases = [
-        ...(appleArtist?.albums || []),
-        ...(appleArtist?.singles || []),
-        ...(appleArtist?.popularReleases || [])
-      ].filter(r => r.releaseDate || r.releaseYear);
-      
-      if (appleReleases.length > 0) {
-        const now = new Date();
-        let totalAge = 0;
-        let count = 0;
-        appleReleases.forEach(r => {
-          const d = new Date(r.releaseDate || `${r.releaseYear}-01-01`);
-          if (!isNaN(d.getTime())) {
-            const months = (now.getFullYear() - d.getFullYear()) * 12 + (now.getMonth() - d.getMonth());
-            totalAge += Math.max(1, months) / 12;
-            count++;
-          }
-        });
-        if (count > 0) {
-          // Apple Music indexes deeper back-catalog cuts, apply a slight uplift
-          cfaResult.averageDollarAge = parseFloat(((totalAge / count) * 1.08).toFixed(2));
-        }
-      } else if (anchor) {
-        // Last resort: zero Apple Music date data — apply +15% vs Spotify
+      if (anchor) {
         cfaResult.averageDollarAge = parseFloat(((anchor.averageDollarAge || 2.5) * 1.15).toFixed(2));
+      } else {
+        cfaResult.averageDollarAge = 2.5;
       }
     }
     

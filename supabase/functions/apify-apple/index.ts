@@ -135,6 +135,30 @@ serve(async (req) => {
     totalAlbums = albumsList.length;
     totalSingles = singlesList.length;
 
+    let finalTopTracks = topTracks.length > 0 ? topTracks.slice(0, 10) : [];
+
+    // Fallback: If Apify didn't scrape any songs, grab them from iTunes directly
+    if (finalTopTracks.length === 0) {
+      try {
+        const topTracksRes = await fetch(`https://itunes.apple.com/lookup?id=${artist.artistId}&entity=song&limit=10`);
+        const topTracksData = await topTracksRes.json();
+        if (topTracksData && topTracksData.results) {
+          finalTopTracks = topTracksData.results
+            .filter(t => t.wrapperType === 'track')
+            .map(t => ({
+              id: t.trackId,
+              name: t.trackName,
+              title: t.trackName,
+              albumName: t.collectionName,
+              image: t.artworkUrl100 ? t.artworkUrl100.replace('100x100bb', '600x600bb') : null,
+              releaseDate: t.releaseDate
+            }));
+        }
+      } catch (err) {
+        console.error("[Apify Apple] Failed to fetch fallback iTunes top tracks:", err);
+      }
+    }
+
     // Format the result to match what the frontend expects for an artist
     const result = {
       platform: "itunes",
@@ -144,11 +168,11 @@ serve(async (req) => {
       stats: {
         totalAlbums,
         totalSingles,
-        totalTopTracks: topTracks.length > 0 ? topTracks.length : 10
+        totalTopTracks: finalTopTracks.length > 0 ? finalTopTracks.length : 10
       },
       albums: albumsList,
       singles: singlesList,
-      topTracks: topTracks.length > 0 ? topTracks.slice(0, 10) : [], 
+      topTracks: finalTopTracks, 
       rawItunesData: artist,
     };
 
