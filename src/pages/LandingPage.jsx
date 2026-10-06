@@ -622,7 +622,7 @@ export default function LandingPage() {
         </div>
 
         {/* Top Tracks Section - Rendered below Option 1 row */}
-        <div className={`transition-all duration-1000 ease-in-out overflow-hidden max-w-[1132px] mx-auto w-full translate-x-[150px] ${estimatedValue !== null && searchedArtists ? 'max-h-[2000px] opacity-100 mb-12' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
+        <div className={`transition-all duration-1000 ease-in-out overflow-hidden max-w-[1132px] mx-auto w-full lg:translate-x-[80px] ${estimatedValue !== null && searchedArtists ? 'max-h-[2000px] opacity-100 mb-12' : 'max-h-0 opacity-0 m-0 p-0 border-transparent'}`}>
           <TopTracksAnalysis artistsData={searchedArtists} />
         </div>
 
@@ -630,7 +630,7 @@ export default function LandingPage() {
 
 
         {/* Features Section - Moved from previous version */}
-        <div className="py-16 border-t border-white/5 relative translate-x-[150px]">
+        <div className="py-16 border-t border-white/5 relative max-w-[1132px] mx-auto w-full lg:translate-x-[80px]">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Why Rights Holders Choose CFA</h2>
             <p className="text-white/50 max-w-2xl mx-auto text-sm">Our platform offers an unmatched level of accuracy, privacy, and speed for valuing music catalogs.</p>
@@ -664,7 +664,7 @@ export default function LandingPage() {
         </div>
 
         {/* Divider / Trust Badges */}
-        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 py-12 border-t border-[#1A2333] translate-x-[150px]">
+        <div className="flex flex-wrap items-center justify-center gap-x-12 gap-y-6 py-12 border-t border-[#1A2333] max-w-[1132px] mx-auto w-full lg:translate-x-[80px]">
           <div className="flex items-center gap-3">
             <div className="w-6 h-6 rounded-full border border-[#D4AF37]/30 flex items-center justify-center flex-shrink-0">
               <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
@@ -691,7 +691,6 @@ export default function LandingPage() {
             </div>
           </div>
         </div>
-
 
       </div>
     </div>

@@ -650,6 +650,54 @@ export function filterArtistSuggestions(artists, query) {
 
 
 /**
+ * Process Apple Music artist data to separate singles from albums based on track count.
+ * Apple Music often groups singles and EPs as "Albums".
+ */
+function processAppleArtist(artist) {
+  if (!artist || !artist.albums || !Array.isArray(artist.albums)) {
+    return artist;
+  }
+
+  const trueAlbums = [];
+  const trueSingles = [];
+
+  artist.albums.forEach(album => {
+    // If trackCount is known, use it (3 or fewer tracks usually means Single/EP)
+    // Sometimes Apple provides 'recordType' or 'collectionType' but trackCount is most reliable
+    const trackCount = album.trackCount || album.total_tracks || 0;
+    
+    // If we have a track count and it's <= 3, it's a single/EP
+    // If we don't have track count, we fall back to keyword checking in title
+    let isSingle = false;
+    
+    if (trackCount > 0 && trackCount <= 3) {
+      isSingle = true;
+    } else if (trackCount === 0) {
+      const title = (album.name || album.title || '').toLowerCase();
+      if (title.includes('- single') || title.includes('- ep')) {
+        isSingle = true;
+      }
+    }
+
+    if (isSingle) {
+      trueSingles.push(album);
+    } else {
+      trueAlbums.push(album);
+    }
+  });
+
+  artist.albums = trueAlbums;
+  artist.singles = artist.singles ? [...artist.singles, ...trueSingles] : trueSingles;
+
+  if (artist.stats) {
+    artist.stats.totalAlbums = artist.albums.length;
+    artist.stats.totalSingles = artist.singles.length;
+  }
+
+  return artist;
+}
+
+/**
  * Search iTunes (FREE mode)
  */
 export async function searchItunes(query) {
@@ -672,7 +720,8 @@ export async function searchItunes(query) {
 
     const data = await response.json();
     if (data && data.results && data.results.length > 0) {
-      return data.results[0];
+      const artist = data.results[0];
+      return processAppleArtist(artist);
     }
     return data;
   } catch (error) {
@@ -697,7 +746,7 @@ export async function searchItunes(query) {
  */
 export async function searchAppleMusic(query) {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/itunes`, {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/apify-apple`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -716,7 +765,8 @@ export async function searchAppleMusic(query) {
 
     const data = await response.json();
     if (data && data.results && data.results.length > 0) {
-      return data.results[0]; // Return the artist object directly
+      const artist = data.results[0];
+      return processAppleArtist(artist);
     }
     return data;
   } catch (error) {
