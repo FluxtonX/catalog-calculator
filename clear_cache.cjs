@@ -13,6 +13,7 @@ fetch(env.VITE_SUPABASE_URL + '/rest/v1/api_cache', {
   method: 'DELETE',
   headers: {
     'apikey': env.VITE_SUPABASE_ANON_KEY,
+    
     'Authorization': 'Bearer ' + env.VITE_SUPABASE_ANON_KEY
   }
 }).then(r => console.log('Cache cleared status:', r.status)).catch(e => console.log(e));
