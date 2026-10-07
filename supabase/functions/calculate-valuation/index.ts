@@ -1102,9 +1102,13 @@ const getCombinedCfaValuations = (selectedArtists) => {
           streamCount: scaledStreams
         };
       });
+      (artist as any).isProxyCalculated = true;
     }
 
     const cfaResult = calculateCfaPhase1(artist, platformStr);
+    if ((artist as any).isProxyCalculated) {
+      (cfaResult as any).isProxyCalculated = true;
+    }
     
     // We add proxies to the breakdown so they can be used for mathematical inference,
     // but we use their original proxy name so they don't overwrite the real platform.
@@ -1125,7 +1129,7 @@ const getCombinedCfaValuations = (selectedArtists) => {
   // Each platform's age is now computed entirely from its own catalog release dates
   // (albums, singles, popularReleases). Apple Music has its own release dates from
   // the iTunes API — letting it inherit Spotify's value was wrong and caused identical display.
-  const successfulPlatforms = Object.values(result.breakdown).filter(r => r && r.totalAnnualRevenue > 0);
+  const successfulPlatforms = Object.values(result.breakdown).filter((r: any) => r && r.totalAnnualRevenue > 0 && !r.isProxyCalculated);
   
   Object.keys(result.breakdown).forEach(key => {
     if (key.includes('_proxy')) return;
@@ -1172,10 +1176,8 @@ const getCombinedCfaValuations = (selectedArtists) => {
         // Apply a +15% uplift vs Spotify to reflect deeper catalog indexing
         cfaResult.averageDollarAge = parseFloat(((anchor.averageDollarAge || 2.5) * 1.15).toFixed(2));
       }
-    }
-    
-    if (cfaResult.totalAnnualRevenue === 0 && successfulPlatforms.length > 0) {
-      const ratios = {
+    if ((cfaResult.totalAnnualRevenue === 0 || (cfaResult as any).isProxyCalculated) && anchor) {
+      const ratios: Record<string, number> = {
         'spotify': 1.0,
         'itunes': 0.40,
         'youtube': 1.20,
@@ -1187,6 +1189,7 @@ const getCombinedCfaValuations = (selectedArtists) => {
       const targetRatio = ratios[platformStr] || 1.0;
       
       const inferredRevenue = anchor.totalAnnualRevenue * (targetRatio / anchorRatio);
+      const scale = cfaResult.totalAnnualRevenue > 0 ? inferredRevenue / cfaResult.totalAnnualRevenue : 0;
       
       cfaResult.totalAnnualRevenue = inferredRevenue;
       cfaResult.midEstimate = inferredRevenue * CFA_MULTIPLIERS.MID;
@@ -1194,12 +1197,25 @@ const getCombinedCfaValuations = (selectedArtists) => {
       cfaResult.highEstimate = inferredRevenue * CFA_MULTIPLIERS.HIGH;
       cfaResult.cfaConfidence = "ARTIST_CROSS_PLATFORM_INFERENCE";
       
-      result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
-      result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
-      result.lowEstimate += cfaResult.lowEstimate || 0;
-      result.midEstimate += cfaResult.midEstimate || 0;
-      result.highEstimate += cfaResult.highEstimate || 0;
+      if (scale > 0 && cfaResult.trackDetails) {
+         cfaResult.trackDetails.forEach((t: any) => {
+            t.estTrackMonthlyRev *= scale;
+            t.artistAttributedMonthlyRev *= scale;
+            t.artistAttributedAnnualRev *= scale;
+         });
+      }
     }
+  });
+
+  // THIRD PASS: Final Summation
+  Object.keys(result.breakdown).forEach(key => {
+    if (key.includes('_proxy')) return;
+    const cfaResult = result.breakdown[key];
+    result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
+    result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
+    result.lowEstimate += cfaResult.lowEstimate || 0;
+    result.midEstimate += cfaResult.midEstimate || 0;
+    result.highEstimate += cfaResult.highEstimate || 0;
   });
 
   return result;
