@@ -107,20 +107,15 @@ export const getCombinedCfaValuations = (selectedArtists) => {
     // If missing topTracks OR missing stream counts on those tracks, use proxy
     if (!hasValidStreams && proxyArtist && proxyArtist.topTracks) {
       let scaleFactor = 1.0;
-      // To achieve Target Revenue = Spotify Revenue * Ratio
-      // Target Revenue = (Spotify Streams * 0.004) * Ratio
-      // Platform Revenue = (Spotify Streams * scaleFactor) * Platform Rate
-      // scaleFactor = (0.004 * Ratio) / Platform Rate
+      
+      const spotifyRate = 0.0016; // Average proxy rate
+      const platformRate = platformStr === 'itunes' || platformStr === 'apple' ? 0.0050 : (platformStr === 'youtube' ? 0.0008 : 0.0016);
       
       if (platformStr === 'itunes' || platformStr === 'apple') {
-        // Ratio = 0.40, Platform Rate = 0.01
-        // scaleFactor = (0.004 * 0.40) / 0.01 = 0.16
-        scaleFactor = 0.16;
+        scaleFactor = (spotifyRate * 0.40) / platformRate;
       }
       if (platformStr === 'youtube') {
-        // Ratio = 1.20, Platform Rate = ~0.00164
-        // scaleFactor = (0.004 * 1.20) / 0.00164 = 2.92
-        scaleFactor = 2.92;
+        scaleFactor = (spotifyRate * 1.20) / platformRate;
       }
 
       artist.topTracks = proxyArtist.topTracks.map(track => {
@@ -141,29 +136,21 @@ export const getCombinedCfaValuations = (selectedArtists) => {
           streamCount: scaledStreams
         };
       });
+      artist.isProxyCalculated = true;
     }
 
     const cfaResult = calculateCfaPhase1(artist, platformStr);
+    if (artist.isProxyCalculated) {
+      cfaResult.isProxyCalculated = true;
+    }
     
     // We add proxies to the breakdown so they can be used for mathematical inference,
     // but we use their original proxy name so they don't overwrite the real platform.
     result.breakdown[originalArtist.platform] = cfaResult;
-    
-    // Do NOT add proxy values to the final user-facing sum
-    if (!isProxy) {
-      result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
-      result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
-      result.lowEstimate += cfaResult.lowEstimate || 0;
-      result.midEstimate += cfaResult.midEstimate || 0;
-      result.highEstimate += cfaResult.highEstimate || 0;
-    }
   });
 
   // SECOND PASS: Mathematical Revenue Inference for Platforms with Missing Data
-  // NOTE: averageDollarAge overwrite is intentionally REMOVED.
-  // Each platform's age is computed from its own catalog release dates.
-  // Apple Music gets its age from its own albums/singles/popularReleases — NOT copied from Spotify.
-  const successfulPlatforms = Object.values(result.breakdown).filter(r => r && r.totalAnnualRevenue > 0);
+  const successfulPlatforms = Object.values(result.breakdown).filter(r => r && r.totalAnnualRevenue > 0 && !r.isProxyCalculated);
   
   Object.keys(result.breakdown).forEach(key => {
     if (key.includes('_proxy')) return;
@@ -182,7 +169,7 @@ export const getCombinedCfaValuations = (selectedArtists) => {
       }
     }
     
-    if (cfaResult.totalAnnualRevenue === 0 && successfulPlatforms.length > 0) {
+    if ((cfaResult.totalAnnualRevenue === 0 || cfaResult.isProxyCalculated) && anchor) {
       const ratios = {
         'spotify': 1.0,
         'itunes': 0.40,
@@ -195,6 +182,7 @@ export const getCombinedCfaValuations = (selectedArtists) => {
       const targetRatio = ratios[platformStr] || 1.0;
       
       const inferredRevenue = anchor.totalAnnualRevenue * (targetRatio / anchorRatio);
+      const scale = cfaResult.totalAnnualRevenue > 0 ? inferredRevenue / cfaResult.totalAnnualRevenue : 0;
       
       cfaResult.totalAnnualRevenue = inferredRevenue;
       cfaResult.midEstimate = inferredRevenue * CFA_MULTIPLIERS.MID;
@@ -202,12 +190,25 @@ export const getCombinedCfaValuations = (selectedArtists) => {
       cfaResult.highEstimate = inferredRevenue * CFA_MULTIPLIERS.HIGH;
       cfaResult.cfaConfidence = "ARTIST_CROSS_PLATFORM_INFERENCE";
       
-      result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
-      result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
-      result.lowEstimate += cfaResult.lowEstimate || 0;
-      result.midEstimate += cfaResult.midEstimate || 0;
-      result.highEstimate += cfaResult.highEstimate || 0;
+      if (scale > 0 && cfaResult.trackDetails) {
+         cfaResult.trackDetails.forEach(t => {
+            t.estTrackMonthlyRev *= scale;
+            t.artistAttributedMonthlyRev *= scale;
+            t.artistAttributedAnnualRev *= scale;
+         });
+      }
     }
+  });
+
+  // THIRD PASS: Final Summation
+  Object.keys(result.breakdown).forEach(key => {
+    if (key.includes('_proxy')) return;
+    const cfaResult = result.breakdown[key];
+    result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
+    result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
+    result.lowEstimate += cfaResult.lowEstimate || 0;
+    result.midEstimate += cfaResult.midEstimate || 0;
+    result.highEstimate += cfaResult.highEstimate || 0;
   });
 
   return result;
