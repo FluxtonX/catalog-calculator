@@ -24,3 +24,9 @@ dist-ssr
 *.sw?
 .vercel
 .env*
+
+# Mobile app workspace
+Catalog Calculator Mobile App/
+catalog calculator/
+scratch/
+
