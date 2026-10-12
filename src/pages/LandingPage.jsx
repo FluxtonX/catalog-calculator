@@ -183,7 +183,42 @@ export default function LandingPage() {
         throw new Error("Could not find catalog data for this artist on the selected platforms.");
       }
       
-      const val = getCombinedValuation(artistsMap);
+      let val = getCombinedValuation(artistsMap);
+
+      // Preserve / Sync 100% baseline valuation with backend (api_cache)
+      try {
+        const sortedPlatforms = [...new Set(activePlatforms)].sort();
+        // SHARED KEY RULE (must match Flutter ArtistValuationService.buildCacheId)
+        const rawQuery = searchQuery.trim().toLowerCase();
+        const normalizedQuery = rawQuery.replace(/[^a-z0-9]/g, '') || rawQuery.replace(/\s+/g, '_');
+        const cacheId = `valuation_${normalizedQuery}_${sortedPlatforms.join('_')}`;
+
+        const { data: cachedRow } = await supabase
+          .from('api_cache')
+          .select('data')
+          .eq('id', cacheId)
+          .maybeSingle();
+
+        if (cachedRow?.data?.baseCatalogValue) {
+          val = cachedRow.data.baseCatalogValue;
+        } else {
+          await supabase.from('api_cache').upsert({
+            id: cacheId,
+            query: rawQuery,
+            platform: 'valuation',
+            data: {
+              artistName: searchQuery.trim(),
+              baseCatalogValue: val,
+              currency: 'USD',
+              platforms: sortedPlatforms,
+              updatedAt: new Date().toISOString()
+            }
+          });
+        }
+      } catch (cacheErr) {
+        console.warn("Backend valuation sync note:", cacheErr);
+      }
+
       setEstimatedValue(val);
       setSearchedArtists(artistsMap);
       
