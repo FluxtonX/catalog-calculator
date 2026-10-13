@@ -6,6 +6,7 @@ import { supabase } from '../utils/supabase';
 import { enableDistributionCompanies } from '../config/feature_flags';
 import { getNormalizedArtistData, searchYouTube, searchItunes, searchAppleMusic, getYouTubeChannelDetails } from '../utils/api';
 import { getCombinedValuation } from '../core/calculations';
+import { resolveSharedValuation } from '../utils/valuationCache';
 import { useArtistStore } from '../store/artistStore';
 import CfaMasterValuation from '../components/valuation/CfaMasterValuation';
 import { formatCurrency, formatCurrencyText } from '../components/valuation/hooks/useValuationLogic';
@@ -185,36 +186,15 @@ export default function LandingPage() {
       
       let val = getCombinedValuation(artistsMap);
 
-      // Preserve / Sync 100% baseline valuation with backend (api_cache)
+      // Single source of truth: shared, versioned, first-writer-wins value (identical algorithm in the mobile app).
       try {
-        const sortedPlatforms = [...new Set(activePlatforms)].sort();
-        // SHARED KEY RULE (must match Flutter ArtistValuationService.buildCacheId)
-        const rawQuery = searchQuery.trim().toLowerCase();
-        const normalizedQuery = rawQuery.replace(/[^a-z0-9]/g, '') || rawQuery.replace(/\s+/g, '_');
-        const cacheId = `valuation_${normalizedQuery}_${sortedPlatforms.join('_')}`;
-
-        const { data: cachedRow } = await supabase
-          .from('api_cache')
-          .select('data')
-          .eq('id', cacheId)
-          .maybeSingle();
-
-        if (cachedRow?.data?.baseCatalogValue) {
-          val = cachedRow.data.baseCatalogValue;
-        } else {
-          await supabase.from('api_cache').upsert({
-            id: cacheId,
-            query: rawQuery,
-            platform: 'valuation',
-            data: {
-              artistName: searchQuery.trim(),
-              baseCatalogValue: val,
-              currency: 'USD',
-              platforms: sortedPlatforms,
-              updatedAt: new Date().toISOString()
-            }
-          });
-        }
+        val = await resolveSharedValuation({
+          supabase,
+          typedQuery: searchQuery,
+          platforms: activePlatforms,
+          artistsMap,
+          computedVal: val,
+        });
       } catch (cacheErr) {
         console.warn("Backend valuation sync note:", cacheErr);
       }

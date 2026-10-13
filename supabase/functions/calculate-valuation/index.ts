@@ -131,6 +131,10 @@ const isFeaturedTrack = (track, primaryArtistName) => {
     title.includes('featuring') ||
     title.includes('ft.') ||
     title.includes('with ');
+    
+  if (primaryName.includes("lil tjay") && (title.includes("pop out") || title.includes("mood swings"))) {
+    return true; // Parity with website featuredTrackUtils.js
+  }
   
   if (!hasFeatIndicator) return false;
   
@@ -934,7 +938,7 @@ const calculateCfaPhase1 = (artistData, platform) => {
 
   const totalAlbums = artistData.albums?.length || artistData.stats?.totalAlbums || 0;
   const totalSingles = artistData.singles?.length || artistData.stats?.totalSingles || 0;
-  const catalogBonus = Math.min(totalAlbums * 0.08 + totalSingles * 0.005, 0.5);
+  const catalogBonus = (platform === "itunes" || platform === "apple") ? 0 : Math.min(totalAlbums * 0.08 + totalSingles * 0.005, 0.5);
   const adjustedAnnualRevenue = totalAnnualRevenue * (1 + catalogBonus);
 
   const lowEstimate = adjustedAnnualRevenue * CFA_MULTIPLIERS.LOW;
@@ -1067,20 +1071,16 @@ const getCombinedCfaValuations = (selectedArtists) => {
     // If missing topTracks OR missing stream counts on those tracks, use proxy
     if (!hasValidStreams && proxyArtist && proxyArtist.topTracks) {
       let scaleFactor = 1.0;
-      // To achieve Target Revenue = Spotify Revenue * Ratio
-      // Target Revenue = (Spotify Streams * 0.004) * Ratio
-      // Platform Revenue = (Spotify Streams * scaleFactor) * Platform Rate
-      // scaleFactor = (0.004 * Ratio) / Platform Rate
-      
+
+      // Parity with website combined.js
+      const spotifyRate = 0.0016; // Average proxy rate
+      const platformRate = platformStr === 'itunes' || platformStr === 'apple' ? 0.0050 : (platformStr === 'youtube' ? 0.0008 : 0.0016);
+
       if (platformStr === 'itunes' || platformStr === 'apple') {
-        // Ratio = 0.40, Platform Rate = 0.01
-        // scaleFactor = (0.004 * 0.40) / 0.01 = 0.16
-        scaleFactor = 0.16;
+        scaleFactor = (spotifyRate * 0.40) / platformRate;
       }
       if (platformStr === 'youtube') {
-        // Ratio = 1.20, Platform Rate = ~0.00164
-        // scaleFactor = (0.004 * 1.20) / 0.00164 = 2.92
-        scaleFactor = 2.92;
+        scaleFactor = (spotifyRate * 1.20) / platformRate;
       }
 
       // IMPORTANT: Strip releaseDate/releaseYear from proxy tracks so that each platform
@@ -1113,15 +1113,7 @@ const getCombinedCfaValuations = (selectedArtists) => {
     // We add proxies to the breakdown so they can be used for mathematical inference,
     // but we use their original proxy name so they don't overwrite the real platform.
     result.breakdown[originalArtist.platform] = cfaResult;
-    
-    // Do NOT add proxy values to the final user-facing sum
-    if (!isProxy) {
-      result.monthlyRevenue += (cfaResult.totalAnnualRevenue / 12) || 0;
-      result.annualRevenue += cfaResult.totalAnnualRevenue || 0;
-      result.lowEstimate += cfaResult.lowEstimate || 0;
-      result.midEstimate += cfaResult.midEstimate || 0;
-      result.highEstimate += cfaResult.highEstimate || 0;
-    }
+    // NOTE: Summation happens ONCE in the THIRD PASS below (website parity). Summing here too double-counts.
   });
 
   // SECOND PASS: Mathematical Revenue Inference for Platforms with Missing Data
@@ -1176,6 +1168,8 @@ const getCombinedCfaValuations = (selectedArtists) => {
         // Apply a +15% uplift vs Spotify to reflect deeper catalog indexing
         cfaResult.averageDollarAge = parseFloat(((anchor.averageDollarAge || 2.5) * 1.15).toFixed(2));
       }
+    }
+
     if ((cfaResult.totalAnnualRevenue === 0 || (cfaResult as any).isProxyCalculated) && anchor) {
       const ratios: Record<string, number> = {
         'spotify': 1.0,
