@@ -4,10 +4,10 @@ import {
   CFA_MULTIPLIERS,
   CFA_GEO_CONFIDENCE,
   CFA_ATTRIBUTION
-} from './constants';
-import { getCityRegion } from './spotify';
-import { isFeaturedTrack } from './featuredTrackUtils';
-import { calculateWeightedCatalogAge } from '../../utils/catalogAge';
+} from './constants.js';
+import { getCityRegion } from './spotify.js';
+import { isFeaturedTrack } from './featuredTrackUtils.js';
+import { calculateWeightedCatalogAge } from '../../utils/catalogAge.js';
 
 export const parseNumber = (str) => {
   if (!str) return 0;
@@ -315,18 +315,17 @@ export const calculateCfaPhase1 = (artistData, platform) => {
     });
   }
 
-  const averageDollarAge = calculateWeightedCatalogAge(trackDetails, "artistAttributedAnnualRev");
+  // Section 2: Average Dollar Age = SUM(All Top-10 Track Ages) / Number of Tracks
+  const averageDollarAge = tracksWithAge > 0 
+    ? parseFloat((totalTrackAge / tracksWithAge).toFixed(1)) 
+    : 0;
+
   if (highConfidenceCount > topTracks.length / 2) cfaConfidence = "HIGH";
   else if (medConfidenceCount > topTracks.length / 2) cfaConfidence = "MEDIUM";
 
-  const totalAlbums = artistData.albums?.length || artistData.stats?.totalAlbums || 0;
-  const totalSingles = artistData.singles?.length || artistData.stats?.totalSingles || 0;
-  const catalogBonus = (platform === "itunes" || platform === "apple") ? 0 : Math.min(totalAlbums * 0.08 + totalSingles * 0.005, 0.5);
-  const adjustedAnnualRevenue = totalAnnualRevenue * (1 + catalogBonus);
-
-  const lowEstimate = adjustedAnnualRevenue * CFA_MULTIPLIERS.LOW;
-  const midEstimate = adjustedAnnualRevenue * CFA_MULTIPLIERS.MID;
-  const highEstimate = adjustedAnnualRevenue * CFA_MULTIPLIERS.HIGH;
+  const lowEstimate = totalAnnualRevenue * CFA_MULTIPLIERS.LOW;
+  const midEstimate = totalAnnualRevenue * CFA_MULTIPLIERS.MID;
+  const highEstimate = totalAnnualRevenue * CFA_MULTIPLIERS.HIGH;
   const acceleratorValue = highEstimate * CFA_MULTIPLIERS.ACCELERATOR;
 
   return {

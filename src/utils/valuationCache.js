@@ -8,7 +8,7 @@
 //   3. Rows written by older/buggy engines (no engineVersion) are replaced.
 // Keep this file and the Dart port in lock-step.
 
-export const VALUATION_ENGINE_VERSION = 2;
+export const VALUATION_ENGINE_VERSION = 3;
 
 const normalizeKey = (s) => {
   const raw = String(s || '').trim().toLowerCase();

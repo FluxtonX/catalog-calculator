@@ -1,7 +1,7 @@
 // src/utils/calculations.js
-import { RATE_BY_REGION, DEFAULT_SPOTIFY_RATE, DECAY_FACTORS, VALUATION_MULTIPLES } from "./constants";
-import { parseStreamCount } from "../../utils/formatters";
-import { getRevenueMultiplier, calculateTrackRevenue } from './featuredTrackUtils';
+import { RATE_BY_REGION, DEFAULT_SPOTIFY_RATE, DECAY_FACTORS, VALUATION_MULTIPLES } from "./constants.js";
+import { parseStreamCount } from "../../utils/formatters.js";
+import { getRevenueMultiplier, calculateTrackRevenue } from './featuredTrackUtils.js';
 
 /**
  * Get decay factor based on months since release

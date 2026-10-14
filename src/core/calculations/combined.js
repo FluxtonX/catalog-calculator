@@ -1,5 +1,5 @@
-import { calculateCfaPhase1 } from "./cfaPhase1";
-import { CFA_MULTIPLIERS } from "./constants";
+import { calculateCfaPhase1 } from "./cfaPhase1.js";
+import { CFA_MULTIPLIERS } from "./constants.js";
 
 export const getPlatformValuation = (artistData) => {
   if (!artistData) return 0;
@@ -108,14 +108,11 @@ export const getCombinedCfaValuations = (selectedArtists) => {
     if (!hasValidStreams && proxyArtist && proxyArtist.topTracks) {
       let scaleFactor = 1.0;
       
-      const spotifyRate = 0.0016; // Average proxy rate
-      const platformRate = platformStr === 'itunes' || platformStr === 'apple' ? 0.0050 : (platformStr === 'youtube' ? 0.0008 : 0.0016);
-      
       if (platformStr === 'itunes' || platformStr === 'apple') {
-        scaleFactor = (spotifyRate * 0.40) / platformRate;
+        scaleFactor = 0.40;
       }
       if (platformStr === 'youtube') {
-        scaleFactor = (spotifyRate * 1.20) / platformRate;
+        scaleFactor = 1.20;
       }
 
       artist.topTracks = proxyArtist.topTracks.map(track => {
@@ -150,7 +147,7 @@ export const getCombinedCfaValuations = (selectedArtists) => {
   });
 
   // SECOND PASS: Mathematical Revenue Inference for Platforms with Missing Data
-  const successfulPlatforms = Object.values(result.breakdown).filter(r => r && r.totalAnnualRevenue > 0 && !r.isProxyCalculated);
+  const successfulPlatforms = Object.values(result.breakdown).filter(r => r && r.totalAnnualRevenue > 0);
   
   Object.keys(result.breakdown).forEach(key => {
     if (key.includes('_proxy')) return;
@@ -169,7 +166,7 @@ export const getCombinedCfaValuations = (selectedArtists) => {
       }
     }
     
-    if ((cfaResult.totalAnnualRevenue === 0 || cfaResult.isProxyCalculated) && anchor) {
+    if (cfaResult.totalAnnualRevenue === 0 && anchor) {
       const ratios = {
         'spotify': 1.0,
         'itunes': 0.40,
