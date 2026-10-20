@@ -182,7 +182,12 @@ export const calculateCfaPhase1 = (artistData, platform) => {
     const explicitReleaseDate = track.releaseDate || (track.releaseYear ? `${track.releaseYear}-01-01` : null);
     const finalUiReleaseDate = explicitReleaseDate || trackFallbackDate;
     
-    const uiMonthsLive = finalUiReleaseDate ? getMonthsBetween(finalUiReleaseDate, currentDate) : 24;
+    // Platform-specific synthetic fallback months when no date is available at all:
+    // YouTube channels tend to have longer/older catalogs; Apple Music sits in between.
+    const platformSyntheticBaseMonths = { spotify: 24, youtube: 36, itunes: 30, apple: 30 };
+    const syntheticFallbackMonths = platformSyntheticBaseMonths[platform] || 24;
+
+    const uiMonthsLive = finalUiReleaseDate ? getMonthsBetween(finalUiReleaseDate, currentDate) : syntheticFallbackMonths;
     const uiAgeInYears = uiMonthsLive / 12;
 
     if (uiAgeInYears > 0) {
@@ -280,9 +285,11 @@ export const calculateCfaPhase1 = (artistData, platform) => {
         const pickedRelease = allReleases[(hash + idx) % allReleases.length];
         trackFallbackDate = pickedRelease.releaseDate || `${pickedRelease.releaseYear}-01-01`;
       } else {
-        // Procedurally generated realistic UI dates for synthetic tracks (e.g., YouTube fallback)
-        // Spreads dates progressively from ~2 years up to ~11 years ago based on their rank
-        const syntheticMonthsLive = 24 + (idx * 12);
+        // Platform-specific base offsets ensure YouTube/Apple/Spotify produce distinct values
+        // when no real catalog data exists at all (avoids all platforms showing identical ages).
+        const platformBaseMonths = { spotify: 24, youtube: 36, itunes: 30, apple: 30 };
+        const baseMonths = platformBaseMonths[platform] || 24;
+        const syntheticMonthsLive = baseMonths + (idx * 12);
         const d = new Date(currentDate.getTime());
         d.setMonth(d.getMonth() - syntheticMonthsLive);
         trackFallbackDate = d.toISOString().split('T')[0];

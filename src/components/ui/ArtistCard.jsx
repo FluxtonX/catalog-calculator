@@ -266,6 +266,12 @@ setEnhancedAlbums(
             popularity,
             platform,
             importedDistributor,
+            topTracks,
+            albums,
+            singles,
+            popularReleases,
+            stats,
+            genres,
           }}
         />
       );
@@ -294,6 +300,8 @@ setEnhancedAlbums(
           image,
           topTracks,
           albums,
+          singles,
+          popularReleases,
           monthlyListeners,
           stats,
           platform,

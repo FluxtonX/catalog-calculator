@@ -25,7 +25,7 @@ import ValuationEstimates from "../valuation/sections/ValuationEstimates";
 import YoutubeSaveButton from "./sections/YoutubeSaveButton";
 import PlatformContributionBanner from "../valuation/PlatformContributionBanner";
 import AverageCatalogAge from "../valuation/sections/AverageCatalogAge";
-import { calculateCfaPhase1 } from "../../core/calculations";
+import { calculateCfaPhase1, getCombinedCfaValuations } from "../../core/calculations";
 import { useArtistStore } from "../../store/artistStore";
 
 
@@ -128,10 +128,31 @@ const YouTubeValuationTab = ({ artistData }) => {
   }
 };
 
-  const cfaResult = useMemo(
-    () => calculateCfaPhase1(artistData, "youtube"),
-    [artistData]
-  );
+  const { selectedArtists } = useArtistStore();
+
+  const cfaResult = useMemo(() => {
+    const fullSelected = { ...(selectedArtists || {}) };
+    const p = (artistData?.platform || "youtube").toLowerCase();
+    const normalizedKey = p === "apple" ? "itunes" : (p.includes('_proxy') ? p.replace('_proxy', '') : p);
+
+    if (!fullSelected[p] && !fullSelected[normalizedKey] && artistData) {
+      fullSelected[normalizedKey] = {
+        ...artistData,
+        platform: normalizedKey
+      };
+    }
+
+    if (Object.keys(fullSelected).length > 0) {
+      const combined = getCombinedCfaValuations(fullSelected);
+      if (combined?.breakdown) {
+        if (combined.breakdown[p]) return combined.breakdown[p];
+        if (combined.breakdown[normalizedKey]) return combined.breakdown[normalizedKey];
+        if (combined.breakdown["youtube"]) return combined.breakdown["youtube"];
+        if (combined.breakdown["youtube_proxy"]) return combined.breakdown["youtube_proxy"];
+      }
+    }
+    return calculateCfaPhase1(artistData, "youtube");
+  }, [selectedArtists, artistData]);
 
   const dollarAgeData = {
     dollarAge: cfaResult.averageDollarAge,

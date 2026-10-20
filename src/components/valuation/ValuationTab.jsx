@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { calculateCfaPhase1 } from "../../core/calculations";
+import { calculateCfaPhase1, getCombinedCfaValuations } from "../../core/calculations";
 import { generateValuationPDF } from "../../utils/pdfGenerator";
 import { AlertTriangle, LogIn } from "lucide-react";
 import { useArtistStore } from "../../store/artistStore";
@@ -37,7 +37,7 @@ import { useLocation } from "react-router-dom";
 const ValuationTab = ({ artistData: propArtistData }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { selectedArtist: storeArtistData } = useArtistStore();
+  const { selectedArtist: storeArtistData, selectedArtists } = useArtistStore();
   const artistData = propArtistData || storeArtistData;
 
   const [user, setUser] = useState(undefined);
@@ -93,11 +93,15 @@ useEffect(() => {
 
 
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const cfaResult = useMemo(
-    () => calculateCfaPhase1(artistData, "spotify"),
-    [artistData]
-  );
+  const cfaResult = useMemo(() => {
+    if (selectedArtists && Object.keys(selectedArtists).length > 0) {
+      const combined = getCombinedCfaValuations(selectedArtists);
+      if (combined?.breakdown?.["spotify"] || combined?.breakdown?.["apify"]) {
+        return combined.breakdown["spotify"] || combined.breakdown["apify"];
+      }
+    }
+    return calculateCfaPhase1(artistData, "spotify");
+  }, [selectedArtists, artistData]);
 
   const {
     lowEstimate,

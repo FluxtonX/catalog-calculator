@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Search,
   X,
@@ -56,8 +56,17 @@ const formatNum = (num) => {
 };
 
 const OverviewDollarAge = ({ artistsData }) => {
-  const [valuations, setValuations] = useState({});
-  const [loading, setLoading] = useState(true);
+  const localValuations = useMemo(() => {
+    try {
+      const res = getCombinedCfaValuations(artistsData);
+      return res?.breakdown || {};
+    } catch {
+      return {};
+    }
+  }, [artistsData]);
+
+  const [valuations, setValuations] = useState(localValuations);
+  const [loading, setLoading] = useState(false);
 
   const activePlatforms = Object.entries(artistsData)
     .filter(([p]) => p === 'spotify' || p === 'itunes' || p === 'youtube')
@@ -67,12 +76,15 @@ const OverviewDollarAge = ({ artistsData }) => {
     });
 
   useEffect(() => {
+    setValuations(localValuations);
+  }, [localValuations]);
+
+  useEffect(() => {
     if (activePlatforms.length === 0) return;
     
     let isMounted = true;
     
     const fetchValuations = async () => {
-      setLoading(true);
       try {
         const payload = {};
         activePlatforms.forEach(([platform, data]) => {
@@ -90,12 +102,10 @@ const OverviewDollarAge = ({ artistsData }) => {
         const response = await invokeEdgeFunction('calculate-valuation', { artistsMap: payload });
         
         if (isMounted && response?.breakdown) {
-          setValuations(response.breakdown);
+          setValuations(prev => ({ ...prev, ...response.breakdown }));
         }
       } catch (err) {
         console.error("Failed to fetch valuation from Edge function:", err);
-      } finally {
-        if (isMounted) setLoading(false);
       }
     };
     
@@ -121,7 +131,14 @@ const OverviewDollarAge = ({ artistsData }) => {
         <div className={`grid gap-6 ${activePlatforms.length === 1 ? 'grid-cols-1' : activePlatforms.length === 2 ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1 xl:grid-cols-3'}`}>
           {activePlatforms.map(([platform, data]) => {
              const edgePlatform = platform === 'apple' ? 'itunes' : platform;
-             const cfaResult = valuations[edgePlatform] || valuations[edgePlatform.toLowerCase()] || {};
+             const cfaResult = valuations[edgePlatform] || 
+                               valuations[edgePlatform.toLowerCase()] || 
+                               valuations[platform] || 
+                               valuations[platform.toLowerCase()] || 
+                               localValuations[edgePlatform] || 
+                               localValuations[edgePlatform.toLowerCase()] || 
+                               localValuations[platform] || 
+                               localValuations[platform.toLowerCase()] || {};
              
              const platformName = edgePlatform === 'itunes' ? 'Apple Music' : edgePlatform === 'youtube' ? 'YouTube' : 'Spotify';
              const bgColor = edgePlatform === 'itunes' ? 'bg-slate-900' : edgePlatform === 'youtube' ? 'bg-[#FF0000]' : 'bg-[#1DB954]';
